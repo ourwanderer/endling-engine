@@ -6,7 +6,8 @@
   <meta name="description" content="The Endling Saga. An Engine. Between states.">
   <meta name="robots" content="noindex">
   <title>THE ENDLING SAGA</title>
-  <link rel="stylesheet" href="css/engine.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono&family=IM+Fell+English:ital@1&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -17,8 +18,6 @@
       background: #0a0608;
     }
 
-    body::before, body::after { display: none; }
-
     .holding-wrap {
       width: 100%;
       height: 100%;
@@ -28,16 +27,17 @@
       justify-content: center;
       position: relative;
       text-align: center;
-      gap: 1.8rem;
+      gap: 1.6rem;
     }
 
+    /* Background */
     .holding-bg {
       position: absolute;
       inset: 0;
       background-image: url('/images/east-to-engine.jpg');
       background-size: cover;
       background-position: center;
-      filter: brightness(0.65) saturate(0.7);
+      filter: brightness(0.72) saturate(0.82) contrast(1.1);
       z-index: 0;
     }
 
@@ -46,9 +46,9 @@
       position: absolute;
       inset: 0;
       background: radial-gradient(ellipse at center,
-        transparent 30%,
-        rgba(10,6,8,0.6) 70%,
-        rgba(10,6,8,0.95) 100%
+        transparent 25%,
+        rgba(10,6,8,0.55) 65%,
+        rgba(10,6,8,0.92) 100%
       );
     }
 
@@ -58,7 +58,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 1.8rem;
+      gap: 1.6rem;
     }
 
     .holding-inscription {
@@ -71,21 +71,22 @@
       animation: fadeIn 2s ease 0.5s both;
     }
 
+    /* Logo — bigger */
     .holding-logo {
       animation: fadeIn 1.5s ease 0.8s both;
-      filter: drop-shadow(0 0 40px rgba(139, 26, 26, 0.3));
+      filter: drop-shadow(0 0 50px rgba(139, 26, 26, 0.35));
     }
 
     .holding-logo img {
-      width: clamp(160px, 30vw, 320px);
+      width: clamp(240px, 46vw, 520px);
       height: auto;
       filter: brightness(0) invert(1);
     }
 
     .holding-line {
       width: 1px;
-      height: 50px;
-      background: linear-gradient(to bottom, transparent, rgba(139,26,26,0.5), transparent);
+      height: 45px;
+      background: linear-gradient(to bottom, transparent, rgba(139,26,26,0.55), transparent);
       animation: fadeIn 1s ease 1.8s both;
     }
 
@@ -94,34 +95,103 @@
       font-size: clamp(0.5rem, 1vw, 0.62rem);
       letter-spacing: 0.3em;
       color: #c0392b;
-      opacity: 0.7;
+      opacity: 0.75;
       text-transform: uppercase;
-      animation: fadeIn 1s ease 1.5s both;
+      animation: fadeIn 1s ease 1.5s both, pulse 4s ease 2.5s infinite;
     }
 
     .holding-sub {
       font-family: 'IM Fell English', serif;
       font-style: italic;
-      font-size: clamp(0.75rem, 1.5vw, 0.9rem);
-      color: rgba(232, 221, 208, 0.6);
+      font-size: clamp(0.78rem, 1.5vw, 0.95rem);
+      color: rgba(232, 221, 208, 0.65);
       opacity: 0;
       animation: fadeIn 1.5s ease 2.2s forwards;
       max-width: 320px;
-      line-height: 1.7;
+      line-height: 1.8;
+    }
+
+    /* Artist link — very quiet, bottom right */
+    .artist-link {
+      position: fixed;
+      bottom: 1.2rem;
+      right: 1.8rem;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.48rem;
+      letter-spacing: 0.25em;
+      color: #b8a090;
+      opacity: 0.18;
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: opacity 0.4s ease;
+      animation: fadeIn 1s ease 4s both;
+      z-index: 20;
+    }
+
+    .artist-link:hover {
+      opacity: 0.55;
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
+      from { opacity: 0; transform: translateY(6px); }
       to   { opacity: 1; transform: translateY(0); }
     }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.55; }
+      50%       { opacity: 0.9; }
+    }
+
+    /* Glitch on logo hover */
+    .holding-logo {
+      position: relative;
+    }
+
+    .holding-logo::before,
+    .holding-logo::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url('/images/EndlingSaga_Logo_v1_web.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      filter: brightness(0) invert(1);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .holding-logo::before {
+      filter: brightness(0) invert(1) sepia(1) saturate(5) hue-rotate(300deg);
+      animation: glitch-r 6s infinite;
+    }
+
+    .holding-logo::after {
+      filter: brightness(0) invert(1) sepia(1) saturate(5) hue-rotate(160deg);
+      animation: glitch-b 6s infinite;
+    }
+
+    @keyframes glitch-r {
+      0%, 88%, 94%, 100% { opacity: 0; transform: translate(0); }
+      89% { opacity: 0.7; transform: translate(-4px, 1px); clip-path: polygon(0 20%, 100% 20%, 100% 50%, 0 50%); }
+      90% { opacity: 0; }
+      91% { opacity: 0.5; transform: translate(3px, -1px); clip-path: polygon(0 60%, 100% 60%, 100% 80%, 0 80%); }
+      92% { opacity: 0; }
+    }
+
+    @keyframes glitch-b {
+      0%, 88%, 94%, 100% { opacity: 0; transform: translate(0); }
+      89% { opacity: 0.6; transform: translate(4px, -1px); clip-path: polygon(0 50%, 100% 50%, 100% 75%, 0 75%); }
+      90% { opacity: 0; }
+      91% { opacity: 0.4; transform: translate(-2px, 2px); clip-path: polygon(0 10%, 100% 10%, 100% 35%, 0 35%); }
+      92% { opacity: 0; }
+    }
   </style>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Space+Mono&family=IM+Fell+English:ital@1&display=swap" rel="stylesheet">
 </head>
 <body>
 
 <div class="holding-wrap">
-  <div class="holding-bg"></div>
+  <div class="holding-bg" id="holding-bg"></div>
 
   <div class="holding-content">
     <span class="holding-inscription">MUNDUS EVENTUS, NON RERUM</span>
@@ -141,6 +211,54 @@
     </p>
   </div>
 </div>
+
+<a href="https://www.mattgriffin.art" class="artist-link" target="_blank">mattgriffin.art</a>
+
+<script>
+(function() {
+  // SVG warp filter
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('width', '0');
+  svg.setAttribute('height', '0');
+  svg.style.position = 'absolute';
+  svg.innerHTML = `<defs><filter id="hold-warp" x="-20%" y="-20%" width="140%" height="140%"><feTurbulence id="hold-turb" type="turbulence" baseFrequency="0.015" numOctaves="3" seed="2" result="noise"/><feDisplacementMap id="hold-disp" in="SourceGraphic" in2="noise" scale="0" xChannelSelector="R" yChannelSelector="G"/></filter></defs>`;
+  document.body.appendChild(svg);
+
+  const turb = document.getElementById('hold-turb');
+  const disp = document.getElementById('hold-disp');
+  const bg   = document.getElementById('holding-bg');
+
+  // Apply to background only
+  if (bg) bg.style.filter = 'brightness(0.72) saturate(0.82) contrast(1.1) url(#hold-warp)';
+
+  let ts = 0, cs = 0, tf = 0.015, cf = 0.015;
+  let animating = false, idle = null;
+
+  window.addEventListener('mousemove', e => {
+    const nx = e.clientX / window.innerWidth;
+    const ny = e.clientY / window.innerHeight;
+    const d  = Math.sqrt(Math.pow(nx - 0.5, 2) + Math.pow(ny - 0.5, 2));
+    ts = 3 + d * 12;
+    tf = 0.013 + nx * 0.006;
+    if (!animating) { animating = true; requestAnimationFrame(tick); }
+    clearTimeout(idle);
+    idle = setTimeout(() => { ts = 0; tf = 0.015; }, 700);
+  });
+
+  function tick() {
+    cs += (ts - cs) * 0.07;
+    cf += (tf - cf) * 0.04;
+    if (turb) turb.setAttribute('baseFrequency', cf.toFixed(4) + ' 0.015');
+    if (disp) disp.setAttribute('scale', cs.toFixed(2));
+    if (Math.abs(cs - ts) > 0.08 || cs > 0.08) {
+      requestAnimationFrame(tick);
+    } else {
+      if (disp) disp.setAttribute('scale', '0');
+      animating = false;
+    }
+  }
+})();
+</script>
 
 </body>
 </html>
