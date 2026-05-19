@@ -11,9 +11,20 @@
   <style>
     /* Homepage specific */
     .homepage-bg {
-      /* Replace 'images/east-to-engine.jpg' with your actual filename */
       background-image: url('/images/east-to-engine.jpg');
-      filter: brightness(0.65) saturate(0.85);
+      filter: brightness(0.72) saturate(0.88);
+    }
+
+    /* Logo as hero */
+    .hp-logo {
+      opacity: 0;
+      animation: fadeIn 1.2s ease 0.9s forwards;
+      filter: drop-shadow(0 0 40px rgba(139, 26, 26, 0.35));
+    }
+    .hp-logo img {
+      width: clamp(200px, 40vw, 480px);
+      height: auto;
+      filter: brightness(0) invert(1);
     }
 
     /* Two-step homepage: first the approach (Image 1), then the door (engine5) */
@@ -109,11 +120,12 @@
 
 <div id="page-transition" class="page-transition"></div>
 
+<!-- Cursor distortion canvas -->
+<canvas id="distortion-canvas"></canvas>
+
 <!-- Site logo top-left — links back home from any node -->
 <div class="site-logo">
-  <a href="index.html">
-    <img src="/images/EndlingSaga_Logo_v1_web.png" alt="The Endling Saga">
-  </a>
+  <a href="index.html">THE ENDLING SAGA</a>
 </div>
 
 <!-- Main homepage -->
@@ -127,7 +139,9 @@
 
     <span class="hp-inscription">MUNDUS EVENTUS, NON RERUM</span>
 
-    <h1 class="hp-title">THE<br>ENDLING<br>SAGA</h1>
+    <div class="hp-logo">
+      <img src="/images/EndlingSaga_Logo_v1_web.png" alt="The Endling Saga">
+    </div>
 
     <div class="hp-divider"></div>
 
@@ -149,6 +163,7 @@
 <a href="about.html" class="what-link">what is this?</a>
 
 <script src="js/engine.js"></script>
+<script src="js/distortion.js"></script>
 
 </body>
 </html>
