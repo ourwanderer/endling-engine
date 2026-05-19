@@ -64,7 +64,7 @@
     const ny = e.clientY / window.innerHeight;
     const distFromCentre = Math.sqrt(Math.pow(nx - 0.5, 2) + Math.pow(ny - 0.5, 2));
 
-    targetScale = 5 + distFromCentre * 20;
+    targetScale = 3 + distFromCentre * 10;
     targetFreq = 0.012 + nx * 0.008;
 
     if (!animating) {

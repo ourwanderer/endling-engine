@@ -8,7 +8,6 @@
   <title>THE ENDLING SAGA</title>
   <link rel="stylesheet" href="css/engine.css">
   <style>
-    /* Holding page overrides */
     html, body { overflow: hidden; }
 
     .holding-wrap {
@@ -18,23 +17,41 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background: var(--void);
       position: relative;
       text-align: center;
       gap: 1.8rem;
+      background: var(--void);
     }
 
-    /* Background: subtle Engine texture */
-    .holding-wrap::before {
+    /* Background image — same as homepage */
+    .holding-bg {
+      position: absolute;
+      inset: 0;
+      background-image: url('/images/east-to-engine.jpg');
+      background-size: cover;
+      background-position: center;
+      filter: brightness(0.35) saturate(0.7);
+      z-index: 0;
+    }
+
+    .holding-bg::after {
       content: '';
       position: absolute;
       inset: 0;
-      background:
-        radial-gradient(ellipse 60% 60% at 50% 50%,
-          rgba(139, 26, 26, 0.06) 0%,
-          transparent 70%
-        );
-      pointer-events: none;
+      background: radial-gradient(ellipse at center,
+        transparent 30%,
+        rgba(10,6,8,0.6) 70%,
+        rgba(10,6,8,0.95) 100%
+      );
+    }
+
+    .holding-content {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.8rem;
     }
 
     .holding-inscription {
@@ -47,14 +64,22 @@
       animation: fadeIn 2s ease 0.5s both;
     }
 
-    .holding-title {
-      font-family: var(--font-display);
-      font-size: clamp(2.5rem, 7vw, 5.5rem);
-      letter-spacing: 0.12em;
-      line-height: 1;
-      color: var(--pale);
+    .holding-logo {
       animation: fadeIn 1.5s ease 0.8s both;
-      text-shadow: 0 0 80px rgba(139, 26, 26, 0.2);
+      filter: drop-shadow(0 0 40px rgba(139, 26, 26, 0.3));
+    }
+
+    .holding-logo img {
+      width: clamp(160px, 30vw, 320px);
+      height: auto;
+      filter: brightness(0) invert(1);
+    }
+
+    .holding-line {
+      width: 1px;
+      height: 50px;
+      background: linear-gradient(to bottom, transparent, rgba(139,26,26,0.5), transparent);
+      animation: fadeIn 1s ease 1.8s both;
     }
 
     .holding-status {
@@ -62,16 +87,9 @@
       font-size: clamp(0.5rem, 1vw, 0.62rem);
       letter-spacing: 0.3em;
       color: var(--engine-glow);
-      opacity: 0.6;
+      opacity: 0.7;
       text-transform: uppercase;
       animation: fadeIn 1s ease 1.5s both, pulse 4s ease 2.5s infinite;
-    }
-
-    .holding-line {
-      width: 1px;
-      height: 60px;
-      background: linear-gradient(to bottom, transparent, rgba(139,26,26,0.4), transparent);
-      animation: fadeIn 1s ease 2s both;
     }
 
     .holding-sub {
@@ -88,25 +106,60 @@
 </head>
 <body>
 
+<canvas id="distortion-canvas-hold"></canvas>
+
 <div class="holding-wrap">
+  <div class="holding-bg"></div>
 
-  <span class="holding-inscription">MUNDUS EVENTUS, NON RERUM</span>
+  <div class="holding-content">
+    <span class="holding-inscription">MUNDUS EVENTUS, NON RERUM</span>
 
-  <h1 class="holding-title">THE ENDLING SAGA</h1>
+    <div class="holding-logo">
+      <img src="/images/EndlingSaga_Logo_v1_web.png" alt="The Endling Saga">
+    </div>
 
-  <div class="holding-line"></div>
+    <div class="holding-line"></div>
 
-  <p class="holding-status">— ENGINE BETWEEN STATES —</p>
+    <p class="holding-status">— ENGINE BETWEEN STATES —</p>
 
-  <p class="holding-sub">
-    Something is being rebuilt.<br>
-    It will not look like it did before.<br>
-    Return soon.
-  </p>
-
+    <p class="holding-sub">
+      Something is being rebuilt.<br>
+      It will not look like it did before.<br>
+      Return soon.
+    </p>
+  </div>
 </div>
 
-<!-- Grain + scanlines from engine.css body pseudo-elements -->
+<script>
+// Inline minimal warp for holding page
+(function() {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('width', '0');
+  svg.setAttribute('height', '0');
+  svg.style.position = 'absolute';
+  svg.innerHTML = `<defs><filter id="hold-warp" x="-20%" y="-20%" width="140%" height="140%"><feTurbulence id="hold-turb" type="turbulence" baseFrequency="0.015" numOctaves="3" seed="2"/><feDisplacementMap id="hold-disp" in="SourceGraphic" in2="noise" scale="0" xChannelSelector="R" yChannelSelector="G"/></filter></defs>`;
+  document.body.appendChild(svg);
+  const turb = document.getElementById('hold-turb');
+  const disp = document.getElementById('hold-disp');
+  const bg = document.querySelector('.holding-bg');
+  if (bg) bg.style.filter += ' url(#hold-warp)';
+  let ts = 0, cs = 0, animating = false, idle = null;
+  window.addEventListener('mousemove', e => {
+    const nx = e.clientX / window.innerWidth;
+    const d = Math.sqrt(Math.pow(nx - 0.5, 2) + Math.pow(e.clientY/window.innerHeight - 0.5, 2));
+    ts = 4 + d * 14;
+    if (!animating) { animating = true; requestAnimationFrame(tick); }
+    clearTimeout(idle);
+    idle = setTimeout(() => { ts = 0; }, 600);
+  });
+  function tick() {
+    cs += (ts - cs) * 0.07;
+    if (disp) disp.setAttribute('scale', cs.toFixed(2));
+    if (Math.abs(cs - ts) > 0.1 || cs > 0.1) requestAnimationFrame(tick);
+    else { if (disp) disp.setAttribute('scale', '0'); animating = false; }
+  }
+})();
+</script>
 
 </body>
 </html>
