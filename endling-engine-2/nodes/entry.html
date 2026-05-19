@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>THE ENDLING SAGA — THE ENGINE</title>
+  <link rel="stylesheet" href="../css/engine.css">
+  <style>
+    /* Entry node: the door itself */
+    .entry-bg {
+      /* Upload as: images/engine-door.jpg  (the image with Leonard at the door + Latin) */
+      background-image: url('/images/engine-door.jpg');
+      filter: brightness(0.4) saturate(0.7);
+    }
+
+    /* Dark enough to read text but atmospheric */
+    .engine-page.zone-engine {
+      background-color: #0c0606;
+    }
+
+    .entry-latin {
+      font-family: var(--font-mono);
+      font-size: clamp(0.55rem, 1vw, 0.7rem);
+      letter-spacing: 0.35em;
+      color: var(--engine-glow);
+      opacity: 0.8;
+      text-transform: uppercase;
+      animation: fadeIn 1.5s ease 0.3s both;
+    }
+
+    .entry-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.8rem, 4.5vw, 3rem);
+      letter-spacing: 0.15em;
+      color: var(--pale);
+      animation: fadeIn 1s ease 0.7s both;
+    }
+
+    .entry-text {
+      font-family: var(--font-prose);
+      font-style: italic;
+      font-size: clamp(0.85rem, 1.5vw, 1rem);
+      line-height: 1.8;
+      color: var(--ghost);
+      max-width: 460px;
+      animation: fadeIn 1s ease 1.1s both;
+    }
+
+    .entry-warning {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      color: var(--dust);
+      opacity: 0.35;
+      animation: fadeIn 1s ease 1.8s both;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+<div id="page-transition" class="page-transition"></div>
+
+<div class="site-logo">
+  <a href="../index.html">THE ENDLING SAGA</a>
+</div>
+
+<main class="engine-page zone-engine">
+
+  <!-- Background: Leonard at the door (engine5.jpg / engine7.jpg) -->
+  <div class="bg-image vignette entry-bg"></div>
+
+  <div class="content">
+
+    <span class="entry-latin">MUNDUS EVENTUS, NON RERUM</span>
+
+    <h2 class="entry-title">THE ENGINE</h2>
+
+    <p class="entry-text">
+      The door is open.<br>
+      Some rooms hold stories.<br>
+      Some hold fragments.<br>
+      Some hold nothing yet.
+    </p>
+
+    <p class="entry-warning">time is not linear — all realities exist</p>
+
+  </div>
+
+</main>
+
+<!-- Navigation -->
+<nav class="node-nav">
+  <button id="btn-back" class="nav-btn">← go back</button>
+  <button id="btn-deeper" class="nav-btn deeper">go deeper →</button>
+</nav>
+
+<!-- Coordinates easter egg: encode a lore hint here if you want -->
+<div class="coordinates" data-coords="37.2°N / 14.1°E — INSTANCE 001"></div>
+
+<script src="../js/engine.js"></script>
+<script>
+  // ENTRY NODE POOL
+  // These are the first things a visitor can land on after crossing the threshold.
+  // Weighted toward the most legible entry points (Koa, Leonard).
+  // The 'strange' options exist but are less likely on first pass.
+  initDeeperButton([
+    { url: 'koa.html',         weight: 3 },  // Koa / The Endling — strong visual entry
+    { url: 'leonard.html',     weight: 3 },  // Leonard — they're already in his world
+    { url: 'domum-novum.html', weight: 1 },  // Origin point — a deeper pull
+    { url: 'doran.html',       weight: 2 },  // The crow — unexpected but coherent
+    { url: 'three-moons.html', weight: 1 },  // Strange. But correct.
+  ]);
+</script>
+
+</body>
+</html>

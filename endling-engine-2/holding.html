@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="The Endling Saga. An Engine. Between states.">
+  <meta name="robots" content="noindex">
+  <title>THE ENDLING SAGA</title>
+  <link rel="stylesheet" href="css/engine.css">
+  <style>
+    /* Holding page overrides */
+    html, body { overflow: hidden; }
+
+    .holding-wrap {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--void);
+      position: relative;
+      text-align: center;
+      gap: 1.8rem;
+    }
+
+    /* Background: subtle Engine texture */
+    .holding-wrap::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 60% at 50% 50%,
+          rgba(139, 26, 26, 0.06) 0%,
+          transparent 70%
+        );
+      pointer-events: none;
+    }
+
+    .holding-inscription {
+      font-family: var(--font-mono);
+      font-size: clamp(0.5rem, 1vw, 0.65rem);
+      letter-spacing: 0.35em;
+      color: var(--dust);
+      opacity: 0.35;
+      text-transform: uppercase;
+      animation: fadeIn 2s ease 0.5s both;
+    }
+
+    .holding-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem, 7vw, 5.5rem);
+      letter-spacing: 0.12em;
+      line-height: 1;
+      color: var(--pale);
+      animation: fadeIn 1.5s ease 0.8s both;
+      text-shadow: 0 0 80px rgba(139, 26, 26, 0.2);
+    }
+
+    .holding-status {
+      font-family: var(--font-mono);
+      font-size: clamp(0.5rem, 1vw, 0.62rem);
+      letter-spacing: 0.3em;
+      color: var(--engine-glow);
+      opacity: 0.6;
+      text-transform: uppercase;
+      animation: fadeIn 1s ease 1.5s both, pulse 4s ease 2.5s infinite;
+    }
+
+    .holding-line {
+      width: 1px;
+      height: 60px;
+      background: linear-gradient(to bottom, transparent, rgba(139,26,26,0.4), transparent);
+      animation: fadeIn 1s ease 2s both;
+    }
+
+    .holding-sub {
+      font-family: var(--font-prose);
+      font-style: italic;
+      font-size: clamp(0.75rem, 1.5vw, 0.9rem);
+      color: var(--ghost);
+      opacity: 0;
+      animation: fadeIn 1.5s ease 2.2s forwards;
+      max-width: 320px;
+      line-height: 1.7;
+    }
+  </style>
+</head>
+<body>
+
+<div class="holding-wrap">
+
+  <span class="holding-inscription">MUNDUS EVENTUS, NON RERUM</span>
+
+  <h1 class="holding-title">THE ENDLING SAGA</h1>
+
+  <div class="holding-line"></div>
+
+  <p class="holding-status">— ENGINE BETWEEN STATES —</p>
+
+  <p class="holding-sub">
+    Something is being rebuilt.<br>
+    It will not look like it did before.<br>
+    Return soon.
+  </p>
+
+</div>
+
+<!-- Grain + scanlines from engine.css body pseudo-elements -->
+
+</body>
+</html>
