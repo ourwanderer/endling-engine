@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>THE ENDLING SAGA — OUR WANDERER</title>
+  <link rel="stylesheet" href="../css/engine.css">
+</head>
+<body>
+<div id="page-transition" class="page-transition"></div>
+<div class="site-logo"><a href="../index.html"><img src="/images/main-endling-saga-logo.png" alt="The Endling Saga"></a></div>
+<main class="engine-page zone-domum">
+  <div class="bg-image vignette" style="background-image:url('/images/domum-peregrinus.jpg')"></div>
+  <div class="content">
+    <div class="audio-node-wrap">
+      <canvas id="visualiser" class="visualiser-canvas" width="500" height="100"></canvas>
+      <div class="audio-title">OUR WANDERER</div>
+      <div class="audio-artist">DOMUM NOVUM · OUR WANDERER · 7:19</div>
+      <div class="audio-controls">
+        <button id="play-btn" class="play-btn">&#9654;</button>
+        <div class="audio-progress-wrap">
+          <div id="audio-progress" class="audio-progress">
+            <div id="audio-fill" class="audio-progress-fill"></div>
+          </div>
+          <div id="audio-time" class="audio-time">0:00 / 7:19</div>
+        </div>
+      </div>
+      <p class="audio-note">Rough cuts. Poor quality. Age has not been kind. But these songs tell a story.</p>
+    </div>
+  </div>
+</main>
+<nav class="node-nav">
+  <button id="btn-back" class="nav-btn">← go back</button>
+  <button id="btn-deeper" class="nav-btn deeper">go deeper →</button>
+</nav>
+<div class="coordinates" data-coords="AUDIO TRANSMISSION — DOMUM NOVUM — YEAR ZERO"></div>
+<script src="../js/engine.js"></script>
+<script>
+  initAudioPlayer('/audio/full-songs-our-wanderer.m4a');
+  initDeeperButton([
+    { url: 'lyric-our-wanderer.html',    weight: 3 },
+    { url: 'peregrinus.html',            weight: 3 },
+    { url: 'domum-novum.html',           weight: 2 },
+    { url: 'three-moons-song.html',      weight: 2 },
+    { url: 'memory-endlessly-song.html', weight: 1 },
+    { url: 'other-seas-song.html',       weight: 1 },
+  ]);
+</script>
+</body>
+</html>

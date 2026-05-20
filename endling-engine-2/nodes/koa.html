@@ -7,61 +7,36 @@
   <link rel="stylesheet" href="../css/engine.css">
 </head>
 <body>
-
 <div id="page-transition" class="page-transition"></div>
-
-<div class="site-logo">
-  <a href="../index.html">
-    <img src="/images/EndlingSaga_Logo_v1_web.png" alt="The Endling Saga">
-  </a>
-</div>
-
+<div class="site-logo"><a href="../index.html"><img src="/images/main-endling-saga-logo.png" alt="The Endling Saga"></a></div>
 <main class="engine-page zone-newkyushu">
-
-  <!-- Background: Koa on the bike, red/black/cream (GC_SR_TheEndling_1000.jpg) -->
-  <!-- Upload as: images/koa-endling.jpg -->
-  <div class="bg-image vignette" style="background-image: url('/images/koa-endling.jpg')"></div>
-
+  <div class="bg-image vignette" style="background-image:url('/images/koa-endling.jpg')"></div>
   <div class="content">
-
-    <span class="node-label">NEW KYUSHU</span>
-
+    <span class="node-label">NEW KYUSHU — THE ENDLING</span>
     <h2 class="node-title glitch" data-text="KOA">KOA</h2>
-
-    <p class="node-text">
-      She was the greatest of the Ookami.<br>
-      Then she ran.
-    </p>
-
-    <p class="node-text">
-      The sword is called Agnar. The crow won't shut up.
-      The motorcycle is alive and occasionally unreliable.
-      Shogun Leiko wants her back. War Baron Niita wants her dead.
-    </p>
-
-    <p class="node-text">
-      She dreams of a world she has never been to.<br>
-      In that world, she is a myth.
-    </p>
-
+    <p class="node-text">She was the greatest of the Ookami.<br>Then she ran.</p>
+    <p class="node-text">The sword is called Agnar. The crow won't shut up. The motorcycle is alive and occasionally unreliable. Shogun Leiko wants her back. War Baron Niita wants her dead.</p>
+    <p class="node-text">She dreams of a world she has never been to.<br>In that world, she is a myth.</p>
   </div>
-
 </main>
-
 <nav class="node-nav">
   <button id="btn-back" class="nav-btn">← go back</button>
   <button id="btn-deeper" class="nav-btn deeper">go deeper →</button>
 </nav>
-
 <div class="coordinates" data-coords="NEW KYUSHU — 44.7°N / 131.2°E"></div>
-
 <script src="../js/engine.js"></script>
-<script src="../js/distortion.js"></script>
 <script>
-  initDeeperButton([
-    { url: 'entry.html', weight: 1 },
-  ]);
+initDeeperButton([
+  { url: 'doran.html',          weight: 3 },
+  { url: 'agnar.html',          weight: 2 },
+  { url: 'sleipnir.html',       weight: 2 },
+  { url: 'the-ookami.html',     weight: 2 },
+  { url: 'new-kyushu.html',     weight: 2 },
+  { url: 'three-moons-song.html', weight: 1 },
+  { url: 'peregrinus.html',     weight: 1 },
+  { url: 'high-wail-rook.html', weight: 1 },
+  { url: 'gif-koa-ride.html',   weight: 1 },
+]);
 </script>
-
 </body>
 </html>

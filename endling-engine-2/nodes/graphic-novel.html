@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>THE ENDLING SAGA — THE ENDLING: PAGES</title>
+  <link rel="stylesheet" href="../css/engine.css">
+</head>
+<body>
+<div id="page-transition" class="page-transition"></div>
+<div class="site-logo"><a href="../index.html"><img src="/images/main-endling-saga-logo.png" alt="The Endling Saga"></a></div>
+
+<main class="engine-page zone-newkyushu scrollable">
+  <div class="content">
+    <div class="novel-reader">
+      <span class="node-label">THE ENDLING — GRAPHIC PAGES</span>
+      <div class="novel-page-wrap">
+        <img id="novel-img" class="novel-page-img" src="/images/endling-graphic-novel-page-1.jpg" alt="The Endling — Page 1">
+      </div>
+      <div class="novel-controls">
+        <button id="novel-prev" class="novel-btn">← prev</button>
+        <span id="novel-counter" class="novel-counter">1 / 5</span>
+        <button id="novel-next" class="novel-btn">next →</button>
+      </div>
+      <p class="node-text" style="font-size:0.7rem;opacity:0.4;">Click image to zoom · click again to restore</p>
+    </div>
+  </div>
+</main>
+
+<nav class="node-nav">
+  <button id="btn-back" class="nav-btn">← go back</button>
+  <button id="btn-deeper" class="nav-btn deeper">go deeper →</button>
+</nav>
+<div class="coordinates" data-coords="NEW KYUSHU — GRAPHIC RECORD — PAGES 1-5"></div>
+<script src="../js/engine.js"></script>
+<script>
+  initNovelReader([
+    '/images/endling-graphic-novel-page-1.jpg',
+    '/images/endling-graphic-novel-page-2.jpg',
+    '/images/endling-graphic-novel-page-3.jpg',
+    '/images/endling-graphic-novel-page-4.jpg',
+    '/images/endling-graphic-novel-page-5.jpg',
+  ]);
+  initDeeperButton([
+    { url: 'koa.html',        weight: 3 },
+    { url: 'doran.html',      weight: 2 },
+    { url: 'new-kyushu.html', weight: 2 },
+    { url: 'the-ookami.html', weight: 1 },
+    { url: 'agnar.html',      weight: 1 },
+  ]);
+</script>
+</body>
+</html>

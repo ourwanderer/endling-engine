@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>THE ENDLING SAGA — THE MAP</title>
+  <link rel="stylesheet" href="../css/engine.css">
+</head>
+<body>
+<div id="page-transition" class="page-transition"></div>
+<div class="site-logo"><a href="../index.html"><img src="/images/main-endling-saga-logo.png" alt="The Endling Saga"></a></div>
+
+<div id="map-container" class="map-container">
+  <img id="map-img" src="/images/the-continent-map.jpg" alt="The Continent — Known Territories">
+</div>
+
+<p class="map-hint">drag to explore · scroll to zoom</p>
+
+<nav class="node-nav">
+  <button id="btn-back" class="nav-btn">← go back</button>
+  <button id="btn-deeper" class="nav-btn deeper">go deeper →</button>
+</nav>
+<div class="coordinates" data-coords="THE CONTINENT — CARTOGRAPHIC SURVEY v1"></div>
+<script src="../js/engine.js"></script>
+<script>
+  initMap();
+  initDeeperButton([
+    { url: 'the-continent.html',  weight: 3 },
+    { url: 'high-wail-rook.html', weight: 3 },
+    { url: 'green-temple.html',   weight: 2 },
+    { url: 'irla.html',           weight: 2 },
+    { url: 'elayda.html',         weight: 2 },
+    { url: 'dead-gods.html',      weight: 1 },
+    { url: 'holy-lines.html',     weight: 1 },
+  ]);
+</script>
+</body>
+</html>
