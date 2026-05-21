@@ -40,33 +40,34 @@ function navigateTo(url, delay=400) {
 
 function smartRandom(pool) {
   const clicks = EngineSession.getClickCount();
-  const visited = EngineSession.getVisited();
 
-  // Phase 1: pure weighted random (first 12 clicks)
-  // Phase 2: deprioritise visited, let zone coherence emerge
-  let adjusted = pool.map(item => {
-    let w = item.weight || 1;
-    if (clicks >= 12) {
-      // After 12 clicks: heavily penalise visited nodes
-      if (EngineSession.hasVisited(item.url)) w = Math.max(0.1, w * 0.15);
+  // Filter out visited nodes entirely after just 3 clicks
+  // This is the key fix - don't just penalise, EXCLUDE visited
+  let candidates = pool;
+  
+  if (clicks >= 3) {
+    const unvisited = pool.filter(item => !EngineSession.hasVisited(item.url));
+    // Only use unvisited if we have at least 2 options
+    if (unvisited.length >= 2) {
+      candidates = unvisited;
+    } else if (unvisited.length === 1) {
+      candidates = unvisited;
     } else {
-      // Before 12 clicks: lightly penalise visited
-      if (EngineSession.hasVisited(item.url)) w = Math.max(0.3, w * 0.5);
+      // All visited - use full pool but heavily randomise
+      candidates = pool;
     }
-    return { url: item.url, weight: w };
-  });
+  }
 
-  // If all options are visited, reset weights (avoid dead end)
-  const totalWeight = adjusted.reduce((s,i)=>s+i.weight,0);
-  if (totalWeight < 0.5) adjusted = pool;
+  // After 12 clicks: zone coherence kicks in (pools are already zone-aware)
+  // The exclusion of visited nodes handles the repeat problem
 
-  const total = adjusted.reduce((s,i)=>s+(i.weight||1),0);
+  const total = candidates.reduce((s,i)=>s+(i.weight||1),0);
   let r = Math.random()*total;
-  for (const item of adjusted) {
+  for (const item of candidates) {
     r -= (item.weight||1);
     if (r<=0) return item.url;
   }
-  return adjusted[adjusted.length-1].url;
+  return candidates[candidates.length-1].url;
 }
 
 function initDeeperButton(pool) {

@@ -3,34 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>THE ENDLING SAGA — LEONARD — THEME</title>
+  <title>THE ENDLING SAGA</title>
   <link rel="stylesheet" href="../css/engine.css">
+  <style>
+    html, body { margin:0; padding:0; width:100%; height:100%; background:#000; overflow:hidden; }
+    .vid-page { width:100vw; height:100vh; display:flex; align-items:center; justify-content:center; background:#000; position:relative; }
+    .vid-label { position:fixed; top:1.2rem; left:50%; transform:translateX(-50%); font-family:var(--font-mono); font-size:0.5rem; letter-spacing:0.4em; color:rgba(184,160,144,0.25); text-transform:uppercase; z-index:10; pointer-events:none; }
+    video { display:block; max-width:100vw; max-height:100vh; width:auto; height:auto; background:#000; }
+    video::-webkit-media-controls-download-button { display:none !important; }
+    video::--media-download-button { display:none; }
+  </style>
 </head>
 <body>
 <div id="page-transition" class="page-transition"></div>
 <div class="site-logo"><a href="../index.html"><img src="/images/main-endling-saga-logo.png" alt="The Endling Saga"></a></div>
-<main class="engine-page">
-  <div class="content">
-    <div class="video-wrap" style="max-width:100%;padding:0 1rem;">
-      <div class="video-title">LEONARD — THEME</div>
-      
-      <div class="video-player-container landscape">
-        <video controls preload="metadata">
-          <source src="/video/leonard-theme-song-with-still-image.mp4" type="video/mp4">
-        </video>
-      </div>
-    </div>
-  </div>
-</main>
+<div class="vid-page">
+  <span class="vid-label">LEONARD THEME</span>
+  <video controls controlsList="nodownload" preload="metadata" playsinline>
+    <source src="/video/leonard-theme-song-with-still-image.mp4" type="video/mp4">
+  </video>
+</div>
 <nav class="node-nav">
   <button id="btn-back" class="nav-btn">← go back</button>
   <button id="btn-deeper" class="nav-btn deeper">go deeper →</button>
 </nav>
-<div class="coordinates" data-coords="VIDEO SIGNAL — ACTIVE"></div>
+
 <script src="../js/engine.js"></script>
 <script>
 initDeeperButton([
-  { url: 'agnar.html', weight: 3 },
+{ url: 'agnar.html', weight: 3 },
   { url: 'three-moons-song.html', weight: 3 },
   { url: 'three-moons-glossary.html', weight: 2 },
   { url: 'koa.html', weight: 2 },
@@ -41,22 +42,6 @@ initDeeperButton([
   { url: 'gif-tinl.html', weight: 1 },
   { url: 'dead-gods.html', weight: 1 }
 ]);
-</script>
-
-<script>
-// Auto-detect video orientation
-document.addEventListener('DOMContentLoaded', function() {
-  var videoEl = document.querySelector('video');
-  var container = document.querySelector('.video-player-container');
-  if (!videoEl || !container) return;
-  videoEl.addEventListener('loadedmetadata', function() {
-    if (videoEl.videoHeight > videoEl.videoWidth) {
-      container.className = 'video-player-container portrait';
-    } else {
-      container.className = 'video-player-container landscape';
-    }
-  });
-});
 </script>
 </body>
 </html>
