@@ -618,3 +618,78 @@ body::after {
   0%,85%,100% { opacity: 0.7; }
   90% { opacity: 1; text-shadow: 0 0 12px rgba(224,80,64,0.7); }
 }
+
+/* ── PHASE 2 STEP 2 ─────────────────────────────────────────────────────────── */
+
+/* Restore distortion on enter + nav buttons */
+.enter-btn:hover,
+.nav-btn:hover {
+  filter: url(#reality-warp);
+}
+
+/* Text legibility — feathered dark centre vignette behind text */
+.content::before {
+  content: '';
+  position: absolute;
+  inset: -20% -30%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(8,5,7,0.72) 0%,
+    rgba(8,5,7,0.55) 35%,
+    rgba(8,5,7,0.2) 65%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: -1;
+  border-radius: 50%;
+}
+
+/* Ensure content sits above the vignette */
+.content {
+  position: relative;
+  z-index: 10;
+}
+
+/* Char layout text legibility */
+.char-layout::before {
+  content: '';
+  position: absolute;
+  inset: -10% -20%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(8,5,7,0.65) 0%,
+    rgba(8,5,7,0.35) 55%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+  border-radius: 50%;
+}
+.char-text { position: relative; z-index: 2; }
+.char-image { position: relative; z-index: 2; }
+
+/* Video player — larger, fills available width */
+.video-wrap {
+  max-width: 100% !important;
+  width: 100%;
+  padding: 0.5rem 1rem 1rem !important;
+}
+.video-player-container.landscape {
+  padding-bottom: 56.25%;
+  width: 100%;
+}
+.video-player-container.portrait {
+  max-width: 480px;
+  padding-bottom: 177.78%;
+}
+
+/* Lyric page — clean full scroll */
+.lyric-wrap {
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+/* Engine bg images — slightly more visible */
+.bg-image[style*="engine-exterior"] {
+  filter: brightness(0.3) saturate(0.55) !important;
+}
