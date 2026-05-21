@@ -693,3 +693,125 @@ body::after {
 .bg-image[style*="engine-exterior"] {
   filter: brightness(0.3) saturate(0.55) !important;
 }
+
+/* ── PHASE 2 STEP 3 ─────────────────────────────────────────────────────────── */
+
+/* Fix dark circle - proper feathered vignette, much larger spread */
+.content::before {
+  content: '';
+  position: fixed;
+  inset: -50%;
+  background: radial-gradient(
+    ellipse 55% 60% at 50% 50%,
+    rgba(6,4,6,0.62) 0%,
+    rgba(6,4,6,0.38) 38%,
+    rgba(6,4,6,0.12) 62%,
+    transparent 80%
+  );
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Zone colours only for character/location pages, not media */
+.zone-newkyushu { background-color: #08060d; }
+.zone-continent { background-color: #060808; }
+.zone-domum     { background-color: #070605; }
+.zone-engine    { background-color: #080404; }
+
+/* Media nodes - pure dark, no zone tint */
+main.engine-page:not(.zone-newkyushu):not(.zone-continent):not(.zone-domum):not(.zone-engine) {
+  background: #060606;
+}
+
+/* Force art/gif/video/image pages to near-black */
+[class*="gif-wrap"],
+[class*="video-wrap"],
+[class*="novel-reader"] {
+  background: transparent;
+}
+
+/* Override blue/green zone bg on media pages */
+.gif-wrap ~ * { background: transparent; }
+
+/* Video player - adaptive, fills page properly */
+.video-wrap {
+  width: 100%;
+  max-width: 100% !important;
+  padding: 0 !important;
+  gap: 0.5rem;
+}
+
+.video-player-container {
+  width: 100%;
+  position: relative;
+  background: #000;
+}
+
+/* Auto-detect portrait via JS class, default landscape */
+.video-player-container.landscape {
+  padding-bottom: 56.25%;
+  max-width: 100%;
+}
+
+.video-player-container.portrait {
+  padding-bottom: 177.78%;
+  max-width: min(85vh * 0.5625, 100%);
+  max-width: min(360px, 100%);
+  margin: 0 auto;
+}
+
+/* For pages where we don't know orientation - use auto */
+.video-player-container.auto {
+  padding-bottom: 56.25%;
+}
+
+.video-player-container video {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  object-fit: contain;
+  background: #000;
+}
+
+/* Video title - reduce to tiny label, not big heading */
+.video-wrap .video-title {
+  font-size: 0.6rem;
+  letter-spacing: 0.4em;
+  opacity: 0.3;
+  font-family: var(--font-mono);
+  color: var(--dust);
+}
+
+/* Visualiser - more ethereal, blend into bg */
+.visualiser-canvas {
+  height: 140px;
+  background: transparent !important;
+  border: none !important;
+  opacity: 0.85;
+  mix-blend-mode: screen;
+}
+
+/* Remove all automatic node-text under media */
+.gif-wrap .node-text,
+.video-wrap .node-text,
+.gif-wrap p,
+.video-wrap p:not(.video-credit) {
+  display: none;
+}
+
+/* Font size bump for legibility */
+.node-text {
+  font-size: clamp(0.92rem, 1.6vw, 1.05rem);
+}
+.glossary-def {
+  font-size: clamp(0.92rem, 1.6vw, 1.05rem);
+}
+.node-label {
+  font-size: 0.6rem;
+}
+
+/* Char layout vignette - fixed version */
+.char-layout {
+  position: relative;
+  z-index: 10;
+}

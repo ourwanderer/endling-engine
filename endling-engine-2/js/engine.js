@@ -188,14 +188,16 @@ function initAudioPlayer(audioSrc) {
     });
   }
 
-  // Abstract particle/waveform visualiser
+  // Ethereal abstract visualiser - particles, tendrils, shifting colour
   let particles = [];
+  let tendrils = [];
   let time = 0;
+  let hueBase = 0;
 
   function drawAbstract() {
     if (!analyser || audio.paused) return;
     rafId = requestAnimationFrame(drawAbstract);
-    time += 0.012;
+    time += 0.008;
 
     const W=canvas.width, H=canvas.height;
     const bufLen = analyser.frequencyBinCount;
@@ -204,94 +206,97 @@ function initAudioPlayer(audioSrc) {
     analyser.getByteFrequencyData(freqData);
     analyser.getByteTimeDomainData(waveData);
 
-    // Bass, mid, high energy
-    const bass = freqData.slice(0, 10).reduce((a,b)=>a+b,0)/10/255;
-    const mid  = freqData.slice(10,80).reduce((a,b)=>a+b,0)/70/255;
-    const high = freqData.slice(80,128).reduce((a,b)=>a+b,0)/48/255;
+    const bass = freqData.slice(0,8).reduce((a,b)=>a+b,0)/8/255;
+    const mid  = freqData.slice(8,60).reduce((a,b)=>a+b,0)/52/255;
+    const high = freqData.slice(60,120).reduce((a,b)=>a+b,0)/60/255;
+    const energy = (bass*0.5 + mid*0.3 + high*0.2);
 
-    // Fade trail
-    ctx.fillStyle = 'rgba(10,6,8,0.18)';
+    // Shift hue slowly with music energy
+    hueBase += 0.15 + energy*0.8;
+
+    // Very soft fade - long trail
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = `rgba(0,0,0,${0.06 + bass*0.04})`;
     ctx.fillRect(0,0,W,H);
 
     const cx=W/2, cy=H/2;
 
-    // Central pulsing orb
-    const orbR = 6 + bass*28 + mid*8;
-    const grd = ctx.createRadialGradient(cx,cy,0,cx,cy,orbR*2.5);
-    grd.addColorStop(0, `rgba(${140+Math.floor(bass*115)},${26+Math.floor(mid*40)},${26+Math.floor(high*30)},0.9)`);
-    grd.addColorStop(0.5, `rgba(80,15,15,0.4)`);
-    grd.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.beginPath();
-    ctx.arc(cx,cy,orbR*2.5,0,Math.PI*2);
-    ctx.fillStyle=grd;
-    ctx.fill();
-
-    // Orbiting frequency rings
-    const numRings = 3;
-    for (let r=0; r<numRings; r++) {
-      const ringR = 18 + r*22 + bass*20;
-      const numPts = 64;
-      ctx.beginPath();
-      for (let i=0; i<=numPts; i++) {
-        const angle = (i/numPts)*Math.PI*2;
-        const fi = Math.floor((i/numPts)*bufLen*0.6);
-        const amp = (freqData[fi]||0)/255;
-        const distort = amp*(8+r*6) + Math.sin(angle*3+time+r)*2*mid;
-        const px = cx + Math.cos(angle+time*0.3*(r+1))*(ringR+distort);
-        const py = cy + Math.sin(angle+time*0.3*(r+1))*(ringR+distort)*0.55;
-        i===0 ? ctx.moveTo(px,py) : ctx.lineTo(px,py);
-      }
-      ctx.closePath();
-      const alpha = 0.15 + amp*0.5;
-      const hue = 0 + r*15 + Math.floor(high*40);
-      ctx.strokeStyle = `hsla(${hue},80%,${40+Math.floor(bass*30)}%,${0.4+mid*0.4})`;
-      ctx.lineWidth = 0.8+bass*1.5;
-      ctx.stroke();
-    }
-
-    // Waveform ribbon across centre
+    // Waveform as flowing tendril across full width
+    ctx.globalCompositeOperation = 'screen';
     ctx.beginPath();
     for (let i=0; i<waveData.length; i++) {
       const x = (i/waveData.length)*W;
       const v = (waveData[i]-128)/128;
-      const y = cy + v*(H*0.22) + Math.sin(i*0.08+time)*mid*8;
+      const wobble = Math.sin(i*0.05+time*2)*mid*12;
+      const y = cy + v*H*0.35 + wobble;
       i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
     }
-    ctx.strokeStyle=`rgba(${180+Math.floor(bass*75)},${60+Math.floor(mid*60)},${60},${0.35+high*0.4})`;
-    ctx.lineWidth=1+bass*1.5;
+    const wHue = (hueBase + 10) % 360;
+    ctx.strokeStyle = `hsla(${wHue},${60+high*40}%,${45+bass*30}%,${0.25+energy*0.35})`;
+    ctx.lineWidth = 0.8 + bass*2;
     ctx.stroke();
 
-    // Particle burst on bass hits
-    if (bass > 0.55) {
-      for (let i=0; i<3; i++) {
-        const angle = Math.random()*Math.PI*2;
-        const speed = 1+Math.random()*3*bass;
-        particles.push({
-          x:cx, y:cy,
-          vx:Math.cos(angle)*speed,
-          vy:Math.sin(angle)*speed*0.5,
-          life:1, decay:0.04+Math.random()*0.04,
-          r: 160+Math.floor(Math.random()*95),
-          g: 20+Math.floor(Math.random()*40),
-          b: 20+Math.floor(Math.random()*20),
-          size: 1+Math.random()*2.5
-        });
-      }
+    // Second waveform offset for depth
+    ctx.beginPath();
+    for (let i=0; i<waveData.length; i+=2) {
+      const x = (i/waveData.length)*W;
+      const v = (waveData[i]-128)/128;
+      const y = cy*0.6 + v*H*0.15 + Math.cos(i*0.08+time)*mid*8;
+      i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+    }
+    ctx.strokeStyle = `hsla(${(hueBase+180)%360},${40+mid*50}%,${35+high*30}%,${0.15+mid*0.2})`;
+    ctx.lineWidth = 0.5 + mid;
+    ctx.stroke();
+
+    // Frequency blob - organic shape reacting to spectrum
+    ctx.beginPath();
+    const numPts = 80;
+    for (let i=0; i<=numPts; i++) {
+      const angle = (i/numPts)*Math.PI*2;
+      const fi = Math.floor((i/numPts)*bufLen*0.5);
+      const amp = (freqData[fi]||0)/255;
+      const r = 12 + amp*38 + bass*18 + Math.sin(angle*4+time)*mid*6;
+      const px = cx + Math.cos(angle)*r*2.2;
+      const py = cy + Math.sin(angle)*r;
+      i===0 ? ctx.moveTo(px,py) : ctx.lineTo(px,py);
+    }
+    ctx.closePath();
+    const bHue = hueBase % 360;
+    ctx.strokeStyle = `hsla(${bHue},${70+bass*30}%,${40+bass*25}%,${0.3+bass*0.4})`;
+    ctx.lineWidth = 0.6 + bass;
+    ctx.stroke();
+
+    // Particle emission - slow drift upward, colour-shifted
+    if (energy > 0.2 && Math.random() < 0.35 + energy*0.4) {
+      const spread = W*0.4;
+      particles.push({
+        x: cx + (Math.random()-0.5)*spread,
+        y: H*0.7 + Math.random()*H*0.2,
+        vx: (Math.random()-0.5)*0.8,
+        vy: -(0.3 + Math.random()*1.5*energy),
+        life: 1,
+        decay: 0.006 + Math.random()*0.012,
+        hue: (hueBase + Math.random()*60-30) % 360,
+        sat: 60 + Math.floor(energy*40),
+        size: 0.8 + Math.random()*2.5*bass
+      });
     }
 
-    // Draw + age particles
-    particles = particles.filter(p=>{
-      p.x+=p.vx; p.y+=p.vy; p.vy+=0.04; p.life-=p.decay;
-      if (p.life<=0) return false;
+    // Draw particles
+    particles = particles.filter(p => {
+      p.x += p.vx + Math.sin(time+p.y*0.05)*0.3;
+      p.y += p.vy;
+      p.life -= p.decay;
+      if (p.life <= 0) return false;
       ctx.beginPath();
-      ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
-      ctx.fillStyle=`rgba(${p.r},${p.g},${p.b},${p.life*0.8})`;
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+      ctx.fillStyle = `hsla(${p.hue},${p.sat}%,65%,${p.life*0.6})`;
       ctx.fill();
       return true;
     });
+    if (particles.length > 150) particles.splice(0, particles.length-150);
 
-    // Keep particles array sane
-    if (particles.length>120) particles.splice(0, particles.length-120);
+    ctx.globalCompositeOperation = 'source-over';
   }
 
   function resizeCanvas() {

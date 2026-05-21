@@ -9,7 +9,7 @@
 <body>
 <div id="page-transition" class="page-transition"></div>
 <div class="site-logo"><a href="../index.html"><img src="/images/main-endling-saga-logo.png" alt="The Endling Saga"></a></div>
-<main class="engine-page zone-newkyushu scrollable">
+<main class="engine-page">
   <div class="content">
     <div class="video-wrap" style="max-width:100%;padding:0 1rem;">
       <div class="video-title">I HAD THAT DREAM AGAIN</div>
@@ -30,27 +30,33 @@
 <script src="../js/engine.js"></script>
 <script>
 initDeeperButton([
-  { url: 'koa.html',        weight: 2 },
-  { url: 'leonard.html',    weight: 2 },
-  { url: 'entry.html',      weight: 2 },
-  { url: 'peregrinus.html', weight: 1 },
-  { url: 'domum-novum.html', weight: 1 },
-  { url: 'new-kyushu.html', weight: 1 },
-  { url: 'gif-tinl.html',          weight: 3 },
-  { url: 'gif-koa-ride.html',       weight: 3 },
-  { url: 'gif-leonard-three.html',  weight: 2 },
-  { url: 'gif-yaeko-bebop.html',    weight: 2 },
-  { url: 'gif-osos-daynight.html',  weight: 2 },
-  { url: 'vid-leonard-altar.html',  weight: 3 },
-  { url: 'vid-the-exile.html',      weight: 2 },
-  { url: 'vid-superluminal.html',   weight: 2 },
-  { url: 'vid-bouncer-x.html',      weight: 2 },
-  { url: 'our-wanderer-song.html',  weight: 2 },
-  { url: 'three-moons-song.html',   weight: 2 },
-  { url: 'img-mythed-ceremony.html', weight: 2 },
-  { url: 'img-misc-seer.html',      weight: 2 },
-  { url: 'img-superluminal-1.html', weight: 2 },
+  { url: 'high-wail-rook.html', weight: 3 },
+  { url: 'doran.html', weight: 3 },
+  { url: 'gif-tinl.html', weight: 2 },
+  { url: 'domum-novum.html', weight: 2 },
+  { url: 'peregrinus.html', weight: 2 },
+  { url: 'dead-gods.html', weight: 1 },
+  { url: 'leonard.html', weight: 1 },
+  { url: 'three-moons-song.html', weight: 1 },
+  { url: 'koa.html', weight: 1 },
+  { url: 'gif-headgear-logo.html', weight: 1 }
 ]);
+</script>
+
+<script>
+// Auto-detect video orientation
+document.addEventListener('DOMContentLoaded', function() {
+  var videoEl = document.querySelector('video');
+  var container = document.querySelector('.video-player-container');
+  if (!videoEl || !container) return;
+  videoEl.addEventListener('loadedmetadata', function() {
+    if (videoEl.videoHeight > videoEl.videoWidth) {
+      container.className = 'video-player-container portrait';
+    } else {
+      container.className = 'video-player-container landscape';
+    }
+  });
+});
 </script>
 </body>
 </html>
