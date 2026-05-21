@@ -497,3 +497,124 @@ body::after {
   .novel-reader { padding:1rem; }
   .glossary-wrap { padding:1.5rem; }
 }
+
+/* ── PHASE 2 ADDITIONS ─────────────────────────────────────────────────────── */
+
+/* Red type fix — was too dark, now readable */
+:root {
+  --engine-glow: #e05040;
+  --engine-red:  #a02020;
+  --engine-accent: #ff6655;
+}
+
+.holding-status,
+.entry-latin,
+.glossary-pronounce,
+.glossary-world,
+.video-credit a,
+.about-link:hover {
+  color: var(--engine-glow);
+}
+
+/* Text-only page engine background */
+.engine-bg-fallback {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(139,26,26,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(80,20,80,0.06) 0%, transparent 55%),
+    radial-gradient(ellipse at 60% 80%, rgba(20,60,80,0.05) 0%, transparent 50%),
+    var(--void);
+  z-index: 0;
+}
+
+/* Subtle animated scan line for text-only pages */
+.engine-bg-fallback::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(139,26,26,0.015) 3px,
+    rgba(139,26,26,0.015) 4px
+  );
+  animation: scanMove 8s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes scanMove {
+  from { background-position: 0 0; }
+  to   { background-position: 0 100px; }
+}
+
+/* Node image zoom transition */
+.node-image, .zoomable {
+  transition: transform 0.3s ease, z-index 0s;
+  position: relative;
+}
+.node-image.zoomed, .zoomable.zoomed {
+  position: relative;
+  z-index: 500;
+}
+
+/* Visualiser canvas — taller for abstract viz */
+.visualiser-canvas {
+  height: 140px;
+  border: none;
+  background: transparent;
+}
+
+/* Character page — image + text side by side on wider screens */
+.char-layout {
+  display: flex;
+  align-items: flex-start;
+  gap: 2.5rem;
+  max-width: 820px;
+  width: 100%;
+  padding: 2rem;
+  position: relative;
+  z-index: 10;
+  animation: fadeIn 0.8s ease 0.3s both;
+}
+.char-image {
+  flex-shrink: 0;
+  width: clamp(160px, 30vw, 280px);
+  opacity: 0;
+  animation: revealImage 1.2s ease 0.4s forwards;
+  filter: saturate(0.88);
+}
+.char-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  text-align: left;
+}
+
+@media (max-width: 600px) {
+  .char-layout { flex-direction: column; align-items: center; }
+  .char-image { width: 100%; max-width: 260px; }
+  .char-text { text-align: center; }
+}
+
+/* Glossary legibility */
+.glossary-wrap {
+  overflow-y: auto;
+  max-height: 80vh;
+}
+.glossary-def, .glossary-lore {
+  color: rgba(232,221,208,0.82);
+}
+.glossary-pronounce {
+  font-size: 0.72rem;
+  opacity: 1;
+  letter-spacing: 0.15em;
+}
+
+/* Nav pulse on deeper button */
+.nav-btn.deeper {
+  animation: navPulse 4s ease 3s infinite;
+}
+@keyframes navPulse {
+  0%,85%,100% { opacity: 0.7; }
+  90% { opacity: 1; text-shadow: 0 0 12px rgba(224,80,64,0.7); }
+}
