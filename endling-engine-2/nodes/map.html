@@ -5,13 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>THE ENDLING SAGA — THE MAP</title>
   <link rel="stylesheet" href="../css/engine.css">
+<style>
+.map-reset {
+  position: fixed; top: 1.2rem; right: 1.5rem;
+  font-family: var(--font-mono); font-size: 0.55rem;
+  letter-spacing: 0.25em; color: var(--dust);
+  opacity: 0.35; background: none; border: none;
+  cursor: pointer; text-transform: uppercase;
+  z-index: 200; transition: opacity 0.3s;
+}
+.map-reset:hover { opacity: 0.8; }
+.node-nav { background: linear-gradient(to top, rgba(8,5,7,0.9) 0%, transparent 100%); padding: 1.5rem 0; }
+</style>
 </head>
 <body>
 <div id="page-transition" class="page-transition"></div>
-<div class="site-logo"><a href="../index.html"><img src="/images/main-endling-saga-logo.png" alt="The Endling Saga"></a></div>
+<div class="site-logo"><a href="../index.html"><img src="../images/main-endling-saga-logo.png" alt="The Endling Saga"></a></div>
 
 <div id="map-container" class="map-container">
-  <img id="map-img" src="/images/hwr-map-of-the-continent-v1-large.jpg" alt="The Continent — Known Territories">
+  <img id="map-img" src="/images/the-continent-map.jpg" alt="The Continent — Known Territories">
 </div>
 
 <p class="map-hint">drag to explore · scroll to zoom</p>
@@ -24,6 +36,10 @@
 <script src="../js/engine.js"></script>
 <script>
   initMap();
+// Reset button
+document.getElementById('map-reset')?.addEventListener('click', () => {
+  location.reload();
+});
   initDeeperButton([
   { url: 'the-continent.html', weight: 3 },
   { url: 'high-wail-rook.html', weight: 3 },

@@ -190,9 +190,7 @@ function initAudioPlayer(audioSrc) {
   }
 
   // Ethereal abstract visualiser - particles, tendrils, shifting colour
-  let particles = [];
-  let tendrils = [];
-  let time = 0;
+    let time = 0;
   let hueBase = 0;
 
   function drawAbstract() {
@@ -267,35 +265,15 @@ function initAudioPlayer(audioSrc) {
     ctx.lineWidth = 0.6 + bass;
     ctx.stroke();
 
-    // Particle emission - slow drift upward, colour-shifted
-    if (energy > 0.2 && Math.random() < 0.35 + energy*0.4) {
-      const spread = W*0.4;
-      particles.push({
-        x: cx + (Math.random()-0.5)*spread,
-        y: H*0.7 + Math.random()*H*0.2,
-        vx: (Math.random()-0.5)*0.8,
-        vy: -(0.3 + Math.random()*1.5*energy),
-        life: 1,
-        decay: 0.006 + Math.random()*0.012,
-        hue: (hueBase + Math.random()*60-30) % 360,
-        sat: 60 + Math.floor(energy*40),
-        size: 0.8 + Math.random()*2.5*bass
-      });
-    }
-
-    // Draw particles
-    particles = particles.filter(p => {
-      p.x += p.vx + Math.sin(time+p.y*0.05)*0.3;
-      p.y += p.vy;
-      p.life -= p.decay;
-      if (p.life <= 0) return false;
+    // Subtle spectral dots on transients (not rising - just flash and fade)
+    if (energy > 0.45 && Math.random() < energy*0.3) {
+      const px = Math.random()*W;
+      const py = Math.random()*H;
       ctx.beginPath();
-      ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
-      ctx.fillStyle = `hsla(${p.hue},${p.sat}%,65%,${p.life*0.6})`;
+      ctx.arc(px, py, 0.8+Math.random()*1.5, 0, Math.PI*2);
+      ctx.fillStyle = `hsla(${(hueBase+Math.random()*90)%360},70%,65%,${0.15+energy*0.2})`;
       ctx.fill();
-      return true;
-    });
-    if (particles.length > 150) particles.splice(0, particles.length-150);
+    }
 
     ctx.globalCompositeOperation = 'source-over';
   }
@@ -315,7 +293,7 @@ function initMap() {
   const img=document.getElementById('map-img');
   if (!container||!img) return;
 
-  let scale=1, minScale=0.3, maxScale=4, tx=0, ty=0;
+  let scale=1, minScale=0.15, maxScale=6, tx=0, ty=0;
   let dragging=false, lastX=0, lastY=0;
 
   img.onload=function(){
