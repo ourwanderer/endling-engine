@@ -785,9 +785,10 @@ main.engine-page:not(.zone-newkyushu):not(.zone-continent):not(.zone-domum):not(
 /* Visualiser - more ethereal, blend into bg */
 .visualiser-canvas {
   height: 140px;
-  background: transparent !important;
+  background: rgba(20,12,8,0.45) !important;
   border: none !important;
-  opacity: 0.85;
+  border-radius: 2px;
+  opacity: 0.9;
   mix-blend-mode: screen;
 }
 
@@ -814,4 +815,22 @@ main.engine-page:not(.zone-newkyushu):not(.zone-continent):not(.zone-domum):not(
 .char-layout {
   position: relative;
   z-index: 10;
+}
+
+/* ── PAGE TRANSITION WARP ────────────────────────────────────────────────── */
+.page-transition {
+  transition: opacity 0.5s ease;
+  background: var(--void);
+}
+.page-transition.active {
+  opacity: 1;
+  animation: transitionGlitch 0.5s ease forwards;
+}
+@keyframes transitionGlitch {
+  0%   { opacity: 0; }
+  15%  { opacity: 0.3; transform: translateX(-3px); filter: hue-rotate(90deg); }
+  30%  { opacity: 0.7; transform: translateX(3px);  filter: hue-rotate(180deg); }
+  50%  { opacity: 0.5; transform: translateX(-2px); filter: hue-rotate(0deg); }
+  70%  { opacity: 0.85; transform: translateX(0); }
+  100% { opacity: 1; transform: translateX(0); }
 }

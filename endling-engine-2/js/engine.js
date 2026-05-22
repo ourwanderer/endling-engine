@@ -32,10 +32,18 @@ const EngineSession = {
 
 // ── NAVIGATION ───────────────────────────────────────────────────────────────
 
-function navigateTo(url, delay=400) {
+function navigateTo(url, delay=500) {
   const overlay = document.getElementById('page-transition');
-  if (overlay) { overlay.classList.add('active'); setTimeout(()=>{ window.location.href=url; }, delay); }
-  else window.location.href = url;
+  if (overlay) {
+    overlay.classList.add('active');
+    // Trigger glitch warp on transition
+    const glitch = document.getElementById('transition-glitch');
+    if (glitch) {
+      glitch.style.opacity = '1';
+      setTimeout(() => { if(glitch) glitch.style.opacity = '0'; }, 200);
+    }
+    setTimeout(()=>{ window.location.href=url; }, delay);
+  } else window.location.href = url;
 }
 
 function smartRandom(pool) {
@@ -215,7 +223,7 @@ function initAudioPlayer(audioSrc) {
 
     // Very soft fade - long trail
     ctx.globalCompositeOperation = 'source-over';
-    ctx.fillStyle = `rgba(0,0,0,${0.06 + bass*0.04})`;
+    ctx.fillStyle = `rgba(8,5,4,${0.07 + bass*0.04})`;
     ctx.fillRect(0,0,W,H);
 
     const cx=W/2, cy=H/2;
