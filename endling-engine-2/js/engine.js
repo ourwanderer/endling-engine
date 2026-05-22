@@ -216,7 +216,148 @@ function initWarp() {
 
 // ── ABSTRACT AUDIO VISUALISER ─────────────────────────────────────────────────
 
-function initAudioPlayer(audioSrc) {
+
+// ── FOUR DISTINCT VISUALISER MODES ──────────────────────────────────────────
+
+function drawModeOrbital(ctx, analyser, W, H, time, hueBase) {
+  // Our Wanderer - orbiting rings, expansive, space-like
+  const freqData = new Uint8Array(analyser.frequencyBinCount);
+  const waveData = new Uint8Array(analyser.fftSize);
+  analyser.getByteFrequencyData(freqData);
+  analyser.getByteTimeDomainData(waveData);
+  const bass = freqData.slice(0,8).reduce((a,b)=>a+b,0)/8/255;
+  const mid  = freqData.slice(8,60).reduce((a,b)=>a+b,0)/52/255;
+  const energy = bass*0.6 + mid*0.4;
+
+  ctx.fillStyle = `rgba(4,4,8,${0.05+bass*0.03})`;
+  ctx.fillRect(0,0,W,H);
+  ctx.globalCompositeOperation = 'screen';
+
+  const cx=W/2, cy=H/2;
+  for (let ring=0; ring<4; ring++) {
+    const r = 15 + ring*18 + bass*25;
+    const pts = 80;
+    ctx.beginPath();
+    for (let i=0; i<=pts; i++) {
+      const angle = (i/pts)*Math.PI*2 + time*(0.2+ring*0.1);
+      const fi = Math.floor((i/pts)*analyser.frequencyBinCount*0.7);
+      const amp = (freqData[fi]||0)/255;
+      const dr = amp*(10+ring*5);
+      const px = cx + Math.cos(angle)*(r+dr)*2.5;
+      const py = cy + Math.sin(angle)*(r+dr)*0.6;
+      i===0 ? ctx.moveTo(px,py) : ctx.lineTo(px,py);
+    }
+    const hue = (hueBase + ring*25) % 360;
+    ctx.strokeStyle = `hsla(${hue},70%,${45+bass*25}%,${0.3+mid*0.4})`;
+    ctx.lineWidth = 0.6+bass;
+    ctx.stroke();
+  }
+  ctx.globalCompositeOperation = 'source-over';
+}
+
+function drawModeWaveform(ctx, analyser, W, H, time, hueBase) {
+  // Three Moons - pure waveform, haunting, minimal
+  const waveData = new Uint8Array(analyser.fftSize);
+  const freqData = new Uint8Array(analyser.frequencyBinCount);
+  analyser.getByteTimeDomainData(waveData);
+  analyser.getByteFrequencyData(freqData);
+  const bass = freqData.slice(0,8).reduce((a,b)=>a+b,0)/8/255;
+
+  ctx.fillStyle = `rgba(2,2,6,${0.08+bass*0.02})`;
+  ctx.fillRect(0,0,W,H);
+  ctx.globalCompositeOperation = 'screen';
+
+  // Three offset waveforms like three moons
+  for (let layer=0; layer<3; layer++) {
+    ctx.beginPath();
+    const yOffset = (layer-1) * H*0.15;
+    for (let i=0; i<waveData.length; i++) {
+      const x = (i/waveData.length)*W;
+      const v = (waveData[i]-128)/128;
+      const y = H/2 + yOffset + v*H*(0.2-layer*0.03) + Math.sin(i*0.04+time*(1+layer*0.3))*bass*12;
+      i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+    }
+    const hue = (hueBase + layer*80) % 360;
+    ctx.strokeStyle = `hsla(${hue},60%,${55+bass*20}%,${0.4-layer*0.08})`;
+    ctx.lineWidth = 1.2-layer*0.3;
+    ctx.stroke();
+  }
+  ctx.globalCompositeOperation = 'source-over';
+}
+
+function drawModeParticleField(ctx, analyser, W, H, time, hueBase, particles) {
+  // Memory Endlessly - particle field, melancholic, diffuse
+  const freqData = new Uint8Array(analyser.frequencyBinCount);
+  analyser.getByteFrequencyData(freqData);
+  const bass = freqData.slice(0,8).reduce((a,b)=>a+b,0)/8/255;
+  const mid  = freqData.slice(8,60).reduce((a,b)=>a+b,0)/52/255;
+  const energy = bass*0.5+mid*0.5;
+
+  ctx.fillStyle = `rgba(3,2,5,${0.04+bass*0.02})`;
+  ctx.fillRect(0,0,W,H);
+  ctx.globalCompositeOperation = 'screen';
+
+  if (energy > 0.15 && Math.random() < 0.4+energy*0.5) {
+    particles.push({
+      x: Math.random()*W, y: H+5,
+      vx: (Math.random()-0.5)*0.5,
+      vy: -(0.2+Math.random()*energy*1.5),
+      life: 1, decay: 0.004+Math.random()*0.008,
+      hue: (hueBase+Math.random()*40-20)%360,
+      size: 0.5+Math.random()*1.5
+    });
+  }
+
+  for (let i=particles.length-1; i>=0; i--) {
+    const p = particles[i];
+    p.x += p.vx + Math.sin(time*0.5+p.y*0.02)*0.4;
+    p.y += p.vy; p.life -= p.decay;
+    if (p.life <= 0) { particles.splice(i,1); continue; }
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+    ctx.fillStyle = `hsla(${p.hue},55%,65%,${p.life*0.5})`;
+    ctx.fill();
+  }
+  if (particles.length > 200) particles.splice(0, particles.length-200);
+  ctx.globalCompositeOperation = 'source-over';
+  return particles;
+}
+
+function drawModeGeometric(ctx, analyser, W, H, time, hueBase) {
+  // Other Seas Other Suns - geometric, hopeful, structured
+  const freqData = new Uint8Array(analyser.frequencyBinCount);
+  analyser.getByteFrequencyData(freqData);
+  const bass = freqData.slice(0,8).reduce((a,b)=>a+b,0)/8/255;
+  const mid  = freqData.slice(8,60).reduce((a,b)=>a+b,0)/52/255;
+
+  ctx.fillStyle = `rgba(4,4,2,${0.06+bass*0.03})`;
+  ctx.fillRect(0,0,W,H);
+  ctx.globalCompositeOperation = 'screen';
+
+  const cx=W/2, cy=H/2;
+  const sides = [3,4,6,8];
+  sides.forEach((n, idx) => {
+    const baseR = 10 + idx*12 + bass*20;
+    const fi = Math.floor((idx/sides.length)*analyser.frequencyBinCount*0.5);
+    const amp = (freqData[fi]||0)/255;
+    const r = baseR + amp*25;
+    ctx.beginPath();
+    for (let i=0; i<=n; i++) {
+      const angle = (i/n)*Math.PI*2 + time*(0.15+idx*0.08);
+      const px = cx + Math.cos(angle)*r*2.8;
+      const py = cy + Math.sin(angle)*r;
+      i===0 ? ctx.moveTo(px,py) : ctx.lineTo(px,py);
+    }
+    ctx.closePath();
+    const hue = (hueBase + idx*30) % 360;
+    ctx.strokeStyle = `hsla(${hue},65%,${50+bass*25}%,${0.25+mid*0.35})`;
+    ctx.lineWidth = 0.8+bass*0.8;
+    ctx.stroke();
+  });
+  ctx.globalCompositeOperation = 'source-over';
+}
+
+function initAudioPlayer(audioSrc, visualiserMode) {
   const audio = new Audio(audioSrc);
   const playBtn = document.getElementById('play-btn');
   const fill = document.getElementById('audio-fill');
@@ -248,7 +389,7 @@ function initAudioPlayer(audioSrc) {
       audio.play();
       playBtn.innerHTML='&#9646;&#9646;';
       if (rafId) cancelAnimationFrame(rafId);
-      drawAbstract();
+      drawFrame();
     } else {
       audio.pause();
       playBtn.innerHTML='&#9654;';
@@ -276,10 +417,21 @@ function initAudioPlayer(audioSrc) {
     let time = 0;
   let hueBase = 0;
 
-  function drawAbstract() {
+  let particles = [];
+  let time = 0;
+  let hueBase = 0;
+  const mode = visualiserMode || 'orbital';
+
+  function drawFrame() {
     if (!analyser || audio.paused) return;
-    rafId = requestAnimationFrame(drawAbstract);
+    rafId = requestAnimationFrame(drawFrame);
     time += 0.008;
+    hueBase += 0.2;
+    const W = canvas.width, H = canvas.height;
+    if (mode === 'orbital') { drawModeOrbital(ctx, analyser, W, H, time, hueBase); return; }
+    if (mode === 'waveform') { drawModeWaveform(ctx, analyser, W, H, time, hueBase); return; }
+    if (mode === 'particles') { particles = drawModeParticleField(ctx, analyser, W, H, time, hueBase, particles); return; }
+    if (mode === 'geometric') { drawModeGeometric(ctx, analyser, W, H, time, hueBase); return; }
 
     const W=canvas.width, H=canvas.height;
     const bufLen = analyser.frequencyBinCount;

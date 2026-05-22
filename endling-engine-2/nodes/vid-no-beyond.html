@@ -5,82 +5,42 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>THE ENDLING SAGA — A PLACE OF NO BEYOND</title>
   <link rel="stylesheet" href="../css/engine.css">
+  <style>
+    html,body{margin:0;padding:0;width:100%;height:100%;background:#000;overflow:hidden;}
+    .vimeo-page{width:100vw;height:100vh;display:flex;align-items:center;justify-content:center;background:#000;position:relative;}
+    .vimeo-wrap{width:100%;max-width:min(100vw, 177.78vh);aspect-ratio:16/9;position:relative;}
+    .vimeo-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none;}
+    .vid-label{position:fixed;top:1.2rem;left:50%;transform:translateX(-50%);font-family:var(--font-mono);font-size:0.5rem;letter-spacing:0.4em;color:rgba(184,160,144,0.25);text-transform:uppercase;z-index:10;pointer-events:none;}
+  </style>
 </head>
 <body>
 <div id="page-transition" class="page-transition"></div>
 <div class="site-logo"><a href="../index.html"><img src="../images/misc/main-endling-saga-logo.png" alt="The Endling Saga"></a></div>
-<main class="engine-page">
-  <div class="content">
-    <div class="video-wrap" style="max-width:100%;padding:0 1rem;">
-      <div class="video-title">A PLACE OF NO BEYOND</div>
-      <div style="padding:56.25% 0 0 0;position:relative;width:100%;">
-        <iframe
-          src="https://player.vimeo.com/video/889004788?badge=0&autopause=0&player_id=0&app_id=58479"
-          frameborder="0"
-          allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media"
-          referrerpolicy="strict-origin-when-cross-origin"
-          style="position:absolute;top:0;left:0;width:100%;height:100%;"
-          title="A Place Of No Beyond">
-        </iframe>
-      </div>
-      <script src="https://player.vimeo.com/api/player.js"></script>
-      <p class="node-text" style="font-size:0.78rem;opacity:0.5;margin-top:1rem;">A short film. A place that exists between things.</p>
-    </div>
+<div class="vimeo-page">
+  <span class="vid-label">A PLACE OF NO BEYOND</span>
+  <div class="vimeo-wrap">
+    <iframe
+      src="https://player.vimeo.com/video/889004788?badge=0&autopause=0&player_id=0&app_id=58479&title=0&byline=0&portrait=0"
+      allow="autoplay; fullscreen; picture-in-picture"
+      title="A Place Of No Beyond">
+    </iframe>
   </div>
-</main>
+  <script src="https://player.vimeo.com/api/player.js"></script>
+</div>
 <nav class="node-nav">
   <button id="btn-back" class="nav-btn">← go back</button>
   <button id="btn-deeper" class="nav-btn deeper">go deeper →</button>
 </nav>
-<div class="coordinates" data-coords="SHORT FILM — SIGNAL ORIGIN UNKNOWN"></div>
 <script src="../js/engine.js"></script>
 <script>
 initDeeperButton([
-  { url: 'doran.html', weight: 2 },
-  { url: 'cu-chulainn.html', weight: 2 },
-  { url: 'the-exile.html', weight: 2 },
-  { url: 'kelak.html', weight: 2 },
+  { url: 'entry.html',       weight: 3 },
+  { url: 'leonard.html',     weight: 2 },
   { url: 'domum-novum.html', weight: 2 },
-  { url: 'new-kyushu.html', weight: 2 },
-  { url: 'nkmc-dead-gods.html', weight: 1 },
-  { url: 'sleipnir.html', weight: 1 },
-  { url: 'the-ookami.html', weight: 1 },
-  { url: 'gif-skullgolf.html', weight: 2 },
-  { url: 'gif-osos-daynight.html', weight: 2 },
-  { url: 'gif-tinl.html', weight: 2 },
-  { url: 'gif-leonard-three.html', weight: 2 },
-  { url: 'vid-acid-cola-ad.html', weight: 2 },
-  { url: 'vid-headgear-8.html', weight: 2 },
-  { url: 'vid-nightcutters.html', weight: 2 },
-  { url: 'vid-apogeic-two.html', weight: 2 },
-  { url: 'vid-maelstrom-knight.html', weight: 2 },
-  { url: 'img-nkmc-electroghosts.html', weight: 2 },
-  { url: 'img-koa-wanderer.html', weight: 2 },
-  { url: 'img-nkmc-riastrad.html', weight: 2 },
-  { url: 'img-short-film-ancient-1.html', weight: 2 },
-  { url: 'img-misc-armour.html', weight: 2 },
-  { url: 'memory-endlessly-song.html', weight: 2 },
-  { url: 'our-wanderer-song.html', weight: 2 },
-  { url: 'entry.html', weight: 1 },
-  { url: 'graphic-novel.html', weight: 1 },
-  { url: 'map.html', weight: 1 }
+  { url: 'peregrinus.html',  weight: 2 },
+  { url: 'dead-gods.html',   weight: 1 },
+  { url: 'the-exile.html',   weight: 1 },
 ]);
-</script>
-
-<script>
-// Auto-detect video orientation
-document.addEventListener('DOMContentLoaded', function() {
-  var videoEl = document.querySelector('video');
-  var container = document.querySelector('.video-player-container');
-  if (!videoEl || !container) return;
-  videoEl.addEventListener('loadedmetadata', function() {
-    if (videoEl.videoHeight > videoEl.videoWidth) {
-      container.className = 'video-player-container portrait';
-    } else {
-      container.className = 'video-player-container landscape';
-    }
-  });
-});
 </script>
 </body>
 </html>
