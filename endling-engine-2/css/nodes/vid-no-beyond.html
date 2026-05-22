@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>THE ENDLING SAGA — A PLACE OF NO BEYOND</title>
+  <link rel="stylesheet" href="../css/engine.css">
+  <style>
+    html,body{margin:0;padding:0;width:100%;height:100%;background:#000;overflow:hidden;}
+    .vimeo-page{width:100vw;height:100vh;display:flex;align-items:center;justify-content:center;background:#000;position:relative;}
+    .vimeo-wrap{width:100%;max-width:min(100vw, 177.78vh);aspect-ratio:16/9;position:relative;}
+    .vimeo-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none;}
+    .vid-label{position:fixed;top:1.2rem;left:50%;transform:translateX(-50%);font-family:var(--font-mono);font-size:0.5rem;letter-spacing:0.4em;color:rgba(184,160,144,0.25);text-transform:uppercase;z-index:10;pointer-events:none;}
+  </style>
+</head>
+<body>
+<div id="page-transition" class="page-transition"></div>
+<div class="site-logo"><a href="../index.html"><img src="../images/misc/main-endling-saga-logo.png" alt="The Endling Saga"></a></div>
+<div class="vimeo-page">
+  <span class="vid-label">A PLACE OF NO BEYOND</span>
+  <div class="vimeo-wrap">
+    <iframe
+      src="https://player.vimeo.com/video/889004788?badge=0&autopause=0&player_id=0&app_id=58479&title=0&byline=0&portrait=0"
+      allow="autoplay; fullscreen; picture-in-picture"
+      title="A Place Of No Beyond">
+    </iframe>
+  </div>
+  <script src="https://player.vimeo.com/api/player.js"></script>
+</div>
+<nav class="node-nav">
+  <button id="btn-back" class="nav-btn">← go back</button>
+  <button id="btn-deeper" class="nav-btn deeper">go deeper →</button>
+</nav>
+<script src="../js/engine.js"></script>
+<script>
+initDeeperButton([
+  { url: 'entry.html',       weight: 3 },
+  { url: 'leonard.html',     weight: 2 },
+  { url: 'domum-novum.html', weight: 2 },
+  { url: 'peregrinus.html',  weight: 2 },
+  { url: 'dead-gods.html',   weight: 1 },
+  { url: 'the-exile.html',   weight: 1 },
+]);
+</script>
+</body>
+</html>

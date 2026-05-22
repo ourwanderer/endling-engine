@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>THE ENDLING SAGA — DEAD GODS — NKMC</title>
+  <link rel="stylesheet" href="../css/engine.css">
+  <style>
+    .nkmc-wrap {
+      position: relative; z-index: 10;
+      max-width: 700px; width: 100%;
+      padding: 2rem; text-align: center;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 1.5rem;
+      animation: fadeIn 0.8s ease 0.3s both;
+    }
+    .nkmc-crest {
+      width: clamp(160px, 35vw, 280px);
+      height: auto;
+      opacity: 0;
+      animation: revealImage 1.2s ease 0.5s forwards;
+      filter: saturate(0.9);
+    }
+    .nkmc-text {
+      font-family: var(--font-prose); font-style: italic;
+      font-size: clamp(0.88rem, 1.5vw, 1rem);
+      line-height: 1.85; color: var(--ghost);
+      text-align: center; max-width: 520px;
+    }
+    .nkmc-text p + p { margin-top: 0.8rem; }
+  </style>
+</head>
+<body>
+<div id="page-transition" class="page-transition"></div>
+<div class="site-logo"><a href="../index.html"><img src="../images/misc/main-endling-saga-logo.png" alt="The Endling Saga"></a></div>
+<main class="engine-page zone-newkyushu">
+  <div class="nkmc-wrap">
+    <span class="node-label">NKMC — FACTION — OF THE DAWN WASTE</span>
+    <img class="nkmc-crest" src="/images/endling/nkmc-dead-gods-crest.jpg" alt="DEAD GODS — NKMC">
+    <h2 class="node-title glitch" data-text="DEAD GODS">DEAD GODS</h2>
+    <div class="nkmc-text">
+      <p>Of the Dawn Waste. They ride the wastelands beyond the city wall where the Gas is thickest and the Blackbone claims everyone eventually.</p>
+      <p>They believe the Dead Gods speak through the toxic air. That Blackbone is not a disease but a transformation. That the ventilator is a denial of communion.</p>
+      <p>Their bikes are dark. Their crests are darker.</p>
+    </div>
+    <p class="node-fragment">Their lungs are not what they used to be.</p>
+  </div>
+</main>
+<nav class="node-nav">
+  <button id="btn-back" class="nav-btn">← go back</button>
+  <button id="btn-deeper" class="nav-btn deeper">go deeper →</button>
+</nav>
+<div class="coordinates" data-coords="DAWN WASTE — BEYOND THE WALL"></div>
+<script src="../js/engine.js"></script>
+<script>
+initDeeperButton([
+  { url: "nkmc-bike-piero.html", weight: 3 },
+  { url: "nkmc-bike-dead-gods-1.html", weight: 3 },
+  { url: "img-nkmc-dead-gods-bike.html", weight: 4 },
+  { url: "nkmc-electroghosts.html", weight: 2 },
+  { url: "nkmc.html", weight: 3 },
+  { url: "blackbone.html", weight: 3 },
+  { url: "dead-gods.html", weight: 2 },
+  { url: "new-kyushu.html", weight: 1 },
+  { url: "koa.html", weight: 1 },
+]);
+</script>
+</body>
+</html>

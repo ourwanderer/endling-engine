@@ -212,6 +212,11 @@ function initWarp() {
     if (Math.abs(cs-ts)>0.08||cs>0.08) requestAnimationFrame(tick);
     else { if(disp) disp.setAttribute('scale','0'); animating=false; }
   }
+
+  // Apply warp filter to buttons on hover
+  const btnStyle = document.createElement('style');
+  btnStyle.textContent = '.nav-btn:hover, .enter-btn:hover { filter: url(#reality-warp); }';
+  document.head.appendChild(btnStyle);
 }
 
 // ── ABSTRACT AUDIO VISUALISER ─────────────────────────────────────────────────
@@ -413,10 +418,6 @@ function initAudioPlayer(audioSrc, visualiserMode) {
     });
   }
 
-  // Ethereal abstract visualiser - particles, tendrils, shifting colour
-    let time = 0;
-  let hueBase = 0;
-
   let particles = [];
   let time = 0;
   let hueBase = 0;
@@ -432,85 +433,6 @@ function initAudioPlayer(audioSrc, visualiserMode) {
     if (mode === 'waveform') { drawModeWaveform(ctx, analyser, W, H, time, hueBase); return; }
     if (mode === 'particles') { particles = drawModeParticleField(ctx, analyser, W, H, time, hueBase, particles); return; }
     if (mode === 'geometric') { drawModeGeometric(ctx, analyser, W, H, time, hueBase); return; }
-
-    const W=canvas.width, H=canvas.height;
-    const bufLen = analyser.frequencyBinCount;
-    const freqData = new Uint8Array(bufLen);
-    const waveData = new Uint8Array(analyser.fftSize);
-    analyser.getByteFrequencyData(freqData);
-    analyser.getByteTimeDomainData(waveData);
-
-    const bass = freqData.slice(0,8).reduce((a,b)=>a+b,0)/8/255;
-    const mid  = freqData.slice(8,60).reduce((a,b)=>a+b,0)/52/255;
-    const high = freqData.slice(60,120).reduce((a,b)=>a+b,0)/60/255;
-    const energy = (bass*0.5 + mid*0.3 + high*0.2);
-
-    // Shift hue slowly with music energy
-    hueBase += 0.15 + energy*0.8;
-
-    // Very soft fade - long trail
-    ctx.globalCompositeOperation = 'source-over';
-    ctx.fillStyle = `rgba(30,12,8,${0.05 + bass*0.03})`;
-    ctx.fillRect(0,0,W,H);
-
-    const cx=W/2, cy=H/2;
-
-    // Waveform as flowing tendril across full width
-    ctx.globalCompositeOperation = 'screen';
-    ctx.beginPath();
-    for (let i=0; i<waveData.length; i++) {
-      const x = (i/waveData.length)*W;
-      const v = (waveData[i]-128)/128;
-      const wobble = Math.sin(i*0.05+time*2)*mid*12;
-      const y = cy + v*H*0.35 + wobble;
-      i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
-    }
-    const wHue = (hueBase + 10) % 360;
-    ctx.strokeStyle = `hsla(${wHue},${60+high*40}%,${45+bass*30}%,${0.25+energy*0.35})`;
-    ctx.lineWidth = 0.8 + bass*2;
-    ctx.stroke();
-
-    // Second waveform offset for depth
-    ctx.beginPath();
-    for (let i=0; i<waveData.length; i+=2) {
-      const x = (i/waveData.length)*W;
-      const v = (waveData[i]-128)/128;
-      const y = cy*0.6 + v*H*0.15 + Math.cos(i*0.08+time)*mid*8;
-      i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
-    }
-    ctx.strokeStyle = `hsla(${(hueBase+180)%360},${40+mid*50}%,${35+high*30}%,${0.15+mid*0.2})`;
-    ctx.lineWidth = 0.5 + mid;
-    ctx.stroke();
-
-    // Frequency blob - organic shape reacting to spectrum
-    ctx.beginPath();
-    const numPts = 80;
-    for (let i=0; i<=numPts; i++) {
-      const angle = (i/numPts)*Math.PI*2;
-      const fi = Math.floor((i/numPts)*bufLen*0.5);
-      const amp = (freqData[fi]||0)/255;
-      const r = 12 + amp*38 + bass*18 + Math.sin(angle*4+time)*mid*6;
-      const px = cx + Math.cos(angle)*r*2.2;
-      const py = cy + Math.sin(angle)*r;
-      i===0 ? ctx.moveTo(px,py) : ctx.lineTo(px,py);
-    }
-    ctx.closePath();
-    const bHue = hueBase % 360;
-    ctx.strokeStyle = `hsla(${bHue},${70+bass*30}%,${40+bass*25}%,${0.3+bass*0.4})`;
-    ctx.lineWidth = 0.6 + bass;
-    ctx.stroke();
-
-    // Subtle spectral dots on transients (not rising - just flash and fade)
-    if (energy > 0.45 && Math.random() < energy*0.3) {
-      const px = Math.random()*W;
-      const py = Math.random()*H;
-      ctx.beginPath();
-      ctx.arc(px, py, 0.8+Math.random()*1.5, 0, Math.PI*2);
-      ctx.fillStyle = `hsla(${(hueBase+Math.random()*90)%360},70%,65%,${0.15+energy*0.2})`;
-      ctx.fill();
-    }
-
-    ctx.globalCompositeOperation = 'source-over';
   }
 
   function resizeCanvas() {

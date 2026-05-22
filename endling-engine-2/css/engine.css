@@ -1149,28 +1149,3 @@ main.engine-page:not(.zone-newkyushu):not(.zone-continent):not(.zone-domum):not(
 /* Character page - ensure proper dark bg */
 .char-page { background: var(--void); }
 
-/* ── BUTTON DISTORTION — CSS ONLY (no SVG filter dependency) ──────────────── */
-.enter-btn:hover,
-.nav-btn:hover {
-  filter: none;
-  transform: skew(-1deg, 0deg);
-  letter-spacing: calc(var(--ls, 0.5em) + 0.05em);
-  transition: all 0.1s ease;
-}
-.nav-btn:hover {
-  transform: skew(-0.5deg, 0deg) translateX(1px);
-}
-.nav-btn.deeper:hover {
-  transform: skew(0.5deg, 0deg) translateX(-1px);
-}
-
-/* Glitch flicker on deeper button hover */
-@keyframes btnGlitch {
-  0%,100% { transform: skew(0.5deg); opacity: 1; }
-  25% { transform: skew(-1deg) translateX(2px); opacity: 0.85; }
-  50% { transform: skew(0.8deg) translateX(-1px); opacity: 1; }
-  75% { transform: skew(-0.3deg); opacity: 0.9; }
-}
-.nav-btn.deeper:hover {
-  animation: btnGlitch 0.25s ease;
-}

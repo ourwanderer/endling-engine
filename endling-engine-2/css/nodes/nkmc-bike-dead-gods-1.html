@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>THE ENDLING SAGA — NKMC I</title>
+  <link rel="stylesheet" href="../css/engine.css">
+  <style>
+    .bike-wrap {
+      position: relative; z-index: 10;
+      max-width: 520px; width: 100%;
+      padding: 2rem; text-align: center;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 1.2rem;
+      animation: fadeIn 0.8s ease 0.3s both;
+    }
+    .bike-image {
+      max-width: 100%;
+      max-height: 55vh;
+      object-fit: contain;
+      opacity: 0;
+      animation: revealImage 1.2s ease 0.4s forwards;
+    }
+    .bike-name {
+      font-family: var(--font-display);
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      letter-spacing: 0.12em; color: var(--pale);
+    }
+    .bike-faction {
+      font-family: var(--font-mono);
+      font-size: 0.55rem; letter-spacing: 0.35em;
+      color: var(--engine-glow); opacity: 0.7;
+      text-transform: uppercase;
+    }
+    .bike-desc {
+      font-family: var(--font-prose); font-style: italic;
+      font-size: clamp(0.85rem, 1.5vw, 0.98rem);
+      line-height: 1.85; color: var(--ghost);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+<div id="page-transition" class="page-transition"></div>
+<div class="site-logo"><a href="../index.html"><img src="../images/misc/main-endling-saga-logo.png" alt="The Endling Saga"></a></div>
+<main class="engine-page zone-newkyushu">
+  <div class="bike-wrap">
+    <img class="bike-image" src="/images/endling/nkmc-dead-gods-bike-1.jpg" alt="NKMC I">
+    <div class="bike-name">NKMC I</div>
+    <div class="bike-faction">DEAD GODS — NKMC</div>
+    <div class="bike-desc">
+      <p>[Placeholder — Dead Gods bike tier I. Add personality description here.]</p>
+    </div>
+  </div>
+</main>
+<nav class="node-nav">
+  <button id="btn-back" class="nav-btn">← go back</button>
+  <button id="btn-deeper" class="nav-btn deeper">go deeper →</button>
+</nav>
+<div class="coordinates" data-coords="NEW KYUSHU — VEHICLE RECORD"></div>
+<script src="../js/engine.js"></script>
+<script>
+initDeeperButton([
+  { url: 'nkmc-dead-gods.html', weight: 4 },
+  { url: 'nkmc.html', weight: 3 },
+  { url: 'sleipnir.html', weight: 2 },
+  { url: 'koa.html', weight: 2 },
+  { url: 'new-kyushu.html', weight: 1 },
+  { url: 'blackbone.html', weight: 1 },
+]);
+</script>
+</body>
+</html>

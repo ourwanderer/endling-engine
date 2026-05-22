@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>THE ENDLING SAGA — THE ENDLING: PAGES</title>
+  <link rel="stylesheet" href="../css/engine.css">
+<style>
+  html, body { overflow-y: auto; height: auto; }
+  .engine-page { height: auto; min-height: 100vh; overflow: visible; padding: 4rem 1rem 7rem; }
+  .novel-reader { padding-bottom: 2rem; }
+  .novel-page-img { max-height: 65vh; width: auto; max-width: 100%; display: block; margin: 0 auto; object-fit: contain; }
+  /* class to mark this as fixed */
+  .novel-fit { display: none; }
+</style>
+</head>
+<body>
+<div id="page-transition" class="page-transition"></div>
+<div class="site-logo"><a href="../index.html"><img src="../images/misc/main-endling-saga-logo.png" alt="The Endling Saga"></a></div>
+
+<main class="engine-page zone-newkyushu scrollable">
+  <div class="content">
+    <div class="novel-reader" style="padding-bottom:5rem;">
+      <span class="node-label">THE ENDLING — GRAPHIC PAGES</span>
+      <div class="novel-page-wrap">
+        <img id="novel-img" class="novel-page-img" src="/images/endling-graphic-novel-page-1.jpg" alt="The Endling — Page 1">
+      </div>
+      <div class="novel-controls">
+        <button id="novel-prev" class="novel-btn">← prev</button>
+        <span id="novel-counter" class="novel-counter">1 / 5</span>
+        <button id="novel-next" class="novel-btn">next →</button>
+      </div>
+      <p class="node-text" style="font-size:0.7rem;opacity:0.4;">Click image to zoom · click again to restore</p>
+    </div>
+  </div>
+</main>
+
+<nav class="node-nav">
+  <button id="btn-back" class="nav-btn">← go back</button>
+  <button id="btn-deeper" class="nav-btn deeper">go deeper →</button>
+</nav>
+<div class="coordinates" data-coords="NEW KYUSHU — GRAPHIC RECORD — PAGES 1-5"></div>
+<script src="../js/engine.js"></script>
+<script>
+  initNovelReader([
+    '/images/endling/endling-graphic-novel-pages/endling-graphic-novel-page-1.png',
+    '/images/endling/endling-graphic-novel-pages/endling-graphic-novel-page-2.png',
+    '/images/endling/endling-graphic-novel-pages/endling-graphic-novel-page-3.png',
+    '/images/endling/endling-graphic-novel-pages/endling-graphic-novel-page-4.png',
+    '/images/endling/endling-graphic-novel-pages/endling-graphic-novel-page-5.png',
+  ]);
+  initDeeperButton([
+  { url: 'leonard.html', weight: 2 },
+  { url: 'irla.html', weight: 2 },
+  { url: 'cu-chulainn.html', weight: 2 },
+  { url: 'elayda.html', weight: 2 },
+  { url: 'the-continent.html', weight: 2 },
+  { url: 'domum-novum.html', weight: 2 },
+  { url: 'dead-gods.html', weight: 1 },
+  { url: 'blackbone.html', weight: 1 },
+  { url: 'agnar.html', weight: 1 },
+  { url: 'gif-headgear-logo.html', weight: 2 },
+  { url: 'gif-yaeko-spear.html', weight: 2 },
+  { url: 'gif-leonard-three.html', weight: 2 },
+  { url: 'gif-yaeko-helmet.html', weight: 2 },
+  { url: 'vid-apogeic-two.html', weight: 2 },
+  { url: 'vid-no-beyond.html', weight: 2 },
+  { url: 'vid-leonard-slowrym.html', weight: 2 },
+  { url: 'vid-leonard-altar.html', weight: 2 },
+  { url: 'vid-superluminal.html', weight: 2 },
+  { url: 'img-misc-pilot.html', weight: 2 },
+  { url: 'img-yaeko-storyboard.html', weight: 2 },
+  { url: 'img-short-film-2.html', weight: 2 },
+  { url: 'img-maelstrom-fragment.html', weight: 2 },
+  { url: 'img-yaeko.html', weight: 2 },
+  { url: 'other-seas-song.html', weight: 2 },
+  { url: 'three-moons-song.html', weight: 2 },
+  { url: 'entry.html', weight: 1 },
+  { url: 'map.html', weight: 1 }
+]);
+</script>
+</body>
+</html>

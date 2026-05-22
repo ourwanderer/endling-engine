@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>THE ENDLING SAGA — NKMC</title>
+  <link rel="stylesheet" href="../css/engine.css">
+  <style>
+    .nkmc-wrap {
+      position: relative; z-index: 10;
+      max-width: 700px; width: 100%;
+      padding: 2rem; text-align: center;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 1.5rem;
+      animation: fadeIn 0.8s ease 0.3s both;
+    }
+    .nkmc-crest {
+      width: clamp(160px, 35vw, 280px);
+      height: auto;
+      opacity: 0;
+      animation: revealImage 1.2s ease 0.5s forwards;
+      filter: saturate(0.9);
+    }
+    .nkmc-text {
+      font-family: var(--font-prose); font-style: italic;
+      font-size: clamp(0.88rem, 1.5vw, 1rem);
+      line-height: 1.85; color: var(--ghost);
+      text-align: center; max-width: 520px;
+    }
+    .nkmc-text p + p { margin-top: 0.8rem; }
+  </style>
+</head>
+<body>
+<div id="page-transition" class="page-transition"></div>
+<div class="site-logo"><a href="../index.html"><img src="../images/misc/main-endling-saga-logo.png" alt="The Endling Saga"></a></div>
+<main class="engine-page zone-newkyushu">
+  <div class="nkmc-wrap">
+    <span class="node-label">NEW KYUSHU MOTORCYCLE CLUB</span>
+    <img class="nkmc-crest" src="/images/endling/nkmc-main-crest.jpeg" alt="NKMC">
+    <h2 class="node-title glitch" data-text="NKMC">NKMC</h2>
+    <div class="nkmc-text">
+      <p>Two warring factions — the Dead Gods and the Electroghosts — are vying for leadership of the entire NKMC.</p>
+      <p>The Dead Gods live in the wastelands that surround the city of New Kyushu. The Electroghosts rarely leave the neon-soaked streets of the capital.</p>
+      <p>The bikes they ride are very special.</p>
+    </div>
+    <p class="node-fragment">They are sentient.</p>
+  </div>
+</main>
+<nav class="node-nav">
+  <button id="btn-back" class="nav-btn">← go back</button>
+  <button id="btn-deeper" class="nav-btn deeper">go deeper →</button>
+</nav>
+<div class="coordinates" data-coords="NEW KYUSHU — FACTION REGISTRY — EST. 2021"></div>
+<script src="../js/engine.js"></script>
+<script>
+initDeeperButton([
+  { url: "nkmc-dead-gods.html", weight: 4 },
+  { url: "nkmc-electroghosts.html", weight: 4 },
+  { url: "sleipnir.html", weight: 3 },
+  { url: "koa.html", weight: 2 },
+  { url: "new-kyushu.html", weight: 2 },
+  { url: "blackbone.html", weight: 1 },
+  { url: "vid-acid-cola-ad.html", weight: 1 },
+]);
+</script>
+</body>
+</html>
