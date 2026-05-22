@@ -1128,3 +1128,23 @@ main.engine-page:not(.zone-newkyushu):not(.zone-continent):not(.zone-domum):not(
   text-transform: uppercase;
   pointer-events: none;
 }
+
+/* ── VIDEO GLITCH LOAD EFFECT ──────────────────────────────────────────── */
+.vid-page video {
+  animation: vidReveal 0.6s ease both;
+}
+@keyframes vidReveal {
+  0%   { opacity: 0; filter: brightness(3) saturate(0) contrast(2); transform: scaleX(1.02); }
+  15%  { opacity: 1; filter: brightness(2) saturate(0.3) hue-rotate(90deg); transform: scaleX(0.99); }
+  30%  { opacity: 0.7; filter: brightness(0.5) hue-rotate(180deg); transform: scaleX(1.01); }
+  50%  { opacity: 1; filter: brightness(1.5) saturate(0.6); transform: scaleX(1); }
+  100% { opacity: 1; filter: brightness(1) saturate(1); transform: scaleX(1); }
+}
+
+/* Zone colours override - force near-black on media pages */
+.engine-page:not(.zone-newkyushu):not(.zone-continent):not(.zone-domum):not(.zone-engine):not(.char-page) {
+  background: #060606;
+}
+
+/* Character page - ensure proper dark bg */
+.char-page { background: var(--void); }
