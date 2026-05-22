@@ -32,50 +32,125 @@ const EngineSession = {
 
 // ── NAVIGATION ───────────────────────────────────────────────────────────────
 
-function navigateTo(url, delay=500) {
+function navigateTo(url, delay=350) {
   const overlay = document.getElementById('page-transition');
   if (overlay) {
     overlay.classList.add('active');
-    // Trigger glitch warp on transition
-    const glitch = document.getElementById('transition-glitch');
-    if (glitch) {
-      glitch.style.opacity = '1';
-      setTimeout(() => { if(glitch) glitch.style.opacity = '0'; }, 200);
-    }
     setTimeout(()=>{ window.location.href=url; }, delay);
   } else window.location.href = url;
 }
 
+// Strand definitions — THE ENDLING / HIGH WAIL ROOK / DOMUM NOVUM
+const STRANDS = {
+  endling: [
+    'koa.html','doran.html','agnar.html','sleipnir.html','bouncer-x.html',
+    'the-ookami.html','new-kyushu.html','blackbone.html','nkmc.html',
+    'graphic-novel.html','war-dog.html','nkmc-electroghosts.html','nkmc-dead-gods.html',
+    'nkmc-pr-crew.html',
+    'gif-anime-endling.html','gif-koa-ride.html','gif-headgear-logo.html',
+    'gif-yaeko-bebop.html','gif-yaeko-echo.html','gif-yaeko-helmet.html',
+    'gif-yaeko-spear.html','gif-yaeko-test.html','gif-yaeko-title.html',
+    'gif-yaeko-kick.html','gif-yaeko-skullgolf.html',
+    'vid-bouncer-x.html','vid-headgear-8.html','vid-headgear-9.html',
+    'vid-headgear-10.html','vid-headgear-5.html','vid-headgear-genesis.html',
+    'vid-acid-cola-ad.html','vid-walk-war-dog.html','vid-acid-cola-can-360.html',
+    'vid-headgear-360-1.html','vid-headgear-360-2.html','vid-yaeko-fun.html',
+    'vid-yaeko-spear.html','vid-endling-credits.html',
+    'img-koa-sunset.html','img-koa-bike-doran.html','img-endling-oracle.html',
+    'img-endling-oracle-dream.html','img-shogun-leiko.html','img-war-dog-koa.html',
+    'img-endling-flight.html','img-endling-meet.html','img-endling-rest-sunset.html',
+    'img-endling-duel.html','img-koa-young.html','img-piero.html',
+    'img-headgear-card-1.html','img-headgear-card-2.html','img-headgear-card-3.html',
+    'img-headgear-3moons-note.html','img-acid-cola-logo.html','img-writing-consulcrew.html',
+    'img-koa-wanderer.html','img-early-endling-1.html','img-early-endling-2.html',
+    'img-yaeko.html','img-yaeko-acid-cola.html','img-yaeko-storyboard.html',
+    'img-new-kyushu-citizen.html','img-nkmc-electroghosts.html','img-nkmc-dead-gods-bike.html',
+    'img-nkmc-piero.html','img-nkmc-riastrad.html',
+  ],
+  hwr: [
+    'irla.html','elayda.html','kelak.html','cu-chulainn.html',
+    'high-wail-rook.html','the-continent.html','green-temple.html',
+    'dead-gods.html','holy-lines.html','map.html',
+    'vid-maelstrom-knight.html','vid-nightcutters.html',
+    'img-irla-rin-title.html','img-kelak.html','img-kelak-story.html',
+    'img-adamas.html','img-baiden.html','img-bria.html','img-dragon-rider.html',
+    'img-elayda-portrait.html','img-green-temple-adira.html',
+    'img-cataphract.html','img-excubitor.html','img-halberdier.html',
+    'img-neokoro.html','img-hwr-knight-1.html','img-hwr-knight-2.html',
+    'img-hwr-hordes.html','img-seedlands.html','img-desert-knight.html',
+    'img-irla-rin-map.html','img-maelstrom-knight.html','img-maelstrom-fragment.html',
+  ],
+  domum: [
+    'peregrinus.html','domum-novum.html','three-moons-glossary.html',
+    'our-wanderer-song.html','three-moons-song.html',
+    'memory-endlessly-song.html','other-seas-song.html',
+    'lyric-our-wanderer.html','lyric-three-moons.html',
+    'lyric-memory-endlessly.html','lyric-other-seas.html',
+    'gif-osos-daynight.html','vid-the-exile.html','vid-dead-machine.html',
+    'vid-short-film-ancient.html','vid-rixual-1.html','vid-rixual-2.html',
+    'img-domum-liftoff.html','img-domum-machina.html','img-domum-parousia.html',
+    'img-domum-prex-machina.html','img-domum-veil.html',
+    'img-engine-prex-inscription.html','img-dead-machine-one.html',
+    'img-mythed-ceremony.html','img-mythed-sirens.html',
+    'img-peregrinus-world.html','img-misc-seer.html','img-misc-shore.html',
+  ],
+};
+
+// Leonard is a bridge — accessible from all strands but not belonging to any
+// The Exile is a bridge node too
+
+// Leonard is a bridge - appears in all strands
+const BRIDGE_NODES = ['leonard.html','entry.html','agnar.html','the-exile.html'];
+
+function getOrAssignStrand() {
+  try {
+    let strand = sessionStorage.getItem('es_strand');
+    if (!strand) {
+      const strands = ['endling','hwr','domum'];
+      strand = strands[Math.floor(Math.random() * strands.length)];
+      sessionStorage.setItem('es_strand', strand);
+    }
+    return strand;
+  } catch(e) {
+    return 'newkyushu';
+  }
+}
+
 function smartRandom(pool) {
   const clicks = EngineSession.getClickCount();
+  const strand = getOrAssignStrand();
+  const strandNodes = STRANDS[strand] || [];
 
-  // Filter out visited nodes entirely after just 3 clicks
-  // This is the key fix - don't just penalise, EXCLUDE visited
+  // Build candidate list - exclude visited after 3 clicks
   let candidates = pool;
-  
   if (clicks >= 3) {
     const unvisited = pool.filter(item => !EngineSession.hasVisited(item.url));
-    // Only use unvisited if we have at least 2 options
-    if (unvisited.length >= 2) {
-      candidates = unvisited;
-    } else if (unvisited.length === 1) {
-      candidates = unvisited;
-    } else {
-      // All visited - use full pool but heavily randomise
-      candidates = pool;
+    if (unvisited.length >= 1) candidates = unvisited;
+  }
+
+  // Apply strand weighting - boost nodes in current strand
+  // Strand influence grows with click count (0-12: mild, 12+: stronger)
+  const strandInfluence = clicks < 12 ? 1.8 : 2.8;
+  
+  const adjusted = candidates.map(item => {
+    let w = item.weight || 1;
+    const filename = item.url.split('/').pop();
+    if (strandNodes.includes(filename)) {
+      w *= strandInfluence;
     }
-  }
+    return { url: item.url, weight: w };
+  });
 
-  // After 12 clicks: zone coherence kicks in (pools are already zone-aware)
-  // The exclusion of visited nodes handles the repeat problem
+  // After 20 clicks - strand starts dissolving, everything equalises
+  const finalPool = clicks > 20 ? candidates : adjusted;
 
-  const total = candidates.reduce((s,i)=>s+(i.weight||1),0);
-  let r = Math.random()*total;
-  for (const item of candidates) {
-    r -= (item.weight||1);
-    if (r<=0) return item.url;
+  const total = finalPool.reduce((s,i) => s + (i.weight||1), 0);
+  let r = Math.random() * total;
+  for (const item of finalPool) {
+    r -= (item.weight || 1);
+    if (r <= 0) return item.url;
   }
-  return candidates[candidates.length-1].url;
+  return finalPool[finalPool.length - 1].url;
 }
 
 function initDeeperButton(pool) {
@@ -223,7 +298,7 @@ function initAudioPlayer(audioSrc) {
 
     // Very soft fade - long trail
     ctx.globalCompositeOperation = 'source-over';
-    ctx.fillStyle = `rgba(8,5,4,${0.07 + bass*0.04})`;
+    ctx.fillStyle = `rgba(30,12,8,${0.05 + bass*0.03})`;
     ctx.fillRect(0,0,W,H);
 
     const cx=W/2, cy=H/2;

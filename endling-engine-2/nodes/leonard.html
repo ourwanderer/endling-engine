@@ -8,20 +8,24 @@
 </head>
 <body>
 <div id="page-transition" class="page-transition"></div>
-<div class="site-logo"><a href="../index.html"><img src="../images/main-endling-saga-logo.png" alt="The Endling Saga"></a></div>
-<main class="engine-page zone-engine">
-  <div class="engine-bg-fallback"></div>
-  <div class="bg-image vignette" style=""></div>
-  <div class="char-layout">
-    <img class="char-image" src="/gifs/leonard-three.gif" alt="Leonard">
-    <div class="char-text">
-      <span class="node-label">THE MONSTER HUNTER</span>
-      <h2 class="node-title glitch" data-text="LEONARD">LEONARD</h2>
-      <p class="node-text">Leonard is a badass. He smokes something that gives off green smoke. He has a katana named Agnar. He hunts monsters.</p>
-      <p class="node-text">He is also completely alone (apart from the monsters).</p>
-      <p class="node-text">Leonard wanders a bleak, derelict land. The only signs of anything other than him and the monsters having been there are The Engines — colossal metal ruins that stretch so far into the sky they blend into it. They are places he absolutely does not want to go.</p>
-      <p class="node-text">But Leonard has no choice. Because on top of being alone, and not really knowing who or what or why he is — he is also not in full control of his movements.</p>
-      <p class="node-fragment">You are.</p>
+<div class="site-logo"><a href="../index.html"><img src="../images/misc/main-endling-saga-logo.png" alt="The Endling Saga"></a></div>
+<main class="engine-page zone-engine char-page">
+  <div class="bg-image vignette" style="background-image:url('/images/leonard/leonard-east-to-engine.jpg')"></div>
+  <div class="char-layout-v2">
+    <div class="char-image-col">
+      <img class="char-portrait" src="/gifs/leonard/leonard-three.gif" alt="Leonard">
+    </div>
+    <div class="char-text-col">
+      <div class="char-designation">THE MONSTER HUNTER</div>
+      <h2 class="char-name glitch" data-text="LEONARD">LEONARD</h2>
+      <div class="char-divider"></div>
+      <div class="char-scroll-body">
+        <p>Leonard is a badass. He smokes something that gives off green smoke. He has a katana named Agnar. He hunts monsters.</p>
+        <p>He is also completely alone (apart from the monsters).</p>
+        <p>Leonard wanders a bleak, derelict land. The only signs of anything other than him and the monsters having been there are The Engines — colossal metal ruins that stretch so far into the sky they blend into it. They are places he absolutely does not want to go.</p>
+        <p>But Leonard has no choice. Because on top of being alone, and not really knowing who or what or why he is — he is also not in full control of his movements.</p>
+      </div>
+      <div class="char-fragment">You are.</div>
     </div>
   </div>
 </main>
@@ -33,19 +37,17 @@
 <script src="../js/engine.js"></script>
 <script>
 initDeeperButton([
-  { url: 'agnar.html', weight: 3 },
-  { url: 'entry.html', weight: 3 },
-  { url: 'domum-novum.html', weight: 2 },
-  { url: 'koa.html', weight: 2 },
-  { url: 'dead-gods.html', weight: 2 },
-  { url: 'vid-leonard-engine.html', weight: 2 },
-  { url: 'graphic-novel.html', weight: 2 },
-  { url: 'vid-dead-machine.html', weight: 2 },
-  { url: 'vid-leonard-altar.html', weight: 2 },
-  { url: 'vid-leonard-slowrym.html', weight: 2 },
-  { url: 'img-misc-seer.html', weight: 2 },
-  { url: 'gif-leonard-three.html', weight: 2 },
-  { url: 'vid-leonard-theme.html', weight: 2 }
+  { url: 'agnar.html',               weight: 3 },
+  { url: 'entry.html',               weight: 2 },
+  { url: 'koa.html',                 weight: 2 },
+  { url: 'the-exile.html',           weight: 2 },
+  { url: 'domum-novum.html',         weight: 1 },
+  { url: 'vid-leonard-altar.html',   weight: 3 },
+  { url: 'vid-leonard-engine.html',  weight: 3 },
+  { url: 'gif-leonard-three.html',   weight: 2 },
+  { url: 'graphic-novel.html',       weight: 2 },
+  { url: 'dead-gods.html',           weight: 1 },
+  { url: 'vid-dead-machine.html',    weight: 2 },
 ]);
 </script>
 </body>
