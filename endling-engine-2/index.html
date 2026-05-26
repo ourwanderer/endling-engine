@@ -3,74 +3,33 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="The Endling Saga. An Engine. Between states.">
-  <meta name="robots" content="noindex">
+  <meta name="description" content="The Endling Saga. A world of happenings, not of things.">
   <title>THE ENDLING SAGA</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Space+Mono&family=IM+Fell+English:ital@1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/engine.css">
   <style>
-    *{margin:0;padding:0;box-sizing:border-box;}
-    html,body{width:100%;height:100%;overflow:hidden;background:#0a0608;}
-    .holding-wrap{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;text-align:center;gap:1.6rem;}
-    .holding-bg{position:absolute;inset:0;background-image:url('/images/leonard/leonard-east-to-engine.jpg');background-size:cover;background-position:center;filter:brightness(0.72) saturate(0.82) contrast(1.1);z-index:0;}
-    .holding-bg::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 25%,rgba(10,6,8,0.55) 65%,rgba(10,6,8,0.92) 100%);}
-    .holding-content{position:relative;z-index:10;display:flex;flex-direction:column;align-items:center;gap:1.6rem;}
-    .holding-inscription{font-family:'Space Mono',monospace;font-size:clamp(0.5rem,1vw,0.65rem);letter-spacing:0.35em;color:#b8a090;opacity:0.35;text-transform:uppercase;animation:fadeIn 2s ease 0.5s both;}
-    .holding-logo{animation:fadeIn 1.5s ease 0.8s both;filter:drop-shadow(0 0 50px rgba(139,26,26,0.35));}
-    .holding-logo img{width:clamp(240px,46vw,520px);height:auto;filter:brightness(0) invert(1);}
-    .holding-logo{position:relative;}
-    .holding-logo::before,.holding-logo::after{content:'';position:absolute;inset:0;background-image:url('/images/misc/main-endling-saga-logo.png');background-size:contain;background-repeat:no-repeat;background-position:center;filter:brightness(0) invert(1);opacity:0;pointer-events:none;}
-    .holding-logo::before{filter:brightness(0) invert(1) sepia(1) saturate(5) hue-rotate(300deg);animation:glitch-r 6s infinite;}
-    .holding-logo::after{filter:brightness(0) invert(1) sepia(1) saturate(5) hue-rotate(160deg);animation:glitch-b 6s infinite;}
-    .holding-line{width:1px;height:45px;background:linear-gradient(to bottom,transparent,rgba(139,26,26,0.55),transparent);animation:fadeIn 1s ease 1.8s both;}
-    .holding-status{font-family:'Space Mono',monospace;font-size:clamp(0.5rem,1vw,0.62rem);letter-spacing:0.3em;color:#c0392b;opacity:0.75;text-transform:uppercase;animation:fadeIn 1s ease 1.5s both,pulse 4s ease 2.5s infinite;}
-    .holding-sub{font-family:'IM Fell English',serif;font-style:italic;font-size:clamp(0.78rem,1.5vw,0.95rem);color:rgba(232,221,208,0.65);opacity:0;animation:fadeIn 1.5s ease 2.2s forwards;max-width:320px;line-height:1.8;}
-    .artist-link{position:fixed;bottom:1.2rem;right:1.8rem;font-family:'Space Mono',monospace;font-size:0.48rem;letter-spacing:0.25em;color:#b8a090;opacity:0.18;text-decoration:none;text-transform:uppercase;transition:opacity 0.4s ease;animation:fadeIn 1s ease 4s both;z-index:20;}
-    .artist-link:hover{opacity:0.55;}
-    @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-    @keyframes pulse{0%,100%{opacity:0.55}50%{opacity:0.9}}
-    @keyframes glitch-r{0%,88%,94%,100%{opacity:0;transform:translate(0)}89%{opacity:0.7;transform:translate(-4px,1px);clip-path:polygon(0 20%,100% 20%,100% 50%,0 50%)}90%{opacity:0}91%{opacity:0.5;transform:translate(3px,-1px);clip-path:polygon(0 60%,100% 60%,100% 80%,0 80%)}92%{opacity:0}}
-    @keyframes glitch-b{0%,88%,94%,100%{opacity:0;transform:translate(0)}89%{opacity:0.6;transform:translate(4px,-1px);clip-path:polygon(0 50%,100% 50%,100% 75%,0 75%)}90%{opacity:0}91%{opacity:0.4;transform:translate(-2px,2px);clip-path:polygon(0 10%,100% 10%,100% 35%,0 35%)}92%{opacity:0}}
+    .homepage-bg { background-image:url('/images/leonard/leonard-east-to-engine.jpg'); filter:brightness(0.72) saturate(0.88); }
+    .hp-logo { opacity:0; animation:fadeIn 1.2s ease 0.9s forwards; filter:drop-shadow(0 0 40px rgba(139,26,26,0.35)); }
+    .hp-logo img { width:clamp(200px,42vw,500px); height:auto; filter:brightness(0) invert(1); }
+    .hp-sub { font-family:var(--font-prose); font-style:italic; font-size:clamp(0.85rem,1.6vw,1.05rem); color:var(--ghost); line-height:1.75; max-width:400px; opacity:0; animation:fadeIn 1s ease 1.4s forwards; }
+    .hp-divider { width:40px; height:1px; background:rgba(139,26,26,0.5); opacity:0; animation:fadeIn 0.8s ease 1.7s forwards; }
+    .hp-enter { opacity:0; animation:fadeIn 1s ease 2s forwards; }
+    .engine-page::after { content:''; position:absolute; bottom:0; left:0; right:0; height:180px; background:linear-gradient(to top,rgba(10,6,8,0.9),transparent); z-index:5; pointer-events:none; }
   </style>
 </head>
 <body>
-<div class="holding-wrap">
-  <div class="holding-bg" id="holding-bg"></div>
-  <div class="holding-content">
-    <span class="holding-inscription">MUNDUS EVENTUS, NON RERUM</span>
-    <div class="holding-logo">
-      <img src="/images/misc/main-endling-saga-logo.png" alt="The Endling Saga">
-    </div>
-    <div class="holding-line"></div>
-    <p class="holding-status">— ENGINE BETWEEN STATES —</p>
-    <p class="holding-sub">The Dead Machine is being rebuilt.<br>It will not look like it did before.<br>Return soon.</p>
+<div id="page-transition" class="page-transition"></div>
+<div class="site-logo"><a href="index.html"><img src="/images/misc/main-endling-saga-logo.png" alt="The Endling Saga"></a></div>
+<main class="engine-page homepage">
+  <div class="bg-image vignette homepage-bg"></div>
+  <div class="content">
+    <span class="inscription">MUNDUS EVENTUS, NON RERUM</span>
+    <div class="hp-logo"><img src="/images/misc/main-endling-saga-logo.png" alt="The Endling Saga"></div>
+    <div class="hp-divider"></div>
+    <p class="hp-sub">You have found an Engine.<br>It is not fully intact.</p>
+    <a href="nodes/entry.html" class="enter-btn hp-enter" onclick="event.preventDefault();navigateTo('nodes/entry.html')">ENTER</a>
   </div>
-</div>
-<a href="https://www.mattgriffin.art" class="artist-link" target="_blank">mattgriffin.art</a>
-<script>
-(function(){
-  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
-  svg.setAttribute('width','0');svg.setAttribute('height','0');svg.style.position='absolute';
-  svg.innerHTML='<defs><filter id="hold-warp" x="-20%" y="-20%" width="140%" height="140%"><feTurbulence id="hold-turb" type="turbulence" baseFrequency="0.015" numOctaves="3" seed="2"/><feDisplacementMap id="hold-disp" in="SourceGraphic" in2="noise" scale="0" xChannelSelector="R" yChannelSelector="G"/></filter></defs>';
-  document.body.appendChild(svg);
-  const disp=document.getElementById('hold-disp');
-  const bg=document.getElementById('holding-bg');
-  if(bg) bg.style.filter='brightness(0.72) saturate(0.82) contrast(1.1) url(#hold-warp)';
-  let ts=0,cs=0,animating=false,idle=null;
-  window.addEventListener('mousemove',e=>{
-    const nx=e.clientX/window.innerWidth,ny=e.clientY/window.innerHeight;
-    const d=Math.sqrt(Math.pow(nx-0.5,2)+Math.pow(ny-0.5,2));
-    ts=3+d*12;
-    if(!animating){animating=true;requestAnimationFrame(tick);}
-    clearTimeout(idle);idle=setTimeout(()=>{ts=0;},700);
-  });
-  function tick(){
-    cs+=(ts-cs)*0.07;
-    if(disp) disp.setAttribute('scale',cs.toFixed(2));
-    if(Math.abs(cs-ts)>0.08||cs>0.08) requestAnimationFrame(tick);
-    else{if(disp) disp.setAttribute('scale','0');animating=false;}
-  }
-})();
-</script>
+</main>
+<a href="about.html" class="what-link">what is this?</a>
+<script src="js/engine.js"></script>
 </body>
 </html>

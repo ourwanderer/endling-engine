@@ -47,10 +47,12 @@ const STRANDS = {
     'the-ookami.html','new-kyushu.html','blackbone.html','nkmc.html',
     'graphic-novel.html','war-dog.html','nkmc-electroghosts.html','nkmc-dead-gods.html',
     'nkmc-pr-crew.html',
+    'nkmc-bike-piero.html','nkmc-bike-riastrad.html',
+    'nkmc-bike-dead-gods-1.html','nkmc-bike-electroghost-1.html',
     'gif-anime-endling.html','gif-koa-ride.html','gif-headgear-logo.html',
     'gif-yaeko-bebop.html','gif-yaeko-echo.html','gif-yaeko-helmet.html',
     'gif-yaeko-spear.html','gif-yaeko-test.html','gif-yaeko-title.html',
-    'gif-yaeko-kick.html','gif-yaeko-skullgolf.html',
+    'gif-yaeko-kick.html','gif-yaeko-skullgolf.html','gif-skullgolf.html',
     'vid-bouncer-x.html','vid-headgear-8.html','vid-headgear-9.html',
     'vid-headgear-10.html','vid-headgear-5.html','vid-headgear-genesis.html',
     'vid-acid-cola-ad.html','vid-walk-war-dog.html','vid-acid-cola-can-360.html',
@@ -66,6 +68,7 @@ const STRANDS = {
     'img-yaeko.html','img-yaeko-acid-cola.html','img-yaeko-storyboard.html',
     'img-new-kyushu-citizen.html','img-nkmc-electroghosts.html','img-nkmc-dead-gods-bike.html',
     'img-nkmc-piero.html','img-nkmc-riastrad.html',
+    'gloss-headgear.html','gloss-jiro-monk.html','gloss-riastrad.html',
   ],
   hwr: [
     'irla.html','elayda.html','kelak.html','cu-chulainn.html',
@@ -79,6 +82,12 @@ const STRANDS = {
     'img-neokoro.html','img-hwr-knight-1.html','img-hwr-knight-2.html',
     'img-hwr-hordes.html','img-seedlands.html','img-desert-knight.html',
     'img-irla-rin-map.html','img-maelstrom-knight.html','img-maelstrom-fragment.html',
+    'gloss-baiden.html','gloss-bria.html','gloss-excubitor.html',
+    'gloss-halberdier.html','gloss-cataphract.html','gloss-granite-throne.html',
+    'gloss-auric-coast.html','gloss-mourning-sea.html','gloss-the-cut.html',
+    'gloss-great-verdant.html','gloss-vast-aught.html','gloss-elon-fingertip.html',
+    'gloss-dragon-rider.html','gloss-nightcutters.html','gloss-gawyle.html',
+    'gloss-sacred-lines.html','gloss-riastrad.html',
   ],
   domum: [
     'peregrinus.html','domum-novum.html','three-moons-glossary.html',
@@ -93,6 +102,30 @@ const STRANDS = {
     'img-engine-prex-inscription.html','img-dead-machine-one.html',
     'img-mythed-ceremony.html','img-mythed-sirens.html',
     'img-peregrinus-world.html','img-misc-seer.html','img-misc-shore.html',
+    'gloss-parousia.html','gloss-prex-machina.html','gloss-ulthera.html',
+  ],
+  // ANOMALY — bleeds through all strands at low weight
+  // These nodes appear in every pool at weight 1, never clustered
+  anomaly: [
+    'the-exile.html','cu-chulainn.html','entry.html',
+    'gloss-the-oracle.html',
+    'img-giant-ghost-1.html','img-giant-ghost-2.html','img-giant-ghost-3.html',
+    'img-comet-rider-1.html','img-comet-rider-2.html',
+    'img-engine-vista.html','img-escape.html','img-which-life.html',
+    'img-dead-machine-mortuus.html',
+    'img-atalanta.html','img-strange-garden.html',
+    'img-writing-black-hole.html','img-writing-interview.html',
+    'img-misc-gallery-1.html','img-misc-gallery-2.html',
+    'img-misc-gallery-3.html','img-misc-gallery-4.html',
+    'img-misc-memory.html','img-charybdis.html','img-aeolus.html',
+    'img-superluminal-1.html','img-superluminal-2.html',
+    'img-short-film-ancient-1.html','img-short-film-2.html','img-short-film-3.html',
+    'vid-the-exile.html','vid-superluminal.html','vid-dead-machine.html',
+    'vid-apogeic-one.html','vid-apogeic-two.html',
+    'vid-neurula-1.html','vid-neurula-2.html',
+    'vid-i-had-that-dream.html','vid-random-experiment.html',
+    'vid-no-beyond.html',
+    'gif-tinl.html','gif-osos-daynight.html',
   ],
 };
 
@@ -116,41 +149,76 @@ function getOrAssignStrand() {
   }
 }
 
+// ── CONTEXTUAL ELEVATION MAP ────────────────────────────────────────────────
+// When the visitor lands on a source node, target nodes get weight doubled
+// for the next jump only. Stored in sessionStorage as es_last_node.
+const ELEVATIONS = {
+  'koa.html':         ['agnar.html','war-dog.html','doran.html','the-ookami.html','gloss-headgear.html','new-kyushu.html'],
+  'leonard.html':     ['agnar.html','gloss-slowrym.html','gloss-kwathlegonx.html','entry.html'],
+  'irla.html':        ['elayda.html','kelak.html','green-temple.html','the-continent.html','holy-lines.html'],
+  'elayda.html':      ['irla.html','img-green-temple-adira.html','gloss-sacred-lines.html','green-temple.html'],
+  'kelak.html':       ['irla.html','elayda.html','the-continent.html'],
+  'the-exile.html':   ['gloss-the-oracle.html'],
+  'peregrinus.html':  ['domum-novum.html','dead-gods.html','gloss-ulthera.html'],
+  'doran.html':       ['koa.html','high-wail-rook.html'],
+  'dead-gods.html':   ['gloss-parousia.html','gloss-prex-machina.html','gloss-ulthera.html','peregrinus.html'],
+  'agnar.html':       ['koa.html','leonard.html','entry.html'],
+};
+
+function getLastNode() {
+  try { return sessionStorage.getItem('es_last_node') || ''; } catch(e) { return ''; }
+}
+function setLastNode(url) {
+  try { sessionStorage.setItem('es_last_node', url.split('/').pop()); } catch(e) {}
+}
+
 function smartRandom(pool) {
   const clicks = EngineSession.getClickCount();
   const strand = getOrAssignStrand();
   const strandNodes = STRANDS[strand] || [];
+  const anomalyNodes = STRANDS['anomaly'] || [];
+  const lastNode = getLastNode();
+  const elevatedTargets = ELEVATIONS[lastNode] || [];
 
-  // Build candidate list - exclude visited after 3 clicks
+  // Build candidate list — exclude visited after 3 clicks
   let candidates = pool;
   if (clicks >= 3) {
     const unvisited = pool.filter(item => !EngineSession.hasVisited(item.url));
     if (unvisited.length >= 1) candidates = unvisited;
   }
 
-  // Apply strand weighting - boost nodes in current strand
-  // Strand influence grows with click count (0-12: mild, 12+: stronger)
+  // Apply weights
   const strandInfluence = clicks < 12 ? 1.8 : 2.8;
-  
+
   const adjusted = candidates.map(item => {
     let w = item.weight || 1;
     const filename = item.url.split('/').pop();
+
+    // Strand boost
     if (strandNodes.includes(filename)) {
-      w *= strandInfluence;
+      w *= clicks > 20 ? 1.3 : strandInfluence;
     }
+
+    // ANOMALY nodes: always low weight — interference, not direction
+    if (anomalyNodes.includes(filename)) {
+      w = Math.min(w, 1.2);
+    }
+
+    // Contextual elevation: double weight for one jump
+    if (elevatedTargets.includes(filename)) {
+      w *= 2;
+    }
+
     return { url: item.url, weight: w };
   });
 
-  // After 20 clicks - strand starts dissolving, everything equalises
-  const finalPool = clicks > 20 ? candidates : adjusted;
-
-  const total = finalPool.reduce((s,i) => s + (i.weight||1), 0);
+  const total = adjusted.reduce((s,i) => s + (i.weight||1), 0);
   let r = Math.random() * total;
-  for (const item of finalPool) {
+  for (const item of adjusted) {
     r -= (item.weight || 1);
     if (r <= 0) return item.url;
   }
-  return finalPool[finalPool.length - 1].url;
+  return adjusted[adjusted.length - 1].url;
 }
 
 function initDeeperButton(pool) {

@@ -1,0 +1,4 @@
+#!/bin/bash
+# This file documents the glossary node structure
+# Each is hand-built below for accuracy
+echo "Glossary nodes built individually"
