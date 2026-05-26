@@ -17,16 +17,31 @@
 .map-reset:hover { opacity: 0.8; }
 .node-nav { background: linear-gradient(to top, rgba(8,5,7,0.9) 0%, transparent 100%); padding: 1.5rem 0; }
 </style>
+<style>
+  .map-hint {
+    position: relative !important;
+    top: auto !important; right: auto !important;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.3em;
+    color: var(--dust);
+    opacity: 0.4;
+    padding: 1.5rem 0 0.8rem;
+    z-index: 20;
+  }
+</style>
 </head>
 <body>
 <div id="page-transition" class="page-transition"></div>
 <div class="site-logo"><a href="../index.html"><img src="../images/misc/main-endling-saga-logo.png" alt="The Endling Saga"></a></div>
 
+<p class="map-hint">drag to explore · scroll to zoom</p>
 <div id="map-container" class="map-container">
   <img id="map-img" src="/images/hwr/hwr-map-of-the-continent-v1-large.jpg" alt="The Continent , Known Territories">
 </div>
 
-<p class="map-hint">drag to explore · scroll to zoom</p>
+
 
 <nav class="node-nav">
   <button id="btn-back" class="nav-btn">← go back</button>

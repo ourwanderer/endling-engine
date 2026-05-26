@@ -191,15 +191,16 @@ function smartRandom(pool) {
   const anomalyNodes = STRANDS['anomaly'] || [];
   const lastNode = getLastNode();
   const elevatedTargets = ELEVATIONS[lastNode] || [];
+  const recentFour = EngineSession.getRecentFour();
 
-  // Build candidate list — exclude visited after 3 clicks
+  // Step 1: exclude already-visited after 3 clicks
   let candidates = pool;
   if (clicks >= 3) {
     const unvisited = pool.filter(item => !EngineSession.hasVisited(item.url));
-    if (unvisited.length >= 1) candidates = unvisited;
+    if (unvisited.length >= 2) candidates = unvisited;
   }
 
-  // Apply weights
+  // Step 2: apply weights
   const strandInfluence = clicks < 12 ? 1.8 : 2.8;
 
   const adjusted = candidates.map(item => {
@@ -211,38 +212,32 @@ function smartRandom(pool) {
       w *= clicks > 20 ? 1.3 : strandInfluence;
     }
 
-    // ANOMALY nodes: always low weight — interference, not direction
-    if (anomalyNodes.includes(filename)) {
-      w = Math.min(w, 1.2);
-    }
-
-    // Recent four override: zero weight for last 4 visited nodes
-    // This breaks inescapable loops. Overrides elevation weights.
-    const recentFour = EngineSession.getRecentFour();
-    if (recentFour.includes(filename)) {
-      w = 0;
-    }
-
-    // Contextual elevation: double weight for one jump
+    // Contextual elevation: double weight for one jump (apply before penalties)
     if (elevatedTargets.includes(filename)) {
       w *= 2;
     }
 
-    return { url: item.url, weight: w };
+    // ANOMALY nodes: cap at low weight
+    if (anomalyNodes.includes(filename)) {
+      w = Math.min(w, 1.2);
+    }
+
+    // Recent-four penalty: reduce weight heavily but do not zero
+    // Zeroing was causing loops when pools are small
+    if (recentFour.includes(filename)) {
+      w *= 0.1;
+    }
+
+    return { url: item.url, weight: Math.max(w, 0.01) };
   });
 
-  // Filter out zero-weight items (recent four)
-  const eligible = adjusted.filter(i => (i.weight||0) > 0);
-  // If all filtered, fall back to full adjusted pool (safety net)
-  const finalEligible = eligible.length > 0 ? eligible : adjusted;
-
-  const total = finalEligible.reduce((s,i) => s + (i.weight||1), 0);
+  const total = adjusted.reduce((s,i) => s + i.weight, 0);
   let r = Math.random() * total;
-  for (const item of finalEligible) {
-    r -= (item.weight || 1);
+  for (const item of adjusted) {
+    r -= item.weight;
     if (r <= 0) return item.url;
   }
-  return finalEligible[finalEligible.length - 1].url;
+  return adjusted[adjusted.length - 1].url;
 }
 
 function initDeeperButton(pool) {
@@ -698,11 +693,50 @@ function initOrientationLayout() {
   });
 }
 
+
+// ── TV STATIC / CHANNEL FLIP ─────────────────────────────────────────────────
+function initTVStatic() {
+  // Only run on video pages
+  const vidPage = document.querySelector('.vid-page');
+  if (!vidPage) return;
+
+  // Create static overlay
+  const overlay = document.createElement('div');
+  overlay.className = 'tv-static active';
+  const canvas = document.createElement('canvas');
+  canvas.width = 320; canvas.height = 240;
+  overlay.appendChild(canvas);
+  document.body.appendChild(overlay);
+
+  const ctx = canvas.getContext('2d');
+  let frame = 0;
+  const maxFrames = 18;
+
+  function drawStatic() {
+    if (frame >= maxFrames) {
+      overlay.classList.remove('active');
+      setTimeout(() => overlay.remove(), 600);
+      return;
+    }
+    const img = ctx.createImageData(canvas.width, canvas.height);
+    for (let i = 0; i < img.data.length; i += 4) {
+      const v = Math.random() > 0.5 ? 200 + Math.random() * 55 : Math.random() * 40;
+      img.data[i] = img.data[i+1] = img.data[i+2] = v;
+      img.data[i+3] = 255;
+    }
+    ctx.putImageData(img, 0, 0);
+    frame++;
+    requestAnimationFrame(drawStatic);
+  }
+  drawStatic();
+}
+
 document.addEventListener('DOMContentLoaded',()=>{
   const overlay=document.getElementById('page-transition');
   if(overlay)overlay.classList.remove('active');
   recordVisit();
   initOrientationLayout();
+  initTVStatic();
   initBackButton();
   initCoordinates();
   initImageZoom();

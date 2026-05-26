@@ -9,7 +9,7 @@
   --dust: #b8a090;
   --pale: #e8ddd0;
   --ghost: rgba(232,221,208,0.6);
-  --zone-newkyushu: #0d0a14;
+  --zone-newkyushu: #060606;
   --zone-continent: #080d0a;
   --zone-domum: #0d0a08;
   --zone-engine: #0f0808;
@@ -713,10 +713,10 @@ body::after {
 }
 
 /* Zone colours only for character/location pages, not media */
-.zone-newkyushu { background-color: #08060d; }
-.zone-continent { background-color: #060808; }
-.zone-domum     { background-color: #070605; }
-.zone-engine    { background-color: #080404; }
+.zone-newkyushu { background-color: #060606; }
+.zone-continent { background-color: #060606; }
+.zone-domum     { background-color: #060606; }
+.zone-engine    { background-color: #060606; }
 
 /* Media nodes - pure dark, no zone tint */
 main.engine-page:not(.zone-newkyushu):not(.zone-continent):not(.zone-domum):not(.zone-engine) {
@@ -1234,4 +1234,122 @@ main.engine-page:not(.zone-newkyushu):not(.zone-continent):not(.zone-domum):not(
     margin: 0 auto;
     display: block;
   }
+}
+
+/* ── CHARACTER PAGE LAYOUT FIXES ─────────────────────────────────────────── */
+
+/* Page wrapper: breathing room top and bottom for nav */
+.char-page {
+  padding: 3rem 2rem 7rem;
+  min-height: 100vh;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+/* PORTRAIT MODE: image left (larger), text right (narrower) */
+.char-layout-v2 {
+  display: grid;
+  grid-template-columns: minmax(200px, 340px) 1fr;
+  gap: 2.5rem;
+  max-width: 860px;
+  width: 100%;
+  align-items: flex-start;
+  position: relative;
+  z-index: 10;
+  animation: fadeIn 0.8s ease 0.3s both;
+}
+
+.char-portrait {
+  width: 100%;
+  height: auto;
+  max-height: 75vh;
+  object-fit: contain;
+  object-position: center top;
+  display: block;
+}
+
+/* Scroll body: leave room so nav doesn't overlap */
+.char-scroll-body {
+  max-height: 42vh;
+  overflow-y: auto;
+  padding-right: 0.8rem;
+  padding-bottom: 0.5rem;
+}
+
+/* LANDSCAPE MODE: image full-width top, text below */
+.char-layout-v2.landscape {
+  grid-template-columns: 1fr;
+  max-width: 680px;
+}
+
+.char-layout-v2.landscape .char-image-col {
+  width: 100%;
+}
+
+.char-layout-v2.landscape .char-portrait {
+  width: 100%;
+  height: auto;
+  max-height: 45vh;
+  object-fit: contain;
+  object-position: center center;
+  /* breathing room: don't let it touch top */
+  margin-top: 0.5rem;
+}
+
+/* Landscape scroll body: less height — image uses more vertical space */
+.char-layout-v2.landscape .char-scroll-body {
+  max-height: 30vh;
+}
+
+/* Nav gradient: solid at base, fades upward — always readable */
+.node-nav {
+  background: linear-gradient(to top,
+    rgba(6,4,4,0.98) 0%,
+    rgba(6,4,4,0.95) 55%,
+    rgba(6,4,4,0.0) 100%
+  );
+  padding: 1.8rem 2rem 1.2rem;
+}
+
+/* ── FORCE BLACK BACKGROUNDS GLOBALLY ───────────────────────────────────── */
+/* No dark blue. All non-image engine pages use pure near-black */
+.engine-page {
+  background: #060606;
+}
+
+/* Zone colours are accent only — applied via bg-image or text colour, not page bg */
+.zone-newkyushu { background: #060606; }
+.zone-continent { background: #060606; }
+.zone-domum     { background: #060606; }
+.zone-engine    { background: #060606; }
+
+/* ── TV STATIC / CHANNEL FLIP ────────────────────────────────────────────── */
+.tv-static {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  z-index: 500;
+  pointer-events: none;
+  opacity: 0;
+  background: #000;
+}
+
+.tv-static canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.tv-static.active {
+  opacity: 1;
+  animation: staticFlash 0.55s ease forwards;
+}
+
+@keyframes staticFlash {
+  0%   { opacity: 0; }
+  8%   { opacity: 1; }
+  40%  { opacity: 0.9; }
+  70%  { opacity: 0.6; }
+  85%  { opacity: 0.2; }
+  100% { opacity: 0; }
 }
