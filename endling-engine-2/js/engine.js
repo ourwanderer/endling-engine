@@ -6,6 +6,18 @@ const EngineSession = {
   getVisited() {
     try { return JSON.parse(sessionStorage.getItem('es_visited')||'[]'); } catch(e) { return []; }
   },
+  getRecentFour() {
+    try { return JSON.parse(sessionStorage.getItem('es_recent4')||'[]'); } catch(e) { return []; }
+  },
+  addToRecentFour(url) {
+    try {
+      const clean = url.split('/').pop();
+      const r = this.getRecentFour();
+      r.unshift(clean);
+      if (r.length > 4) r.pop();
+      sessionStorage.setItem('es_recent4', JSON.stringify(r));
+    } catch(e) {}
+  },
   addVisited(url) {
     try {
       const v = this.getVisited();
@@ -204,6 +216,13 @@ function smartRandom(pool) {
       w = Math.min(w, 1.2);
     }
 
+    // Recent four override: zero weight for last 4 visited nodes
+    // This breaks inescapable loops. Overrides elevation weights.
+    const recentFour = EngineSession.getRecentFour();
+    if (recentFour.includes(filename)) {
+      w = 0;
+    }
+
     // Contextual elevation: double weight for one jump
     if (elevatedTargets.includes(filename)) {
       w *= 2;
@@ -212,13 +231,18 @@ function smartRandom(pool) {
     return { url: item.url, weight: w };
   });
 
-  const total = adjusted.reduce((s,i) => s + (i.weight||1), 0);
+  // Filter out zero-weight items (recent four)
+  const eligible = adjusted.filter(i => (i.weight||0) > 0);
+  // If all filtered, fall back to full adjusted pool (safety net)
+  const finalEligible = eligible.length > 0 ? eligible : adjusted;
+
+  const total = finalEligible.reduce((s,i) => s + (i.weight||1), 0);
   let r = Math.random() * total;
-  for (const item of adjusted) {
+  for (const item of finalEligible) {
     r -= (item.weight || 1);
     if (r <= 0) return item.url;
   }
-  return adjusted[adjusted.length - 1].url;
+  return finalEligible[finalEligible.length - 1].url;
 }
 
 function initDeeperButton(pool) {
@@ -631,10 +655,54 @@ function recordVisit(){
 
 // ── INIT ─────────────────────────────────────────────────────────────────────
 
+
+// ── IMAGE ORIENTATION DETECTION ─────────────────────────────────────────────
+function initOrientationLayout() {
+  const layout = document.querySelector('.char-layout-v2');
+  if (!layout) return;
+  const portrait = layout.querySelector('.char-portrait');
+  if (!portrait) return;
+
+  function checkOrientation() {
+    const w = portrait.naturalWidth;
+    const h = portrait.naturalHeight;
+    if (w > 0 && h > 0) {
+      if (w > h) {
+        layout.classList.add('landscape');
+      } else {
+        layout.classList.remove('landscape');
+      }
+    }
+  }
+
+  if (portrait.complete && portrait.naturalWidth > 0) {
+    checkOrientation();
+  } else {
+    portrait.addEventListener('load', checkOrientation);
+  }
+
+  // Tap to zoom
+  portrait.addEventListener('click', function() {
+    if (portrait.classList.contains('zoomed')) {
+      portrait.classList.remove('zoomed');
+    } else {
+      portrait.classList.add('zoomed');
+    }
+  });
+  
+  // Click outside to dismiss
+  document.addEventListener('click', function(e) {
+    if (portrait.classList.contains('zoomed') && e.target !== portrait) {
+      portrait.classList.remove('zoomed');
+    }
+  });
+}
+
 document.addEventListener('DOMContentLoaded',()=>{
   const overlay=document.getElementById('page-transition');
   if(overlay)overlay.classList.remove('active');
   recordVisit();
+  initOrientationLayout();
   initBackButton();
   initCoordinates();
   initImageZoom();
