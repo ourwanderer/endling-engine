@@ -197,7 +197,9 @@ function smartRandom(pool) {
   let candidates = pool;
   if (clicks >= 3) {
     const unvisited = pool.filter(item => !EngineSession.hasVisited(item.url));
-    if (unvisited.length >= 2) candidates = unvisited;
+    if (unvisited.length >= 1) candidates = unvisited;
+    // If all visited, use full pool — at least recent-four penalty will
+    // push us toward less-recently-seen nodes
   }
 
   // Step 2: apply weights
@@ -222,11 +224,12 @@ function smartRandom(pool) {
       w = Math.min(w, 1.2);
     }
 
-    // Recent-four penalty: reduce weight heavily but do not zero
-    // Zeroing was causing loops when pools are small
-    if (recentFour.includes(filename)) {
-      w *= 0.1;
-    }
+    // Recent-four penalty: scale by recency (most recent = heaviest)
+    const recentIdx = recentFour.indexOf(filename);
+    if (recentIdx === 0) w *= 0.05;      // just came from here
+    else if (recentIdx === 1) w *= 0.1;  // one hop ago
+    else if (recentIdx === 2) w *= 0.2;  // two hops ago
+    else if (recentIdx === 3) w *= 0.35; // three hops ago
 
     return { url: item.url, weight: Math.max(w, 0.01) };
   });

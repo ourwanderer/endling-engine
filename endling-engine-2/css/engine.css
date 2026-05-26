@@ -922,19 +922,27 @@ main.engine-page:not(.zone-newkyushu):not(.zone-continent):not(.zone-domum):not(
 
 /* ── CHARACTER TEMPLATE v2 ───────────────────────────────────────────────── */
 
+/* Base page wrapper */
 .char-page {
-  width: 100vw; min-height: 100vh;
-  display: flex; align-items: center; justify-content: center;
-  padding: 4rem 3rem 7rem;
-  position: relative; overflow: hidden;
+  width: 100vw;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3.5rem 2rem 7rem;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
+/* ── PORTRAIT MODE (default): image left, text right ── */
 .char-layout-v2 {
   display: grid;
-  grid-template-columns: minmax(160px, 280px) 1fr;
-  gap: 3rem;
-  max-width: 820px;
+  grid-template-columns: minmax(200px, 320px) 1fr;
+  gap: 2.5rem;
+  max-width: 860px;
   width: 100%;
+  align-items: flex-start;
   position: relative;
   z-index: 10;
   animation: fadeIn 0.8s ease 0.3s both;
@@ -948,11 +956,53 @@ main.engine-page:not(.zone-newkyushu):not(.zone-continent):not(.zone-domum):not(
 
 .char-portrait {
   width: 100%;
-  opacity: 0;
-  animation: revealImage 1.2s ease 0.5s forwards;
-  filter: saturate(0.88);
+  height: auto;
+  max-height: 72vh;
+  object-fit: contain;
+  object-position: center top;
+  display: block;
+  cursor: zoom-in;
 }
 
+.char-portrait.zoomed {
+  cursor: zoom-out;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: auto;
+  max-width: 92vw;
+  max-height: 92vh;
+  min-width: min(600px, 92vw);
+  object-fit: contain;
+  z-index: 1000;
+  box-shadow: 0 0 0 100vw rgba(0,0,0,0.9);
+}
+
+/* ── LANDSCAPE MODE: image full-width top, text below ── */
+.char-layout-v2.landscape {
+  grid-template-columns: 1fr;
+  max-width: 680px;
+}
+
+.char-layout-v2.landscape .char-image-col {
+  width: 100%;
+}
+
+.char-layout-v2.landscape .char-portrait {
+  width: 100%;
+  height: auto;
+  max-height: 44vh;
+  object-fit: contain;
+  object-position: center center;
+  margin-top: 1rem;
+}
+
+.char-layout-v2.landscape .char-scroll-body {
+  max-height: 28vh;
+}
+
+/* Text column */
 .char-text-col {
   display: flex;
   flex-direction: column;
@@ -967,6 +1017,7 @@ main.engine-page:not(.zone-newkyushu):not(.zone-continent):not(.zone-domum):not(
   color: var(--pale);
   position: relative;
 }
+
 .char-name.glitch::before,
 .char-name.glitch::after {
   content: attr(data-text);
@@ -991,9 +1042,9 @@ main.engine-page:not(.zone-newkyushu):not(.zone-continent):not(.zone-domum):not(
   margin: 0.3rem 0;
 }
 
-/* Scroll box for character text */
+/* Scroll body */
 .char-scroll-body {
-  max-height: 42vh;
+  max-height: 40vh;
   overflow-y: auto;
   padding-right: 1rem;
   text-align: justify;
@@ -1002,23 +1053,17 @@ main.engine-page:not(.zone-newkyushu):not(.zone-continent):not(.zone-domum):not(
   scrollbar-color: rgba(139,26,26,0.5) transparent;
 }
 
-/* Custom scrollbar - webkit */
-.char-scroll-body::-webkit-scrollbar {
-  width: 3px;
-}
-.char-scroll-body::-webkit-scrollbar-track {
-  background: transparent;
-}
+.char-scroll-body::-webkit-scrollbar { width: 3px; }
+.char-scroll-body::-webkit-scrollbar-track { background: transparent; }
 .char-scroll-body::-webkit-scrollbar-thumb {
   background: rgba(192,57,43,0.45);
   border-radius: 2px;
-  transition: background 0.3s;
 }
 .char-scroll-body::-webkit-scrollbar-thumb:hover {
   background: rgba(224,80,64,0.8);
 }
 
-/* Drop cap on first paragraph */
+/* Drop cap */
 .char-scroll-body p:first-child::first-letter {
   font-family: var(--font-display);
   font-size: 3.2em;
@@ -1038,11 +1083,6 @@ main.engine-page:not(.zone-newkyushu):not(.zone-continent):not(.zone-domum):not(
   margin-bottom: 1rem;
 }
 
-.char-scroll-body p:last-child {
-  margin-bottom: 0;
-}
-
-/* Fragment quote under character */
 .char-fragment {
   font-family: var(--font-mono);
   font-size: 0.62rem;
@@ -1057,52 +1097,50 @@ main.engine-page:not(.zone-newkyushu):not(.zone-continent):not(.zone-domum):not(
 
 /* Mobile */
 @media (max-width: 640px) {
-  .char-layout-v2 {
+  .char-layout-v2,
+  .char-layout-v2.landscape {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
   }
-  .char-image-col { align-items: center; }
-  .char-portrait { max-width: 200px; }
-  .char-text-col { text-align: center; }
-  .char-scroll-body { text-align: left; }
+  .char-portrait { max-width: 220px; margin: 0 auto; display: block; }
   .char-name { text-align: center; }
   .char-designation { text-align: center; }
 }
 
-/* ── IMAGE NODES — SUBTLE TITLE ───────────────────────────────────────────── */
+/* ── NAV GRADIENT ─────────────────────────────────────────────────────────── */
 
-.image-label {
-  position: fixed;
-  bottom: 5rem;
-  left: 50%;
-  transform: translateX(-50%);
-  font-family: var(--font-mono);
-  font-size: 0.52rem;
-  letter-spacing: 0.45em;
-  color: var(--dust);
-  opacity: 0.22;
-  text-transform: uppercase;
-  white-space: nowrap;
-  transition: opacity 0.4s ease;
-  pointer-events: none;
-  z-index: 50;
+/* Default nav: subtle fade for pages without bg images */
+.node-nav {
+  background: linear-gradient(to top,
+    rgba(6,4,4,0.96) 0%,
+    rgba(6,4,4,0.7) 45%,
+    rgba(6,4,4,0.0) 100%
+  );
+  padding: 1.8rem 2rem 1.4rem;
 }
 
-.engine-page:hover .image-label,
-.image-label:hover {
-  opacity: 0.55;
+/* Pages with a bg image: taller, more feathered gradient */
+body:has(.bg-image) .node-nav {
+  background: linear-gradient(to top,
+    rgba(6,4,4,0.98) 0%,
+    rgba(6,4,4,0.85) 30%,
+    rgba(6,4,4,0.4) 60%,
+    rgba(6,4,4,0.1) 80%,
+    rgba(6,4,4,0.0) 100%
+  );
+  padding: 2.8rem 2rem 1.4rem;
 }
 
-/* ── VISUALISER — BOXED AESTHETIC ─────────────────────────────────────────── */
-
-.audio-node-wrap {
-  background: rgba(0,0,0,0);
+/* Video pages: no nav background — controls must be reachable */
+body:has(.vid-page) .node-nav {
+  background: none;
+  bottom: 0.8rem;
 }
+
+/* ── VISUALISER BOX ───────────────────────────────────────────────────────── */
 
 .visualiser-box {
   width: 100%;
   border: 1px solid rgba(139,26,26,0.4);
-  padding: 0;
   position: relative;
   overflow: hidden;
 }
@@ -1129,199 +1167,6 @@ main.engine-page:not(.zone-newkyushu):not(.zone-continent):not(.zone-domum):not(
   pointer-events: none;
 }
 
-/* ── VIDEO GLITCH LOAD EFFECT ──────────────────────────────────────────── */
-.vid-page video {
-  animation: vidReveal 0.6s ease both;
-}
-@keyframes vidReveal {
-  0%   { opacity: 0; filter: brightness(3) saturate(0) contrast(2); transform: scaleX(1.02); }
-  15%  { opacity: 1; filter: brightness(2) saturate(0.3) hue-rotate(90deg); transform: scaleX(0.99); }
-  30%  { opacity: 0.7; filter: brightness(0.5) hue-rotate(180deg); transform: scaleX(1.01); }
-  50%  { opacity: 1; filter: brightness(1.5) saturate(0.6); transform: scaleX(1); }
-  100% { opacity: 1; filter: brightness(1) saturate(1); transform: scaleX(1); }
-}
-
-/* Zone colours override - force near-black on media pages */
-.engine-page:not(.zone-newkyushu):not(.zone-continent):not(.zone-domum):not(.zone-engine):not(.char-page) {
-  background: #060606;
-}
-
-/* Character page - ensure proper dark bg */
-.char-page { background: var(--void); }
-
-
-/* ── ONTIC LOOP WARNING ───────────────────────────────────────────────────── */
-.ontic-warning {
-  font-family: var(--font-mono);
-  font-size: 0.62rem;
-  letter-spacing: 0.05em;
-  line-height: 1.9;
-  color: var(--dust);
-  opacity: 0.45;
-  max-width: 480px;
-  margin: 1.5rem auto 0;
-  text-align: center;
-  padding: 0 1rem;
-  border-top: 1px solid rgba(139,26,26,0.2);
-  padding-top: 1.2rem;
-}
-
-/* ── IMAGE ORIENTATION LAYOUTS ───────────────────────────────────────────── */
-
-/* Portrait layout (default): image left, text right */
-.char-layout-v2 {
-  display: grid;
-  grid-template-columns: minmax(140px, 260px) 1fr;
-  gap: 2.5rem;
-  max-width: 820px;
-  width: 100%;
-  position: relative;
-  z-index: 10;
-  animation: fadeIn 0.8s ease 0.3s both;
-}
-
-/* Landscape layout: image top, text below */
-.char-layout-v2.landscape {
-  grid-template-columns: 1fr;
-  max-width: 680px;
-}
-
-.char-layout-v2.landscape .char-image-col {
-  width: 100%;
-}
-
-.char-layout-v2.landscape .char-portrait {
-  width: 100%;
-  max-height: 45vh;
-  object-fit: cover;
-  object-position: center top;
-}
-
-.char-layout-v2.landscape .char-text-col {
-  padding-top: 0;
-}
-
-/* Ensure zoom works on all portrait images */
-.char-portrait {
-  cursor: zoom-in;
-  width: 100%;
-  height: auto;
-  transition: transform 0.3s ease;
-}
-
-.char-portrait.zoomed {
-  cursor: zoom-out;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(1);
-  width: auto;
-  max-width: 90vw;
-  max-height: 90vh;
-  object-fit: contain;
-  z-index: 1000;
-  background: rgba(0,0,0,0.9);
-  box-shadow: 0 0 0 100vw rgba(0,0,0,0.85);
-}
-
-@media (max-width: 600px) {
-  .char-layout-v2,
-  .char-layout-v2.landscape {
-    grid-template-columns: 1fr;
-  }
-  .char-portrait {
-    max-width: 200px;
-    margin: 0 auto;
-    display: block;
-  }
-}
-
-/* ── CHARACTER PAGE LAYOUT FIXES ─────────────────────────────────────────── */
-
-/* Page wrapper: breathing room top and bottom for nav */
-.char-page {
-  padding: 3rem 2rem 7rem;
-  min-height: 100vh;
-  box-sizing: border-box;
-  overflow-y: auto;
-}
-
-/* PORTRAIT MODE: image left (larger), text right (narrower) */
-.char-layout-v2 {
-  display: grid;
-  grid-template-columns: minmax(200px, 340px) 1fr;
-  gap: 2.5rem;
-  max-width: 860px;
-  width: 100%;
-  align-items: flex-start;
-  position: relative;
-  z-index: 10;
-  animation: fadeIn 0.8s ease 0.3s both;
-}
-
-.char-portrait {
-  width: 100%;
-  height: auto;
-  max-height: 75vh;
-  object-fit: contain;
-  object-position: center top;
-  display: block;
-}
-
-/* Scroll body: leave room so nav doesn't overlap */
-.char-scroll-body {
-  max-height: 42vh;
-  overflow-y: auto;
-  padding-right: 0.8rem;
-  padding-bottom: 0.5rem;
-}
-
-/* LANDSCAPE MODE: image full-width top, text below */
-.char-layout-v2.landscape {
-  grid-template-columns: 1fr;
-  max-width: 680px;
-}
-
-.char-layout-v2.landscape .char-image-col {
-  width: 100%;
-}
-
-.char-layout-v2.landscape .char-portrait {
-  width: 100%;
-  height: auto;
-  max-height: 45vh;
-  object-fit: contain;
-  object-position: center center;
-  /* breathing room: don't let it touch top */
-  margin-top: 0.5rem;
-}
-
-/* Landscape scroll body: less height — image uses more vertical space */
-.char-layout-v2.landscape .char-scroll-body {
-  max-height: 30vh;
-}
-
-/* Nav gradient: solid at base, fades upward — always readable */
-.node-nav {
-  background: linear-gradient(to top,
-    rgba(6,4,4,0.98) 0%,
-    rgba(6,4,4,0.95) 55%,
-    rgba(6,4,4,0.0) 100%
-  );
-  padding: 1.8rem 2rem 1.2rem;
-}
-
-/* ── FORCE BLACK BACKGROUNDS GLOBALLY ───────────────────────────────────── */
-/* No dark blue. All non-image engine pages use pure near-black */
-.engine-page {
-  background: #060606;
-}
-
-/* Zone colours are accent only — applied via bg-image or text colour, not page bg */
-.zone-newkyushu { background: #060606; }
-.zone-continent { background: #060606; }
-.zone-domum     { background: #060606; }
-.zone-engine    { background: #060606; }
 
 /* ── TV STATIC / CHANNEL FLIP ────────────────────────────────────────────── */
 .tv-static {
@@ -1353,3 +1198,31 @@ main.engine-page:not(.zone-newkyushu):not(.zone-continent):not(.zone-domum):not(
   85%  { opacity: 0.2; }
   100% { opacity: 0; }
 }
+
+/* ── ONTIC LOOP WARNING ───────────────────────────────────────────────────── */
+.ontic-warning {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.05em;
+  line-height: 1.9;
+  color: var(--dust);
+  opacity: 0.45;
+  max-width: 480px;
+  margin: 1.5rem auto 0;
+  text-align: center;
+  padding: 0 1rem;
+  border-top: 1px solid rgba(139,26,26,0.2);
+  padding-top: 1.2rem;
+}
+
+/* ── FORCE BLACK BACKGROUNDS GLOBALLY ───────────────────────────────────── */
+/* No dark blue. All non-image engine pages use pure near-black */
+.engine-page {
+  background: #060606;
+}
+
+/* Zone colours are accent only — applied via bg-image or text colour, not page bg */
+.zone-newkyushu { background: #060606; }
+.zone-continent { background: #060606; }
+.zone-domum     { background: #060606; }
+.zone-engine    { background: #060606; }
