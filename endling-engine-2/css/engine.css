@@ -59,6 +59,7 @@ body::after {
   overflow-x: hidden;
   justify-content: flex-start;
   align-items: center;
+  padding: 6rem 2rem 10rem;
 }
 
 .engine-page.scrollable {
