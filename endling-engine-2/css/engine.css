@@ -59,9 +59,7 @@ body::after {
   overflow-x: hidden;
   justify-content: flex-start;
   align-items: center;
-  padding: 6rem 2rem 2rem;
 }
-
 
 .engine-page.scrollable {
   overflow-y:auto; height:auto;
@@ -948,7 +946,7 @@ main.engine-page:not(.zone-newkyushu):not(.zone-continent):not(.zone-domum):not(
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding: 8rem 2rem 12rem;
+  padding: 4rem 2rem 8rem;
   position: relative;
   overflow-y: auto;
   overflow-x: hidden;
@@ -998,7 +996,6 @@ main.engine-page:not(.zone-newkyushu):not(.zone-continent):not(.zone-domum):not(
   max-width: 720px;
   width: 100%;
   margin: 0 auto;
-  padding-bottom: 5rem;
 }
 
 .char-layout-v2.landscape .char-image-col {
@@ -1019,20 +1016,18 @@ main.engine-page:not(.zone-newkyushu):not(.zone-continent):not(.zone-domum):not(
 .char-layout-v2.landscape .char-text-col {
   width: 100%;
   max-width: 100%;
-  padding-bottom: 6rem;
 }
 
 .char-layout-v2.landscape .char-name { text-align: left; }
 .char-layout-v2.landscape .char-designation { text-align: left; }
 
 .char-layout-v2.landscape .char-scroll-body {
-  max-height: 22vh;
-  overflow-y: auto;
+  max-height: none;
+  overflow-y: visible;
   text-align: left;
   padding-right: 0;
   box-sizing: border-box;
   width: 100%;
-  margin-bottom: 2rem;
 }
 
 /* Text column */
