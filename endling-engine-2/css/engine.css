@@ -171,11 +171,22 @@ body::after {
 }
 
 .node-nav {
-  position:fixed; bottom:2.5rem;
-  left:0; right:0;
-  display:flex; justify-content:center;
-  gap:4rem; z-index:100;
-  opacity:0; animation:fadeIn 0.8s ease 1.5s forwards;
+  position: fixed;
+  bottom: 0;
+  left: 0; right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 4rem;
+  z-index: 50;
+  opacity: 0;
+  animation: fadeIn 0.8s ease 1.5s forwards;
+  padding: 0 0 1.2rem;
+  pointer-events: none; /* Allow clicks to pass through gradient area */
+}
+
+/* Buttons themselves must receive clicks */
+.node-nav .nav-btn {
+  pointer-events: all;
 }
 .nav-btn {
   font-family:var(--font-mono);
@@ -489,7 +500,7 @@ body::after {
 
 @media (max-width:768px) {
   .content { padding:1.5rem; gap:1.2rem; }
-  .node-nav { gap:2.5rem; bottom:2rem; }
+  .node-nav { gap:2.5rem; }
   .site-logo { top:1.2rem; left:1.2rem; }
   .node-image { max-height:42vh; }
   .enter-btn { padding:0.8rem 2rem; letter-spacing:0.35em; }
@@ -927,11 +938,12 @@ main.engine-page:not(.zone-newkyushu):not(.zone-continent):not(.zone-domum):not(
   width: 100vw;
   min-height: 100vh;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  padding: 3.5rem 2rem 7rem;
+  padding: 3.5rem 2rem 8rem;
   position: relative;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
   box-sizing: border-box;
 }
 
@@ -982,7 +994,8 @@ main.engine-page:not(.zone-newkyushu):not(.zone-continent):not(.zone-domum):not(
 /* ── LANDSCAPE MODE: image full-width top, text below ── */
 .char-layout-v2.landscape {
   grid-template-columns: 1fr;
-  max-width: 680px;
+  max-width: 720px;
+  width: 100%;
 }
 
 .char-layout-v2.landscape .char-image-col {
@@ -992,14 +1005,26 @@ main.engine-page:not(.zone-newkyushu):not(.zone-continent):not(.zone-domum):not(
 .char-layout-v2.landscape .char-portrait {
   width: 100%;
   height: auto;
-  max-height: 44vh;
+  max-height: 50vh;
   object-fit: contain;
-  object-position: center center;
-  margin-top: 1rem;
+  object-position: center top;
+  display: block;
+  /* No margin-top here — the char-page padding handles top space */
 }
 
+/* Full width text block below image */
+.char-layout-v2.landscape .char-text-col {
+  width: 100%;
+  max-width: 100%;
+}
+
+.char-layout-v2.landscape .char-name { text-align: left; }
+.char-layout-v2.landscape .char-designation { text-align: left; }
+
 .char-layout-v2.landscape .char-scroll-body {
-  max-height: 28vh;
+  max-height: none;
+  overflow-y: visible;
+  text-align: left;
 }
 
 /* Text column */
@@ -1111,29 +1136,29 @@ main.engine-page:not(.zone-newkyushu):not(.zone-continent):not(.zone-domum):not(
 /* Default nav: subtle fade for pages without bg images */
 .node-nav {
   background: linear-gradient(to top,
-    rgba(6,4,4,0.96) 0%,
-    rgba(6,4,4,0.7) 45%,
+    rgba(6,4,4,0.95) 0%,
+    rgba(6,4,4,0.6) 40%,
     rgba(6,4,4,0.0) 100%
   );
-  padding: 1.8rem 2rem 1.4rem;
+  padding: 2.5rem 2rem 1.5rem;
 }
 
-/* Pages with a bg image: taller, more feathered gradient */
+/* Pages with bg image: same gradient, slightly taller */
 body:has(.bg-image) .node-nav {
   background: linear-gradient(to top,
-    rgba(6,4,4,0.98) 0%,
-    rgba(6,4,4,0.85) 30%,
-    rgba(6,4,4,0.4) 60%,
-    rgba(6,4,4,0.1) 80%,
+    rgba(6,4,4,0.97) 0%,
+    rgba(6,4,4,0.75) 35%,
+    rgba(6,4,4,0.3) 65%,
     rgba(6,4,4,0.0) 100%
   );
-  padding: 2.8rem 2rem 1.4rem;
+  padding: 3rem 2rem 1.5rem;
 }
 
-/* Video pages: no nav background — controls must be reachable */
+/* Video pages: NO background at all — controls fully accessible */
 body:has(.vid-page) .node-nav {
   background: none;
-  bottom: 0.8rem;
+  padding: 1rem 2rem 1.5rem;
+  z-index: 10;
 }
 
 /* ── VISUALISER BOX ───────────────────────────────────────────────────────── */
