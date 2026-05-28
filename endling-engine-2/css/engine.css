@@ -1018,6 +1018,7 @@ main.engine-page:not(.zone-newkyushu):not(.zone-continent):not(.zone-domum):not(
 .char-layout-v2.landscape .char-text-col {
   width: 100%;
   max-width: 100%;
+  padding-bottom: 6rem;
 }
 
 .char-layout-v2.landscape .char-name { text-align: left; }
