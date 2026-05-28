@@ -985,27 +985,9 @@ main.engine-page:not(.zone-newkyushu):not(.zone-continent):not(.zone-domum):not(
 }
 
 .char-portrait.zoomed {
+  position: relative;
+  z-index: 500;
   cursor: zoom-out;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  /* Scale up from current size - guaranteed zoom regardless of starting size */
-  transform: translate(-50%, -50%) scale(1.5);
-  transform-origin: center center;
-  width: auto;
-  max-width: 90vw;
-  max-height: 90vh;
-  object-fit: contain;
-  z-index: 1000;
-  box-shadow: 0 0 0 100vw rgba(0,0,0,0.92);
-  transition: transform 0.3s ease;
-}
-
-/* Prevent scale from making it too big on already-large images */
-@media (min-width: 900px) {
-  .char-portrait.zoomed {
-    transform: translate(-50%, -50%) scale(1.35);
-  }
 }
 
 /* ── LANDSCAPE MODE: image full-width top, text below ── */

@@ -546,9 +546,11 @@ function initMap() {
   img.onload=function(){
     const fw=container.clientWidth/img.naturalWidth;
     const fh=container.clientHeight/img.naturalHeight;
-    scale=Math.min(fw,fh,1);
+    // Use min of fit-to-container scale and 1.0 to prevent over-zoom on retina
+    scale=Math.min(fw,fh,0.85);
     tx=(container.clientWidth-img.naturalWidth*scale)/2;
     ty=(container.clientHeight-img.naturalHeight*scale)/2;
+    minScale=Math.min(fw,fh)*0.4; // Allow zoom out to 40% of fit
     apply();
   };
 
@@ -616,7 +618,7 @@ function initNovelReader(pages) {
 // ── IMAGE ZOOM ───────────────────────────────────────────────────────────────
 
 function initImageZoom() {
-  document.querySelectorAll('.node-image, .zoomable').forEach(img=>{
+  document.querySelectorAll('.node-image, .zoomable, .char-portrait').forEach(img=>{
     img.style.cursor='zoom-in';
     img.addEventListener('click', e=>{
       if (img.classList.contains('zoomed')) {
@@ -679,21 +681,7 @@ function initOrientationLayout() {
     portrait.addEventListener('load', checkOrientation);
   }
 
-  // Tap to zoom
-  portrait.addEventListener('click', function() {
-    if (portrait.classList.contains('zoomed')) {
-      portrait.classList.remove('zoomed');
-    } else {
-      portrait.classList.add('zoomed');
-    }
-  });
-  
-  // Click outside to dismiss
-  document.addEventListener('click', function(e) {
-    if (portrait.classList.contains('zoomed') && e.target !== portrait) {
-      portrait.classList.remove('zoomed');
-    }
-  });
+  // Zoom handled by initImageZoom() for consistency
 }
 
 
