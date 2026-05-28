@@ -1023,12 +1023,13 @@ main.engine-page:not(.zone-newkyushu):not(.zone-continent):not(.zone-domum):not(
 .char-layout-v2.landscape .char-designation { text-align: left; }
 
 .char-layout-v2.landscape .char-scroll-body {
-  max-height: 30vh;
+  max-height: 22vh;
   overflow-y: auto;
   text-align: left;
   padding-right: 0;
   box-sizing: border-box;
   width: 100%;
+  margin-bottom: 2rem;
 }
 
 /* Text column */
