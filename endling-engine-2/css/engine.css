@@ -997,6 +997,7 @@ main.engine-page:not(.zone-newkyushu):not(.zone-continent):not(.zone-domum):not(
   max-width: 720px;
   width: 100%;
   margin: 0 auto;
+  padding-bottom: 5rem;
 }
 
 .char-layout-v2.landscape .char-image-col {
