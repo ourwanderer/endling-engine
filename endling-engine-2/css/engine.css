@@ -59,7 +59,19 @@ body::after {
   overflow-x: hidden;
   justify-content: flex-start;
   align-items: center;
-  padding: 6rem 2rem 10rem;
+  padding: 6rem 2rem 2rem;
+}
+
+/* On char pages, nav flows with content instead of floating over it */
+.engine-page.char-page ~ .node-nav {
+  position: static;
+  display: flex;
+  justify-content: center;
+  gap: 4rem;
+  padding: 2rem 2rem 3rem;
+  background: none;
+  animation: fadeIn 0.8s ease 1.5s both;
+  opacity: 0;
 }
 
 .engine-page.scrollable {
