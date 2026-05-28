@@ -946,7 +946,7 @@ main.engine-page:not(.zone-newkyushu):not(.zone-continent):not(.zone-domum):not(
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding: 8rem 2rem 8rem;
+  padding: 8rem 2rem 12rem;
   position: relative;
   overflow-y: auto;
   overflow-x: hidden;
