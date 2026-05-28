@@ -51,6 +51,16 @@ body::after {
   animation:fadeIn 0.6s ease both;
 }
 
+/* Character pages need to scroll and not clip content */
+.engine-page.char-page {
+  height: auto;
+  min-height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  justify-content: flex-start;
+  align-items: center;
+}
+
 .engine-page.scrollable {
   overflow-y:auto; height:auto;
   min-height:100vh;
@@ -855,12 +865,7 @@ main.engine-page:not(.zone-newkyushu):not(.zone-continent):not(.zone-domum):not(
 .art-label:hover { opacity: 0.6; }
 
 /* ── CHARACTER PAGE TEMPLATE ─────────────────────────────────────────────── */
-.char-page {
-  width: 100vw; min-height: 100vh;
-  display: flex; align-items: center; justify-content: center;
-  padding: 5rem 3rem 7rem;
-  position: relative; overflow-y: auto;
-}
+/* char-page consolidated below */
 .char-inner {
   display: flex; gap: 3rem; align-items: flex-start;
   max-width: 860px; width: 100%;
@@ -938,14 +943,17 @@ main.engine-page:not(.zone-newkyushu):not(.zone-continent):not(.zone-domum):not(
   width: 100vw;
   min-height: 100vh;
   display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 3.5rem 2rem 8rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 4rem 2rem 8rem;
   position: relative;
   overflow-y: auto;
   overflow-x: hidden;
   box-sizing: border-box;
 }
+
+
 
 /* ── PORTRAIT MODE (default): image left, text right ── */
 .char-layout-v2 {
@@ -993,9 +1001,10 @@ main.engine-page:not(.zone-newkyushu):not(.zone-continent):not(.zone-domum):not(
 
 /* ── LANDSCAPE MODE: image full-width top, text below ── */
 .char-layout-v2.landscape {
-  grid-template-columns: 1fr;
+  grid-template-columns: 1fr !important;
   max-width: 720px;
   width: 100%;
+  margin: 0 auto;
 }
 
 .char-layout-v2.landscape .char-image-col {
