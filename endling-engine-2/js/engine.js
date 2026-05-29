@@ -105,6 +105,13 @@ const ELEVATIONS = {
   'agnar.html':       ['koa.html','leonard.html'],
 };
 
+function getLastNode() {
+  try { return sessionStorage.getItem('es_last_node') || ''; } catch(e) { return ''; }
+}
+function setLastNode(url) {
+  try { sessionStorage.setItem('es_last_node', url.split('/').pop()); } catch(e) {}
+}
+
 function smartRandom(pool) {
   const clicks = EngineSession.getClickCount();
   const recentFour = EngineSession.getRecentFour();
