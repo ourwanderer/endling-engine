@@ -23,6 +23,12 @@
 
 *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
 html,body { width:100%; height:100%; overflow:hidden; }
+
+body:has(.char-page) {
+  overflow-y: auto;
+  height: auto;
+  min-height: 100%;
+}
 body {
   background: var(--void);
   color: var(--pale);
@@ -52,15 +58,7 @@ body::after {
 }
 
 /* Character pages need to scroll and not clip content */
-.engine-page.char-page {
-  height: auto;
-  min-height: 100vh;
-  overflow-y: auto;
-  overflow-x: hidden;
-  justify-content: flex-start;
-  align-items: center;
-  padding: 6rem 2rem 10rem;
-}
+.engine-page
 
 
 .engine-page.scrollable {
@@ -942,16 +940,15 @@ main.engine-page:not(.zone-newkyushu):not(.zone-continent):not(.zone-domum):not(
 
 /* Base page wrapper */
 .char-page {
-  width: 100vw;
+  width: 100%;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding: 8rem 2rem 12rem;
+  padding: 8rem 2rem 10rem;
   position: relative;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: visible;
   box-sizing: border-box;
 }
 
