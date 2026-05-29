@@ -166,7 +166,7 @@ function getOrAssignStrand() {
 // for the next jump only. Stored in sessionStorage as es_last_node.
 const ELEVATIONS = {
   'koa.html':         ['agnar.html','war-dog.html','doran.html','the-ookami.html','gloss-headgear.html','new-kyushu.html'],
-  'leonard.html':     ['agnar.html','gloss-slowrym.html','gloss-kwathlegonx.html','entry.html'],
+  'leonard.html':     ['agnar.html','gloss-slowrym.html','gloss-kwathlegonx.html'],
   'irla.html':        ['elayda.html','kelak.html','green-temple.html','the-continent.html','holy-lines.html'],
   'elayda.html':      ['irla.html','img-green-temple-adira.html','gloss-sacred-lines.html','green-temple.html'],
   'kelak.html':       ['irla.html','elayda.html','the-continent.html'],
@@ -174,7 +174,7 @@ const ELEVATIONS = {
   'peregrinus.html':  ['domum-novum.html','dead-gods.html','gloss-ulthera.html'],
   'doran.html':       ['koa.html','high-wail-rook.html'],
   'dead-gods.html':   ['gloss-parousia.html','gloss-prex-machina.html','gloss-ulthera.html','peregrinus.html'],
-  'agnar.html':       ['koa.html','leonard.html','entry.html'],
+  'agnar.html':       ['koa.html','leonard.html'],
 };
 
 function getLastNode() {
