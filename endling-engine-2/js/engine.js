@@ -209,7 +209,8 @@ function smartRandom(pool) {
   }
 
   // Step 2: apply weights
-  const strandInfluence = clicks < 12 ? 1.8 : 2.8;
+  // Flat 1.3x strand nudge throughout — not a funnel, just a gentle bias
+  const strandInfluence = 1.3;
   // Cross-strand nodes for escape when pool is exhausted
   const otherStrandNodes = ['endling','hwr','domum']
     .filter(s => s !== strand)
@@ -219,9 +220,9 @@ function smartRandom(pool) {
     let w = item.weight || 1;
     const filename = item.url.split('/').pop();
 
-    // Strand boost
+    // Gentle strand nudge — flat throughout session
     if (strandNodes.includes(filename)) {
-      w *= clicks > 20 ? 1.3 : strandInfluence;
+      w *= strandInfluence;
     }
 
     // Exhausted fallback: boost cross-strand nodes 1.5x for this jump only

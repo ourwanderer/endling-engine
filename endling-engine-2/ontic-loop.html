@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>THE ENDLING SAGA — ONTIC LOOP DETECTED</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: #000;
+      color: #e8ddd0;
+      font-family: 'Space Mono', monospace;
+      overflow: hidden;
+    }
+
+    /* CRT scanlines overlay */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.18) 2px,
+        rgba(0,0,0,0.18) 4px
+      );
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    /* CRT flicker */
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0);
+      animation: flicker 0.15s infinite;
+      pointer-events: none;
+      z-index: 99;
+    }
+
+    @keyframes flicker {
+      0%   { background: rgba(0,0,0,0); }
+      92%  { background: rgba(0,0,0,0); }
+      93%  { background: rgba(0,0,0,0.04); }
+      94%  { background: rgba(0,0,0,0); }
+      97%  { background: rgba(0,0,0,0); }
+      98%  { background: rgba(0,0,0,0.06); }
+      100% { background: rgba(0,0,0,0); }
+    }
+
+    /* CRT screen container with curvature */
+    .crt-screen {
+      width: 100vw; height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      padding: 3rem 2rem;
+      /* Subtle barrel distortion via border-radius perspective */
+      border-radius: 4% / 3%;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Phosphor glow vignette */
+    .crt-screen::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(
+        ellipse at center,
+        transparent 55%,
+        rgba(0,0,0,0.7) 100%
+      );
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .content {
+      position: relative;
+      z-index: 20;
+      text-align: center;
+      max-width: 640px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.8rem;
+    }
+
+    /* WARNING heading — rapid glitch between two states */
+    .warning-head {
+      font-size: clamp(1.4rem, 4vw, 2.2rem);
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #c83c2c;
+      text-shadow:
+        0 0 8px rgba(200,60,44,0.8),
+        0 0 20px rgba(200,60,44,0.4);
+      position: relative;
+      animation: headGlitch 0.08s steps(1) infinite;
+    }
+
+    @keyframes headGlitch {
+      0%, 100% {
+        clip-path: inset(0 0 0 0);
+        transform: translateX(0);
+        color: #c83c2c;
+      }
+      48% {
+        clip-path: inset(30% 0 40% 0);
+        transform: translateX(-3px);
+        color: #ff4444;
+      }
+      49% {
+        clip-path: inset(60% 0 10% 0);
+        transform: translateX(3px);
+        color: #44ffee;
+        text-shadow: 0 0 12px rgba(68,255,238,0.9);
+      }
+      50% {
+        clip-path: inset(0 0 0 0);
+        transform: translateX(0);
+        color: #c83c2c;
+      }
+    }
+
+    .warning-head::before {
+      content: 'WARNING: ONTIC LOOP DETECTED';
+      position: absolute; inset: 0;
+      color: #44ffee;
+      text-shadow: 0 0 8px rgba(68,255,238,0.8);
+      animation: headGlitchGhost 0.08s steps(1) infinite;
+      opacity: 0;
+    }
+
+    @keyframes headGlitchGhost {
+      0%, 47%, 51%, 100% { opacity: 0; transform: translateX(0); }
+      48% { opacity: 0.7; transform: translateX(4px); clip-path: inset(20% 0 60% 0); }
+      49% { opacity: 0.4; transform: translateX(-2px); clip-path: inset(70% 0 5% 0); }
+      50% { opacity: 0; }
+    }
+
+    /* Subheading — steady */
+    .sub-head {
+      font-size: 0.7rem;
+      letter-spacing: 0.4em;
+      color: rgba(184,160,144,0.6);
+      text-transform: uppercase;
+    }
+
+    /* Body text — occasional word glitch */
+    .body-text {
+      font-size: clamp(0.82rem, 1.5vw, 0.95rem);
+      line-height: 2;
+      color: rgba(232,221,208,0.75);
+      font-style: italic;
+      text-shadow: 0 0 6px rgba(232,221,208,0.2);
+    }
+
+    .body-text .glitch-word {
+      display: inline-block;
+      animation: wordGlitch 7s steps(1) infinite;
+    }
+    .body-text .glitch-word:nth-child(2) { animation-delay: 2.3s; }
+    .body-text .glitch-word:nth-child(3) { animation-delay: 4.7s; }
+
+    @keyframes wordGlitch {
+      0%, 94%, 100% { transform: translateX(0); opacity: 1; filter: none; }
+      95% { transform: translateX(-2px); opacity: 0.6; filter: hue-rotate(90deg); }
+      96% { transform: translateX(2px); opacity: 0.8; filter: hue-rotate(180deg); }
+      97% { transform: translateX(0); opacity: 1; filter: none; }
+    }
+
+    /* Resolving text */
+    .resolving {
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      color: rgba(184,160,144,0.45);
+      text-transform: uppercase;
+    }
+
+    .resolution-failed {
+      font-size: 0.7rem;
+      letter-spacing: 0.25em;
+      color: #c83c2c;
+      text-shadow: 0 0 8px rgba(200,60,44,0.6);
+      text-transform: uppercase;
+      opacity: 0;
+    }
+
+    .resolution-failed.visible {
+      animation: fadeInSlow 1.2s ease forwards;
+    }
+
+    @keyframes fadeInSlow {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    /* GO BACK button */
+    .back-btn {
+      display: inline-block;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.5em;
+      text-transform: uppercase;
+      color: rgba(232,221,208,0.85);
+      border: 1px solid rgba(200,60,44,0.4);
+      padding: 0.8rem 2.5rem;
+      text-decoration: none;
+      cursor: pointer;
+      background: none;
+      opacity: 0;
+      transition: all 0.3s ease;
+      text-shadow: 0 0 6px rgba(232,221,208,0.3);
+    }
+
+    .back-btn:hover {
+      color: #c83c2c;
+      border-color: rgba(200,60,44,0.9);
+      text-shadow: 0 0 10px rgba(200,60,44,0.8);
+    }
+
+    .back-btn.visible {
+      animation: fadeInSlow 1s ease forwards;
+    }
+
+    /* Disclaimer */
+    .disclaimer {
+      font-size: 0.48rem;
+      letter-spacing: 0.08em;
+      line-height: 1.8;
+      color: rgba(184,160,144,0.2);
+      font-style: italic;
+      max-width: 520px;
+      opacity: 0;
+    }
+
+    .disclaimer.visible {
+      animation: fadeInSlow 1s ease forwards;
+    }
+
+    /* Irregular horizontal glitch lines */
+    .glitch-line {
+      position: fixed;
+      left: 0; right: 0;
+      height: 2px;
+      background: rgba(68,255,238,0.6);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 50;
+      animation: scanGlitch 1s steps(1) infinite;
+    }
+
+    .glitch-line:nth-child(2) { animation-delay: 0.37s; animation-duration: 1.7s; }
+    .glitch-line:nth-child(3) { animation-delay: 0.83s; animation-duration: 2.3s; }
+
+    @keyframes scanGlitch {
+      0%, 88%, 100% { opacity: 0; top: 50%; }
+      89% { opacity: 0.7; top: 23%; background: rgba(200,60,44,0.5); }
+      90% { opacity: 0; top: 70%; }
+      91% { opacity: 0.4; top: 58%; background: rgba(68,255,238,0.6); }
+      92% { opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+<div class="glitch-line"></div>
+<div class="glitch-line"></div>
+<div class="glitch-line"></div>
+
+<div class="crt-screen">
+  <div class="content">
+
+    <div class="warning-head">WARNING: ONTIC LOOP DETECTED</div>
+
+    <div class="sub-head">// REALITY NAVIGATION SUSPENDED //</div>
+
+    <p class="body-text">
+      The Engine has detected a fold in local reality.
+      You have been <span class="glitch-word">here</span> before.
+      You are <span class="glitch-word">here</span> again.
+      These are not the <span class="glitch-word">same</span> moment.
+    </p>
+
+    <div class="resolving">Attempting to resolve...</div>
+
+    <div class="resolution-failed" id="res-failed">Resolution failed.</div>
+
+    <button class="back-btn" id="back-btn" onclick="window.location.href='index.html'">GO BACK</button>
+
+    <p class="disclaimer" id="disclaimer">
+      3Moons™ UltraCorp© accepts no responsibility for Engine users trapped in ontic or temporal loops.
+      If symptoms persist, consult your nearest functioning [redacted].
+      Terms and conditions apply.
+    </p>
+
+  </div>
+</div>
+
+<script>
+  // Sequence: 3s pause → resolution failed → 2s pause → button + disclaimer
+  setTimeout(() => {
+    document.getElementById('res-failed').classList.add('visible');
+  }, 3000);
+
+  setTimeout(() => {
+    document.getElementById('back-btn').classList.add('visible');
+    document.getElementById('disclaimer').classList.add('visible');
+  }, 5000);
+</script>
+</body>
+</html>
