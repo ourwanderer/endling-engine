@@ -74,6 +74,37 @@ function navigateTo(url, delay=350) {
 const BRIDGE_NODES = ['leonard.html','entry.html','agnar.html','the-exile.html'];
 
 
+// ANOMALY nodes — capped at low weight regardless of pool weight
+const STRANDS_ANOMALY = [
+  'the-exile.html','cu-chulainn.html','entry.html','gloss-the-oracle.html',
+  'img-giant-ghost-1.html','img-giant-ghost-2.html','img-giant-ghost-3.html',
+  'img-comet-rider-1.html','img-comet-rider-2.html','img-engine-vista.html',
+  'img-escape.html','img-which-life.html','img-dead-machine-mortuus.html',
+  'img-atalanta.html','img-strange-garden.html','img-writing-black-hole.html',
+  'img-writing-interview.html','img-misc-gallery-1.html','img-misc-gallery-2.html',
+  'img-misc-gallery-3.html','img-misc-gallery-4.html','img-misc-memory.html',
+  'img-charybdis.html','img-aeolus.html','img-superluminal-1.html','img-superluminal-2.html',
+  'img-short-film-ancient-1.html','img-short-film-2.html','img-short-film-3.html',
+  'vid-the-exile.html','vid-superluminal.html','vid-dead-machine.html',
+  'vid-apogeic-one.html','vid-apogeic-two.html','vid-neurula-1.html','vid-neurula-2.html',
+  'vid-i-had-that-dream.html','vid-random-experiment.html','vid-no-beyond.html',
+  'gif-tinl.html','gif-osos-daynight.html',
+];
+
+// ── CONTEXTUAL ELEVATION MAP ────────────────────────────────────────────────
+const ELEVATIONS = {
+  'koa.html':         ['agnar.html','war-dog.html','doran.html','the-ookami.html','gloss-headgear.html','new-kyushu.html'],
+  'leonard.html':     ['agnar.html','gloss-slowrym.html','gloss-kwathlegonx.html'],
+  'irla.html':        ['elayda.html','kelak.html','green-temple.html','holy-lines.html'],
+  'elayda.html':      ['irla.html','img-green-temple-adira.html','gloss-sacred-lines.html','green-temple.html'],
+  'kelak.html':       ['irla.html','elayda.html'],
+  'the-exile.html':   ['gloss-the-oracle.html'],
+  'peregrinus.html':  ['domum-novum.html','dead-gods.html','gloss-ulthera.html'],
+  'doran.html':       ['koa.html','high-wail-rook.html'],
+  'dead-gods.html':   ['gloss-parousia.html','gloss-prex-machina.html','gloss-ulthera.html','peregrinus.html'],
+  'agnar.html':       ['koa.html','leonard.html'],
+};
+
 function smartRandom(pool) {
   const clicks = EngineSession.getClickCount();
   const recentFour = EngineSession.getRecentFour();
