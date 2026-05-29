@@ -749,3 +749,9 @@ document.addEventListener('DOMContentLoaded',()=>{
   initImageZoom();
   initWarp();
 });
+
+// Force reload when navigating back/forward
+// Prevents stale page state on browser back button
+window.addEventListener('popstate', function() {
+  window.location.reload();
+});

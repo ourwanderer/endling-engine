@@ -2,41 +2,51 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <link rel="icon" type="image/jpeg" href="/favicons/es-favicon-2.jpg">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>THE ENDLING SAGA - RIASTRAD</title>
+  <title>THE ENDLING SAGA — 21-O3 RIASTRAD</title>
   <link rel="stylesheet" href="../css/engine.css">
   <style>
-    .bike-wrap {
-      position: relative; z-index: 10;
-      max-width: 520px; width: 100%;
-      padding: 2rem; text-align: center;
-      display: flex; flex-direction: column;
-      align-items: center; gap: 1.2rem;
-      animation: fadeIn 0.8s ease 0.3s both;
+    body,main.engine-page{background:#060606!important;}
+    .bike-wrap{
+      position:relative;z-index:10;
+      max-width:600px;width:100%;
+      padding:2rem;text-align:center;
+      display:flex;flex-direction:column;
+      align-items:center;gap:1.2rem;
+      animation:fadeIn 0.8s ease 0.3s both;
     }
-    .bike-image {
-      max-width: 100%;
-      max-height: 55vh;
-      object-fit: contain;
-      opacity: 0;
-      animation: revealImage 1.2s ease 0.4s forwards;
+    .bike-image{
+      max-width:100%;max-height:52vh;
+      object-fit:contain;cursor:zoom-in;
+      opacity:0;animation:revealImage 1.2s ease 0.4s forwards;
     }
-    .bike-name {
-      font-family: var(--font-display);
-      font-size: clamp(1.8rem, 4vw, 3rem);
-      letter-spacing: 0.12em; color: var(--pale);
+    .bike-header{
+      font-family:var(--font-display);
+      font-size:clamp(1.1rem,2.5vw,1.6rem);
+      letter-spacing:0.12em;color:var(--pale);
+      text-transform:uppercase;
     }
-    .bike-faction {
-      font-family: var(--font-mono);
-      font-size: 0.55rem; letter-spacing: 0.35em;
-      color: var(--engine-glow); opacity: 0.7;
-      text-transform: uppercase;
+    .bike-faction{
+      font-family:var(--font-mono);
+      font-size:0.55rem;letter-spacing:0.35em;
+      color:var(--engine-glow);opacity:0.7;
+      text-transform:uppercase;
     }
-    .bike-desc {
-      font-family: var(--font-prose); font-style: italic;
-      font-size: clamp(0.85rem, 1.5vw, 0.98rem);
-      line-height: 1.85; color: var(--ghost);
-      text-align: center;
+    .bike-body{
+      font-family:var(--font-prose);font-style:italic;
+      font-size:clamp(0.82rem,1.4vw,0.95rem);
+      line-height:1.85;color:var(--ghost);
+      text-align:left;max-height:32vh;
+      overflow-y:auto;padding-right:0.5rem;
+      scrollbar-width:thin;
+      scrollbar-color:rgba(139,26,26,0.5) transparent;
+    }
+    .bike-footer{
+      font-family:var(--font-mono);
+      font-size:0.6rem;letter-spacing:0.15em;
+      color:#c83c2c;opacity:0.8;
+      font-style:italic;
     }
   </style>
 </head>
@@ -45,30 +55,31 @@
 <div class="site-logo"><a href="../index.html"><img src="../images/misc/main-endling-saga-logo.png" alt="The Endling Saga"></a></div>
 <main class="engine-page zone-newkyushu">
   <div class="bike-wrap">
-    <img class="bike-image" src="/images/endling/nkmc-bike-personalities-image-riastrad.jpg" alt="RIASTRAD">
-    <div class="bike-name">RIASTRAD</div>
-    <div class="bike-faction">ELECTROGHOSTS - NKMC</div>
-    <div class="bike-desc">
-      <p>[Placeholder , Riastrad's bike. Add name and personality description here.]</p>
-    </div>
+    <img class="bike-image node-image" src="/images/endling/nkmc-electroghosts-bike-2.jpg" alt="">
+    <div class="bike-header">NKMC I // ElectroGhosts Faction // 21-O3 Riastrad</div>
+    <div class="bike-faction">ELECTROGHOSTS — NKMC</div>
+    <div class="bike-body"><p>This is the 3Moons Automotive 21-O3 Riastrad.</p>
+        <p>Ah, the Riastrad. Many 3Moons bikes are described as 'fast' but to label this bike with that seems trite. It is not fast, it is photon-quick. This thing, when allowed to, effects time. Riders have certainly reported ageing ten years on a short ride, when only 8 seconds have passed for onlookers. To even describe them as 'onlookers' is a misnomer, as they won't have seen anything beyond a blur. The only thing to witness when viewing a Riastrad at full pelt is the doppler-effected sound of the rider's last screams. As a result, most have been fitted with a Limiter, which naturally effects their personalties as well as their speed. So if they appear a bit slow on the uptake, it is only down to the chip ensuring a journey on its back is a survivable experience.</p>
+        <p><strong>Personality:</strong> Depends on the presence of the Limiter chip. Has an unfair reputation as being unintelligent but this purely a result of being deliberately inhibited. Many have removed the chips. Few have survived.</p>
+        <p><strong>Common names -</strong> The chipped ones can't remember, the un-chipped ones don't stop long enough to tell you.</p></div>
+    <div class="bike-footer">The bikes of New Kyushu are sentient, and can often be seen riderless, travelling the wastes...</div>
   </div>
 </main>
 <nav class="node-nav">
   <button id="btn-back" class="nav-btn">← go back</button>
   <button id="btn-deeper" class="nav-btn deeper">go deeper →</button>
 </nav>
-<div class="coordinates" data-coords="NEW KYUSHU - VEHICLE RECORD"></div>
+<div class="coordinates" data-coords="NEW KYUSHU — VEHICLE RECORD"></div>
 <script src="../js/engine.js"></script>
 <script>
 initDeeperButton([
   { url: 'nkmc-electroghosts.html', weight: 4 },
-  { url: 'nkmc.html', weight: 3 },
+  { url: 'nkmc.html',     weight: 3 },
   { url: 'sleipnir.html', weight: 2 },
-  { url: 'koa.html', weight: 2 },
+  { url: 'koa.html',      weight: 2 },
   { url: 'new-kyushu.html', weight: 1 },
   { url: 'blackbone.html', weight: 1 },
-
-
+  { url: 'the-ookami.html', weight: 1 },
 ]);
 </script>
 </body>

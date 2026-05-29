@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/jpeg" href="/favicons/es-favicon-2.jpg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>THE ENDLING SAGA — XM-23 LATIFRONS</title>
+  <link rel="stylesheet" href="../css/engine.css">
+  <style>
+    body,main.engine-page{background:#060606!important;}
+    .bike-wrap{
+      position:relative;z-index:10;
+      max-width:600px;width:100%;
+      padding:2rem;text-align:center;
+      display:flex;flex-direction:column;
+      align-items:center;gap:1.2rem;
+      animation:fadeIn 0.8s ease 0.3s both;
+    }
+    .bike-image{
+      max-width:100%;max-height:52vh;
+      object-fit:contain;cursor:zoom-in;
+      opacity:0;animation:revealImage 1.2s ease 0.4s forwards;
+    }
+    .bike-header{
+      font-family:var(--font-display);
+      font-size:clamp(1.1rem,2.5vw,1.6rem);
+      letter-spacing:0.12em;color:var(--pale);
+      text-transform:uppercase;
+    }
+    .bike-faction{
+      font-family:var(--font-mono);
+      font-size:0.55rem;letter-spacing:0.35em;
+      color:var(--engine-glow);opacity:0.7;
+      text-transform:uppercase;
+    }
+    .bike-body{
+      font-family:var(--font-prose);font-style:italic;
+      font-size:clamp(0.82rem,1.4vw,0.95rem);
+      line-height:1.85;color:var(--ghost);
+      text-align:left;max-height:32vh;
+      overflow-y:auto;padding-right:0.5rem;
+      scrollbar-width:thin;
+      scrollbar-color:rgba(139,26,26,0.5) transparent;
+    }
+    .bike-footer{
+      font-family:var(--font-mono);
+      font-size:0.6rem;letter-spacing:0.15em;
+      color:#c83c2c;opacity:0.8;
+      font-style:italic;
+    }
+  </style>
+</head>
+<body>
+<div id="page-transition" class="page-transition"></div>
+<div class="site-logo"><a href="../index.html"><img src="../images/misc/main-endling-saga-logo.png" alt="The Endling Saga"></a></div>
+<main class="engine-page zone-newkyushu">
+  <div class="bike-wrap">
+    <img class="bike-image node-image" src="/images/endling/nkmc-dead-gods-bike-4.jpg" alt="">
+    <div class="bike-header">NKMC // Dead Gods Faction // XM-23 Latifrons</div>
+    <div class="bike-faction">DEAD GODS — NKMC</div>
+    <div class="bike-body"><p>This is the 3Moons Automotive XM-23 Latifrons.</p>
+        <p>The Latifrons was a mistake.</p>
+        <p>The name was a mistake, because no one knew what it meant, it sounded flouncy and did not fit the look, or the personality, of the bike at all. For what it's worth, it was a big f***ing bison that went extinct.</p>
+        <p>But by far the biggest screw-up was pandering to the whims of uneducated riders, and including a pair of handlebars in the design.</p>
+        <p>You see, the Latifrons was designed for heavy work. It had more torque than was healthy for any machine and could carry a tonne weight up a cliff like it was nothing. As a result, it was also a bit.. gruff. It felt most other things, particularly the meat bags that tried to ride it, as.. puny. So imagine what happened when the puny meat bags tried to control it.</p>
+        <p>Never grab a Latifrons by the horns.</p>
+        <p>And so, only the hardiest riders (and the most desperate for a heavy-lifting bike) chose this model. And if they were smart, they held on to something else.</p>
+        <p><strong>Personality:</strong> Does not respect other.. anything. It doesn't respect anything. If you address it, and it remains silently looking at you - run.</p>
+        <p><strong>Common names:</strong> Names are for puny meat bags.</p></div>
+    <div class="bike-footer">The bikes of New Kyushu are sentient, and can often be seen riderless, travelling the wastes...</div>
+  </div>
+</main>
+<nav class="node-nav">
+  <button id="btn-back" class="nav-btn">← go back</button>
+  <button id="btn-deeper" class="nav-btn deeper">go deeper →</button>
+</nav>
+<div class="coordinates" data-coords="NEW KYUSHU — VEHICLE RECORD"></div>
+<script src="../js/engine.js"></script>
+<script>
+initDeeperButton([
+  { url: 'nkmc-dead-gods.html', weight: 4 },
+  { url: 'nkmc.html',     weight: 3 },
+  { url: 'sleipnir.html', weight: 2 },
+  { url: 'koa.html',      weight: 2 },
+  { url: 'new-kyushu.html', weight: 1 },
+  { url: 'blackbone.html', weight: 1 },
+  { url: 'the-ookami.html', weight: 1 },
+]);
+</script>
+</body>
+</html>

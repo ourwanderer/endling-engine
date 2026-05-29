@@ -2,41 +2,51 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <link rel="icon" type="image/jpeg" href="/favicons/es-favicon-2.jpg">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>THE ENDLING SAGA - PIERO</title>
+  <title>THE ENDLING SAGA — CBG 1313 PIERO</title>
   <link rel="stylesheet" href="../css/engine.css">
   <style>
-    .bike-wrap {
-      position: relative; z-index: 10;
-      max-width: 520px; width: 100%;
-      padding: 2rem; text-align: center;
-      display: flex; flex-direction: column;
-      align-items: center; gap: 1.2rem;
-      animation: fadeIn 0.8s ease 0.3s both;
+    body,main.engine-page{background:#060606!important;}
+    .bike-wrap{
+      position:relative;z-index:10;
+      max-width:600px;width:100%;
+      padding:2rem;text-align:center;
+      display:flex;flex-direction:column;
+      align-items:center;gap:1.2rem;
+      animation:fadeIn 0.8s ease 0.3s both;
     }
-    .bike-image {
-      max-width: 100%;
-      max-height: 55vh;
-      object-fit: contain;
-      opacity: 0;
-      animation: revealImage 1.2s ease 0.4s forwards;
+    .bike-image{
+      max-width:100%;max-height:52vh;
+      object-fit:contain;cursor:zoom-in;
+      opacity:0;animation:revealImage 1.2s ease 0.4s forwards;
     }
-    .bike-name {
-      font-family: var(--font-display);
-      font-size: clamp(1.8rem, 4vw, 3rem);
-      letter-spacing: 0.12em; color: var(--pale);
+    .bike-header{
+      font-family:var(--font-display);
+      font-size:clamp(1.1rem,2.5vw,1.6rem);
+      letter-spacing:0.12em;color:var(--pale);
+      text-transform:uppercase;
     }
-    .bike-faction {
-      font-family: var(--font-mono);
-      font-size: 0.55rem; letter-spacing: 0.35em;
-      color: var(--engine-glow); opacity: 0.7;
-      text-transform: uppercase;
+    .bike-faction{
+      font-family:var(--font-mono);
+      font-size:0.55rem;letter-spacing:0.35em;
+      color:var(--engine-glow);opacity:0.7;
+      text-transform:uppercase;
     }
-    .bike-desc {
-      font-family: var(--font-prose); font-style: italic;
-      font-size: clamp(0.85rem, 1.5vw, 0.98rem);
-      line-height: 1.85; color: var(--ghost);
-      text-align: center;
+    .bike-body{
+      font-family:var(--font-prose);font-style:italic;
+      font-size:clamp(0.82rem,1.4vw,0.95rem);
+      line-height:1.85;color:var(--ghost);
+      text-align:left;max-height:32vh;
+      overflow-y:auto;padding-right:0.5rem;
+      scrollbar-width:thin;
+      scrollbar-color:rgba(139,26,26,0.5) transparent;
+    }
+    .bike-footer{
+      font-family:var(--font-mono);
+      font-size:0.6rem;letter-spacing:0.15em;
+      color:#c83c2c;opacity:0.8;
+      font-style:italic;
     }
   </style>
 </head>
@@ -45,30 +55,31 @@
 <div class="site-logo"><a href="../index.html"><img src="../images/misc/main-endling-saga-logo.png" alt="The Endling Saga"></a></div>
 <main class="engine-page zone-newkyushu">
   <div class="bike-wrap">
-    <img class="bike-image" src="/images/endling/nkmc-bike-personalities-image-piero.jpg" alt="PIERO">
-    <div class="bike-name">PIERO</div>
-    <div class="bike-faction">DEAD GODS - NKMC</div>
-    <div class="bike-desc">
-      <p>[Placeholder , Piero's bike. Add name and personality description here.]</p>
-    </div>
+    <img class="bike-image node-image" src="/images/endling/nkmc-dead-gods-bike-3.png" alt="">
+    <div class="bike-header">NKMC // Dead Gods Faction // CBG 1313 Piero</div>
+    <div class="bike-faction">DEAD GODS — NKMC</div>
+    <div class="bike-body"><p>This is the 3Moons Automotive CBG 1313 Piero.</p>
+        <p>The Piero is yet another in a long line of mildly insane bikes created by the 3Moons UltraCorp. However, in this case the insanity is usually accompanied by a positive - sometimes even effervescent - personality. As long, of course, as it is off-road. The Piero gets bored easily, especially on anything as mundane as a flat surface. This bike just wants to go where bikes shouldn't be able to. The steeper the incline &amp; the more obstructed the path the better. There have been many documented cases of riders begging the Piero to choose a safer route, only to be thrown from the bike as an annoyance. There is even a phenomenon known as 'the Piero Scream', which is characterised as being particularly high-pitched and fraught with terror. However, for the rider who enjoys being perilously close to death, the Piero is an excellent companion and strong, life-long bonds have been formed when the rider is particularly careless with their safety.</p>
+        <p><strong>Personality:</strong> Fun-loving as long as it's dangerous fun, loyal as long as you're not boring. Or interested in living very long.</p>
+        <p><strong>Common names -</strong> Alex, Lynn &amp; Oops.</p></div>
+    <div class="bike-footer">The bikes of New Kyushu are sentient, and can often be seen riderless, travelling the wastes...</div>
   </div>
 </main>
 <nav class="node-nav">
   <button id="btn-back" class="nav-btn">← go back</button>
   <button id="btn-deeper" class="nav-btn deeper">go deeper →</button>
 </nav>
-<div class="coordinates" data-coords="NEW KYUSHU - VEHICLE RECORD"></div>
+<div class="coordinates" data-coords="NEW KYUSHU — VEHICLE RECORD"></div>
 <script src="../js/engine.js"></script>
 <script>
 initDeeperButton([
   { url: 'nkmc-dead-gods.html', weight: 4 },
-  { url: 'nkmc.html', weight: 3 },
+  { url: 'nkmc.html',     weight: 3 },
   { url: 'sleipnir.html', weight: 2 },
-  { url: 'koa.html', weight: 2 },
+  { url: 'koa.html',      weight: 2 },
   { url: 'new-kyushu.html', weight: 1 },
   { url: 'blackbone.html', weight: 1 },
-
-
+  { url: 'the-ookami.html', weight: 1 },
 ]);
 </script>
 </body>

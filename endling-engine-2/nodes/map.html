@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="icon" type="image/jpeg" href="/favicons/es-favicon-2.jpg">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>THE ENDLING SAGA - THE MAP</title>
@@ -48,6 +49,12 @@
   <button id="btn-deeper" class="nav-btn deeper">go deeper →</button>
 </nav>
 <div class="coordinates" data-coords="THE CONTINENT - CARTOGRAPHIC SURVEY v1"></div>
+<script>
+  // Reset map zoom on every load
+  sessionStorage.removeItem("mapScale");
+  sessionStorage.removeItem("mapTx");
+  sessionStorage.removeItem("mapTy");
+</script>
 <script src="../js/engine.js"></script>
 <script>
   initMap();

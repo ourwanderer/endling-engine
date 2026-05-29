@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/jpeg" href="/favicons/es-favicon-2.jpg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>THE ENDLING SAGA — 1412-SW TAROON</title>
+  <link rel="stylesheet" href="../css/engine.css">
+  <style>
+    body,main.engine-page{background:#060606!important;}
+    .bike-wrap{
+      position:relative;z-index:10;
+      max-width:600px;width:100%;
+      padding:2rem;text-align:center;
+      display:flex;flex-direction:column;
+      align-items:center;gap:1.2rem;
+      animation:fadeIn 0.8s ease 0.3s both;
+    }
+    .bike-image{
+      max-width:100%;max-height:52vh;
+      object-fit:contain;cursor:zoom-in;
+      opacity:0;animation:revealImage 1.2s ease 0.4s forwards;
+    }
+    .bike-header{
+      font-family:var(--font-display);
+      font-size:clamp(1.1rem,2.5vw,1.6rem);
+      letter-spacing:0.12em;color:var(--pale);
+      text-transform:uppercase;
+    }
+    .bike-faction{
+      font-family:var(--font-mono);
+      font-size:0.55rem;letter-spacing:0.35em;
+      color:var(--engine-glow);opacity:0.7;
+      text-transform:uppercase;
+    }
+    .bike-body{
+      font-family:var(--font-prose);font-style:italic;
+      font-size:clamp(0.82rem,1.4vw,0.95rem);
+      line-height:1.85;color:var(--ghost);
+      text-align:left;max-height:32vh;
+      overflow-y:auto;padding-right:0.5rem;
+      scrollbar-width:thin;
+      scrollbar-color:rgba(139,26,26,0.5) transparent;
+    }
+    .bike-footer{
+      font-family:var(--font-mono);
+      font-size:0.6rem;letter-spacing:0.15em;
+      color:#c83c2c;opacity:0.8;
+      font-style:italic;
+    }
+  </style>
+</head>
+<body>
+<div id="page-transition" class="page-transition"></div>
+<div class="site-logo"><a href="../index.html"><img src="../images/misc/main-endling-saga-logo.png" alt="The Endling Saga"></a></div>
+<main class="engine-page zone-newkyushu">
+  <div class="bike-wrap">
+    <img class="bike-image node-image" src="/images/endling/nkmc-electroghosts-bike-3.png" alt="">
+    <div class="bike-header">NKMC // ElectroGhosts Faction // 1412-SW Taroon</div>
+    <div class="bike-faction">ELECTROGHOSTS — NKMC</div>
+    <div class="bike-body"><p>This is the 3Moons Automotive 1412-SW Taroon.</p>
+        <p>The Taroon didn't know what it was. But that wasn't its fault.</p>
+        <p>During the design process, the boffins at 3Moons couldn't really decide who the bike was for. It was aggressive, muscular, dainty and dexterous. The acceleration was literally lethal, the ride smooth as warm butter. It was an anomaly.</p>
+        <p>So those boffins decided to invent something that took advantage of the multi-faceted riding experience. They fitted something called an 'EPA Unit' - Enhanced Personality Adaptor. The idea being, the bike could be whoever you wanted it to be in the moment.</p>
+        <p>The problem they didn't foresee, but should have, was that it meant the bike could also adapt their personality and be whatever <em>it</em> wanted to be in the moment. This obviously resulted in multiple deaths, as riders who were out for a casual Sunday trip suddenly found they were on top of a roaring demon who thought brakes were for children.</p>
+        <p>As is the way of these things, the bike still found its fans, usually among the street gangs of New Kyushu, ie - those that like to roll the dice every time they start the engine.</p>
+        <p><strong>Personality:</strong> All of them.</p>
+        <p><strong>Common names:</strong> See: Personality.</p></div>
+    <div class="bike-footer">The bikes of New Kyushu are sentient, and can often be seen riderless, travelling the wastes...</div>
+  </div>
+</main>
+<nav class="node-nav">
+  <button id="btn-back" class="nav-btn">← go back</button>
+  <button id="btn-deeper" class="nav-btn deeper">go deeper →</button>
+</nav>
+<div class="coordinates" data-coords="NEW KYUSHU — VEHICLE RECORD"></div>
+<script src="../js/engine.js"></script>
+<script>
+initDeeperButton([
+  { url: 'nkmc-electroghosts.html', weight: 4 },
+  { url: 'nkmc.html',     weight: 3 },
+  { url: 'sleipnir.html', weight: 2 },
+  { url: 'koa.html',      weight: 2 },
+  { url: 'new-kyushu.html', weight: 1 },
+  { url: 'blackbone.html', weight: 1 },
+  { url: 'the-ookami.html', weight: 1 },
+]);
+</script>
+</body>
+</html>
