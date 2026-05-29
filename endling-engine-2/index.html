@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="icon" type="image/jpeg" href="/favicons/es-favicon-2.jpg">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="The Endling Saga. A world of happenings, not of things.">
@@ -15,6 +16,11 @@
     .hp-enter { opacity:0; animation:fadeIn 1s ease 2s forwards; }
     .engine-page::after { content:''; position:absolute; bottom:0; left:0; right:0; height:180px; background:linear-gradient(to top,rgba(10,6,8,0.9),transparent); z-index:5; pointer-events:none; }
   </style>
+<script>
+  // Reset per-node visit counts on homepage — keeps visit history intact
+  // so unvisited filter still works, but Ontic Loop counter resets
+  try { sessionStorage.removeItem('es_visit_counts'); } catch(e) {}
+</script>
 </head>
 <body>
 <div id="page-transition" class="page-transition"></div>
