@@ -167,9 +167,9 @@ function getOrAssignStrand() {
 const ELEVATIONS = {
   'koa.html':         ['agnar.html','war-dog.html','doran.html','the-ookami.html','gloss-headgear.html','new-kyushu.html'],
   'leonard.html':     ['agnar.html','gloss-slowrym.html','gloss-kwathlegonx.html'],
-  'irla.html':        ['elayda.html','kelak.html','green-temple.html','the-continent.html','holy-lines.html'],
+  'irla.html':        ['elayda.html','kelak.html','green-temple.html','holy-lines.html'],
   'elayda.html':      ['irla.html','img-green-temple-adira.html','gloss-sacred-lines.html','green-temple.html'],
-  'kelak.html':       ['irla.html','elayda.html','the-continent.html'],
+  'kelak.html':       ['irla.html','elayda.html'],
   'the-exile.html':   ['gloss-the-oracle.html'],
   'peregrinus.html':  ['domum-novum.html','dead-gods.html','gloss-ulthera.html'],
   'doran.html':       ['koa.html','high-wail-rook.html'],
