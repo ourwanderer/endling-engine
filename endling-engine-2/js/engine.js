@@ -195,15 +195,25 @@ function smartRandom(pool) {
 
   // Step 1: exclude already-visited after 3 clicks
   let candidates = pool;
+  let exhausted = false;
   if (clicks >= 3) {
     const unvisited = pool.filter(item => !EngineSession.hasVisited(item.url));
-    if (unvisited.length >= 1) candidates = unvisited;
-    // If all visited, use full pool — at least recent-four penalty will
-    // push us toward less-recently-seen nodes
+    if (unvisited.length >= 1) {
+      candidates = unvisited;
+    } else {
+      // All visited — fall back to full pool and flag as exhausted
+      // Exhausted state triggers cross-strand bias below
+      candidates = pool;
+      exhausted = true;
+    }
   }
 
   // Step 2: apply weights
   const strandInfluence = clicks < 12 ? 1.8 : 2.8;
+  // Cross-strand nodes for escape when pool is exhausted
+  const otherStrandNodes = ['endling','hwr','domum']
+    .filter(s => s !== strand)
+    .flatMap(s => STRANDS[s] || []);
 
   const adjusted = candidates.map(item => {
     let w = item.weight || 1;
@@ -212,6 +222,11 @@ function smartRandom(pool) {
     // Strand boost
     if (strandNodes.includes(filename)) {
       w *= clicks > 20 ? 1.3 : strandInfluence;
+    }
+
+    // Exhausted fallback: boost cross-strand nodes 1.5x for this jump only
+    if (exhausted && otherStrandNodes.includes(filename)) {
+      w *= 1.5;
     }
 
     // Contextual elevation: double weight for one jump (apply before penalties)
