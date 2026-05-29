@@ -584,6 +584,10 @@ function initCoordinates(){
 
 function recordVisit(){
   EngineSession.addVisited(window.location.pathname);
+  EngineSession.addToRecentFour(window.location.pathname);
+  EngineSession.incrementVisitCount(window.location.pathname);
+  EngineSession.incrementClicks();
+  setLastNode(window.location.pathname);
 }
 
 // ── INIT ─────────────────────────────────────────────────────────────────────
