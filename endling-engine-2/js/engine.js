@@ -137,9 +137,9 @@ function smartRandom(pool) {
     let w = item.weight || 1;
     const filename = item.url.split('/').pop();
 
-    // Contextual elevation: double weight for one jump
+    // Contextual elevation: faint lean for one jump (whisper, not gravity)
     if (elevatedTargets.includes(filename)) {
-      w *= 2;
+      w *= 1.3;
     }
 
     // ANOMALY nodes: cap at low weight
