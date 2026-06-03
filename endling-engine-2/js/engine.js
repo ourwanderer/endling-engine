@@ -476,16 +476,22 @@ function initMap() {
   let scale=1, minScale=0.15, maxScale=6, tx=0, ty=0;
   let dragging=false, lastX=0, lastY=0;
 
-  img.onload=function(){
+  function fitMap(){
+    if (!img.naturalWidth) return;
     const fw=container.clientWidth/img.naturalWidth;
     const fh=container.clientHeight/img.naturalHeight;
-    // Use min of fit-to-container scale and 1.0 to prevent over-zoom on retina
+    // Use min of fit-to-container scale and 0.85 to prevent over-zoom on retina
     scale=Math.min(fw,fh,0.85);
     tx=(container.clientWidth-img.naturalWidth*scale)/2;
     ty=(container.clientHeight-img.naturalHeight*scale)/2;
     minScale=Math.min(fw,fh)*0.4; // Allow zoom out to 40% of fit
     apply();
-  };
+  }
+  img.onload=fitMap;
+  // If image is already cached, onload won't fire — fit immediately
+  if (img.complete && img.naturalWidth) {
+    fitMap();
+  }
 
   function apply(){ img.style.transform=`translate(${tx}px,${ty}px) scale(${scale})`; img.style.transformOrigin='0 0'; }
 

@@ -1005,11 +1005,11 @@ main.engine-page:not(.zone-newkyushu):not(.zone-continent):not(.zone-domum):not(
 .char-layout-v2.landscape .char-portrait {
   width: 100%;
   height: auto;
-  max-height: 50vh;
+  max-height: 70vh;
   object-fit: contain;
   object-position: center top;
   display: block;
-  /* No margin-top here — the char-page padding handles top space */
+  /* max-height raised so width is the binding constraint — image fills text width */
 }
 
 /* Full width text block below image */
