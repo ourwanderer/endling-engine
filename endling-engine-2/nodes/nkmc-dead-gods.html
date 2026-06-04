@@ -7,45 +7,86 @@
   <title>THE ENDLING SAGA - DEAD GODS - NKMC</title>
   <link rel="stylesheet" href="../css/engine.css">
   <style>
-    .nkmc-wrap {
-      position: relative; z-index: 10;
-      max-width: 700px; width: 100%;
-      padding: 2rem; text-align: center;
-      display: flex; flex-direction: column;
-      align-items: center; gap: 1.5rem;
-      animation: fadeIn 0.8s ease 0.3s both;
+    body,main.engine-page{background:#060606!important;}
+    .faction-bg {
+      position: fixed; inset: 0;
+      background-image: url('/images/endling/nkmc-dead-gods-crest.jpg');
+      background-size: cover;
+      background-position: center;
+      opacity: 0.12;
+      filter: saturate(0.7) contrast(1.05);
+      z-index: 1;
+      pointer-events: none;
     }
-    .nkmc-crest {
-      width: clamp(160px, 35vw, 280px);
+    .faction-bg::after {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse at center, rgba(6,6,6,0.4) 0%, rgba(6,6,6,0.85) 100%);
+    }
+    .faction-wrap {
+      position: relative; z-index: 10;
+      max-width: 680px; width: 100%;
+      padding: 5rem 2rem 9rem;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 1.4rem;
+      animation: fadeIn 0.8s ease 0.3s both;
+      box-sizing: border-box;
+    }
+    .faction-crest {
+      width: clamp(120px, 24vw, 200px);
       height: auto;
       opacity: 0;
-      animation: revealImage 1.2s ease 0.5s forwards;
-      filter: saturate(0.9);
+      animation: revealImage 1.2s ease 0.4s forwards;
+      cursor: zoom-in;
     }
-    .nkmc-text {
+    .faction-header {
+      font-family: var(--font-mono);
+      font-size: 0.7rem; letter-spacing: 0.3em;
+      color: var(--engine-glow); opacity: 0.85;
+      text-transform: uppercase; text-align: center;
+    }
+    .faction-divider {
+      width: 36px; height: 1px;
+      background: rgba(139,26,26,0.5);
+    }
+    .faction-body {
       font-family: var(--font-prose); font-style: italic;
-      font-size: clamp(0.88rem, 1.5vw, 1rem);
-      line-height: 1.85; color: var(--ghost);
-      text-align: center; max-width: 520px;
+      font-size: clamp(0.9rem, 1.5vw, 1rem);
+      line-height: 1.9; color: var(--ghost);
+      text-align: left; max-width: 600px;
+      max-height: 46vh; overflow-y: auto;
+      padding-right: 0.8rem;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(139,26,26,0.5) transparent;
     }
-    .nkmc-text p + p { margin-top: 0.8rem; }
+    .faction-body::-webkit-scrollbar { width: 3px; }
+    .faction-body::-webkit-scrollbar-thumb { background: rgba(192,57,43,0.45); border-radius: 2px; }
+    .faction-body p + p { margin-top: 1rem; }
+    .faction-footer {
+      font-family: var(--font-mono);
+      font-size: 0.62rem; letter-spacing: 0.12em;
+      color: #c83c2c; opacity: 0.85;
+      font-style: italic; text-align: center;
+      margin-top: 0.5rem;
+    }
   </style>
-<style>body,main.engine-page{background:#060606!important;}</style>
 </head>
 <body>
 <div id="page-transition" class="page-transition"></div>
+<div class="faction-bg"></div>
 <div class="site-logo"><a href="../index.html"><img src="../images/misc/main-endling-saga-logo.png" alt="The Endling Saga"></a></div>
 <main class="engine-page zone-newkyushu">
-  <div class="nkmc-wrap">
-    <span class="node-label">NKMC - FACTION - OF THE DAWN WASTE</span>
-    <img class="nkmc-crest node-image" src="/images/endling/nkmc-dead-gods-crest.jpg" alt="DEAD GODS - NKMC">
-    <h2 class="node-title glitch" data-text="DEAD GODS">DEAD GODS</h2>
-    <div class="nkmc-text">
-      <p>Of the Dawn Waste. They ride the wastelands beyond the city wall where the Gas is thickest and the Blackbone claims everyone eventually.</p>
-      <p>They believe the Dead Gods speak through the toxic air. That Blackbone is not a disease but a transformation. That the ventilator is a denial of communion.</p>
-      <p>Their bikes are dark. Their crests are darker.</p>
+  <div class="faction-wrap">
+    <img class="faction-crest node-image" src="/images/endling/nkmc-dead-gods-crest.jpg" alt="">
+    <div class="faction-header">NKMC // Dead Gods of the Dawn Waste</div>
+    <div class="faction-divider"></div>
+    <div class="faction-body">
+          <p>The Dead Gods don't live in New Kyushu, and they'll tell you so before they tell you anything else, with the particular pride of people who've decided the worst place to live is the only honest one.</p>
+          <p>Out past the last of the city's neon, the Dawn Waste runs flat and poisoned to the horizon. The Gas is thicker out here, the masks never come off, and the Blackbone comes quicker and meaner with no clinic to soften it. They farm dead ground, haul water from places the maps stopped naming, and do it all with the conviction that they're the last real people alive. The city, to a Dead God, is a climate-sealed nursery full of soft scented infants who've never looked death in the face without a sponsor's logo in frame.</p>
+          <p>They keep the faith out here. Live Forever In Dreams, inked across their faces. Flaking prints of the Prex Machina and the Parousia nailed to shack walls. Peregrinus, the Dead Gods, the old religion of a world they've never seen, worshipped in the dust as though the dust were holy. It might be. They'll die believing it either way.</p>
+          <p>They ride the bikes the land demands. The Kelak, gruff and dependable. The Oracle. The Piero, which will throw you off a cliff to feel something. The Latifrons, which does not respect you and should never be grabbed by the horns. You don't race these machines for glory. You survive them.</p>
+          <p>And here's the thing nobody out here will say plainly, though they all live by it: the Dead Gods are NKMC, same as the neon kids they sneer at. Same patch, same oath, same something older than either faction that binds the whole Club together. They'd take the city to pieces over how the NKMC should be run, over how a person ought to live at all. They would not take it apart. The Electroghosts are soft, and citified, and wrong about nearly everything. But they're Club. That counts, even out in the Waste. Especially out in the Waste.</p>
     </div>
-    <p class="node-fragment">Their lungs are not what they used to be.</p>
+    <div class="faction-footer">The bikes of New Kyushu are sentient, and can often be seen riderless, travelling the wastes...</div>
   </div>
 </main>
 <nav class="node-nav">
@@ -64,13 +105,13 @@ initDeeperButton([
   { url: "dead-gods.html", weight: 2 },
   { url: "new-kyushu.html", weight: 1 },
   { url: "koa.html", weight: 1 },
-  { url: 'nkmc-bike-piero.html', weight: 2 },
   { url: 'nkmc-bike-kelak.html', weight: 2 },
   { url: 'nkmc-bike-oracle.html', weight: 2 },
   { url: 'nkmc-bike-latifrons.html', weight: 2 },
-  { url: 'img-nkmc-riastrad.html', weight: 2 },
+  { url: 'gloss-dawn-waste.html', weight: 1 },
+  { url: 'gloss-gas.html', weight: 1 },
   { url: 'nkmc-pr-crew.html', weight: 2 },
-  { url: 'img-nkmc-electroghosts.html', weight: 2 },
+  { url: 'img-nkmc-dead-gods-crest.html', weight: 2 },
 ]);
 </script>
 </body>

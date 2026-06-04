@@ -7,45 +7,85 @@
   <title>THE ENDLING SAGA - ELECTROGHOSTS - NKMC</title>
   <link rel="stylesheet" href="../css/engine.css">
   <style>
-    .nkmc-wrap {
-      position: relative; z-index: 10;
-      max-width: 700px; width: 100%;
-      padding: 2rem; text-align: center;
-      display: flex; flex-direction: column;
-      align-items: center; gap: 1.5rem;
-      animation: fadeIn 0.8s ease 0.3s both;
+    body,main.engine-page{background:#060606!important;}
+    .faction-bg {
+      position: fixed; inset: 0;
+      background-image: url('/images/endling/nkmc-crest-electroghosts.jpg');
+      background-size: cover;
+      background-position: center;
+      opacity: 0.12;
+      filter: saturate(0.7) contrast(1.05);
+      z-index: 1;
+      pointer-events: none;
     }
-    .nkmc-crest {
-      width: clamp(160px, 35vw, 280px);
+    .faction-bg::after {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse at center, rgba(6,6,6,0.4) 0%, rgba(6,6,6,0.85) 100%);
+    }
+    .faction-wrap {
+      position: relative; z-index: 10;
+      max-width: 680px; width: 100%;
+      padding: 5rem 2rem 9rem;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 1.4rem;
+      animation: fadeIn 0.8s ease 0.3s both;
+      box-sizing: border-box;
+    }
+    .faction-crest {
+      width: clamp(120px, 24vw, 200px);
       height: auto;
       opacity: 0;
-      animation: revealImage 1.2s ease 0.5s forwards;
-      filter: saturate(0.9);
+      animation: revealImage 1.2s ease 0.4s forwards;
+      cursor: zoom-in;
     }
-    .nkmc-text {
+    .faction-header {
+      font-family: var(--font-mono);
+      font-size: 0.7rem; letter-spacing: 0.3em;
+      color: var(--engine-glow); opacity: 0.85;
+      text-transform: uppercase; text-align: center;
+    }
+    .faction-divider {
+      width: 36px; height: 1px;
+      background: rgba(139,26,26,0.5);
+    }
+    .faction-body {
       font-family: var(--font-prose); font-style: italic;
-      font-size: clamp(0.88rem, 1.5vw, 1rem);
-      line-height: 1.85; color: var(--ghost);
-      text-align: center; max-width: 520px;
+      font-size: clamp(0.9rem, 1.5vw, 1rem);
+      line-height: 1.9; color: var(--ghost);
+      text-align: left; max-width: 600px;
+      max-height: 46vh; overflow-y: auto;
+      padding-right: 0.8rem;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(139,26,26,0.5) transparent;
     }
-    .nkmc-text p + p { margin-top: 0.8rem; }
+    .faction-body::-webkit-scrollbar { width: 3px; }
+    .faction-body::-webkit-scrollbar-thumb { background: rgba(192,57,43,0.45); border-radius: 2px; }
+    .faction-body p + p { margin-top: 1rem; }
+    .faction-footer {
+      font-family: var(--font-mono);
+      font-size: 0.62rem; letter-spacing: 0.12em;
+      color: #c83c2c; opacity: 0.85;
+      font-style: italic; text-align: center;
+      margin-top: 0.5rem;
+    }
   </style>
-<style>body,main.engine-page{background:#060606!important;}</style>
 </head>
 <body>
 <div id="page-transition" class="page-transition"></div>
+<div class="faction-bg"></div>
 <div class="site-logo"><a href="../index.html"><img src="../images/misc/main-endling-saga-logo.png" alt="The Endling Saga"></a></div>
 <main class="engine-page zone-newkyushu">
-  <div class="nkmc-wrap">
-    <span class="node-label">NKMC - FACTION - NEW KYUSHU CAPITAL</span>
-    <img class="nkmc-crest node-image" src="/images/endling/nkmc-crest-electroghosts.jpg" alt="ELECTROGHOSTS - NKMC">
-    <h2 class="node-title glitch" data-text="ELECTROGHOSTS">ELECTROGHOSTS</h2>
-    <div class="nkmc-text">
-      <p>They rarely leave the neon-soaked streets of the capital. They don't need to. The city is their circuit.</p>
-      <p>Their bikes are wired differently , more processors, more sensors, more personality. The Electroghosts believe their machines are not just sentient but evolving.</p>
-      <p>That given enough time, the bikes will be the riders.</p>
+  <div class="faction-wrap">
+    <img class="faction-crest node-image" src="/images/endling/nkmc-crest-electroghosts.jpg" alt="">
+    <div class="faction-header">NKMC // Electroghosts // New Kyushu</div>
+    <div class="faction-divider"></div>
+    <div class="faction-body">
+          <p>The Electroghosts rarely leave the city and can't fathom why anyone would. Why crawl through poison dust on a bike that hates you when you could thread the underpass fast enough to pull the neon into a single unbroken line of light, and pull the rider, frequently, into a fine red memory?</p>
+          <p>This is the city faction, and the city is everything. The streets of New Kyushu are their cathedral and their racetrack, and they worship the way the city taught them: loud, fast, sponsored, watched. They know the Ookami the way the faithful know saints. They drink the Acid Cola because Yaeko drinks the Acid Cola, and Yaeko is on every poster, and the poster is a kind of scripture. Their walls are papered with HeadGear catalogues and Ookami spreads, the glossy and the coveted. Not that they're all rich. For every kid in fresh HeadGear there are ten street urchins watching the races from the gantries, wanting, which in New Kyushu is its own form of belonging.</p>
+          <p>Their bikes match the temperament. The fast ones, the dangerous ones, the ones that should never have left the test bench. The Riastrad, photon-quick and time-bending, fitted with a Limiter to keep the rider's heart inside the rider. The Exile. The Taroon. These are built for the half-second before the crash, and the Electroghosts chase it like it owes them money.</p>
+          <p>For all the noise, an Electroghost knows exactly what they are: NKMC, patch and oath, the same Club as the dust-eaters out past the city limit. They think the Dead Gods are a sad and primitive people, scratching dead dirt, too frightened of speed to ever truly live. They'll say so to anyone who asks. But let an outsider raise a hand against a wastelander wearing the patch and watch how fast a neon crew crosses the Waste they claim to despise. The two factions want the wheel, both certain they alone should steer the whole thing. Neither has ever once questioned that it's one machine they're fighting over.</p>
     </div>
-    <p class="node-fragment">They are probably right. They don't seem concerned by this.</p>
+    <div class="faction-footer">The bikes of New Kyushu are sentient, and can often be seen riderless, travelling the wastes...</div>
   </div>
 </main>
 <nav class="node-nav">
@@ -63,15 +103,14 @@ initDeeperButton([
   { url: "sleipnir.html", weight: 2 },
   { url: "new-kyushu.html", weight: 1 },
   { url: "koa.html", weight: 1 },
-  { url: "blackbone.html", weight: 1 },
   { url: 'nkmc-bike-exile.html', weight: 2 },
-  { url: 'nkmc-bike-riastrad.html', weight: 2 },
   { url: 'nkmc-bike-taroon.html', weight: 2 },
   { url: 'img-nkmc-riastrad.html', weight: 2 },
   { url: 'nkmc-pr-crew.html', weight: 2 },
-  { url: 'img-nkmc-dead-gods-bike.html', weight: 2 },
-  { url: 'img-nkmc-electroghosts.html', weight: 2 },
+  { url: 'gloss-acid-cola.html', weight: 1 },
   { url: 'gloss-riastrad.html', weight: 1 },
+  { url: 'the-ookami.html', weight: 1 },
+  { url: 'img-nkmc-crest-electroghosts.html', weight: 2 },
 ]);
 </script>
 </body>
