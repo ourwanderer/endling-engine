@@ -1261,114 +1261,80 @@ body:has(.vid-page) .node-nav {
 .zone-engine    { background: #060606; }
 
 /* ── PROGRESSIVE DECAY ON REPEAT VISITS ──────────────────────────────────────
-   Applied by applyDegradation() in engine.js based on prior visit count.
-   1st visit = clean (no class). 2nd = decay-1, 3rd = decay-2, 4th+ = decay-3.
-   Cosmetic only. The fiction: reality fraying as you loop. Not a 404 look. */
+   Applied by applyDegradation() in engine.js from prior visit count.
+   1st visit = clean. 2nd = decay-1, 3rd = decay-2, 4th+ = decay-3.
+   Cosmetic only. The fiction: reality fraying as you loop. Not a 404 look.
+   Uses filter/drop-shadow so it affects IMAGE nodes too, not just text. */
 
-/* Shared subtle chromatic drift + occasional jitter */
-@keyframes decayJitter {
-  0%, 96%, 100% { transform: translate(0,0); }
-  97% { transform: translate(-1px, 0.5px); }
-  98% { transform: translate(1px, -0.5px); }
-  99% { transform: translate(-0.5px, 0); }
+@keyframes decayJitter1 {
+  0%, 100% { transform: translate(0,0); }
+  25% { transform: translate(-0.5px, 0.5px); }
+  50% { transform: translate(0.5px, -0.5px); }
+  75% { transform: translate(-0.5px, 0); }
+  88% { transform: translate(1px, 0.5px); }
 }
 @keyframes decayJitter2 {
-  0%, 90%, 100% { transform: translate(0,0); }
-  91% { transform: translate(-2px, 1px) skewX(0.4deg); }
-  93% { transform: translate(2px, -1px) skewX(-0.4deg); }
-  95% { transform: translate(-1px, 0); }
+  0%, 100% { transform: translate(0,0); }
+  20% { transform: translate(-1.5px, 0.5px) skewX(0.3deg); }
+  40% { transform: translate(1.5px, -1px); }
+  60% { transform: translate(-1px, 1px) skewX(-0.3deg); }
+  80% { transform: translate(2px, -0.5px); }
+  90% { transform: translate(-2px, 0); }
 }
-@keyframes decayFlicker {
-  0%, 100% { opacity: 1; }
-  92% { opacity: 1; }
-  93% { opacity: 0.82; }
-  94% { opacity: 1; }
-  97% { opacity: 0.9; }
-  98% { opacity: 1; }
-}
+@keyframes decayFlicker1 { 0%,100%{opacity:1;} 50%{opacity:0.94;} }
+@keyframes decayFlicker2 { 0%,100%{opacity:1;} 45%{opacity:0.85;} 55%{opacity:0.95;} 70%{opacity:0.8;} }
+@keyframes decayFlicker3 { 0%,100%{opacity:1;} 30%{opacity:0.7;} 40%{opacity:0.95;} 60%{opacity:0.6;} 72%{opacity:0.9;} }
 
-/* LEVEL 1 — first repeat. Barely there. A faint unease. */
+/* LEVEL 1 — first repeat. Now clearly noticeable: constant gentle drift + chroma. */
 body.decay-1 .content,
 body.decay-1 .char-layout-v2,
 body.decay-1 .glossary-wrap,
-body.decay-1 .gif-wrap {
-  animation: decayJitter 6s steps(1) infinite;
-  filter: saturate(0.92) contrast(1.02);
-}
-body.decay-1 .node-image,
-body.decay-1 .char-portrait,
-body.decay-1 .gif-image {
-  text-shadow: 0.5px 0 rgba(200,60,44,0.15), -0.5px 0 rgba(68,255,238,0.12);
+body.decay-1 .gif-wrap,
+body.decay-1 .faction-wrap,
+body.decay-1 .nkmc-wrap {
+  animation: decayJitter1 0.8s ease-in-out infinite, decayFlicker1 4s ease-in-out infinite;
+  filter: saturate(0.85) contrast(1.04)
+          drop-shadow(1.5px 0 rgba(200,60,44,0.4))
+          drop-shadow(-1.5px 0 rgba(68,255,238,0.35));
 }
 
-/* LEVEL 2 — second repeat. Clearly something is wrong. */
+/* LEVEL 2 — second repeat. Visibly wrong: stronger drift, scanlines, hue shift. */
 body.decay-2 .content,
 body.decay-2 .char-layout-v2,
 body.decay-2 .glossary-wrap,
-body.decay-2 .gif-wrap {
-  animation: decayJitter2 4.5s steps(1) infinite, decayFlicker 5s steps(1) infinite;
-  filter: saturate(0.8) contrast(1.05) hue-rotate(-4deg);
-}
-body.decay-2 .node-title,
-body.decay-2 .char-name,
-body.decay-2 .glossary-term {
-  text-shadow: 1.5px 0 rgba(200,60,44,0.4), -1.5px 0 rgba(68,255,238,0.35);
-}
-body.decay-2 .node-image,
-body.decay-2 .char-portrait,
-body.decay-2 .gif-image {
-  filter: saturate(0.85) contrast(1.08);
-  mix-blend-mode: normal;
+body.decay-2 .gif-wrap,
+body.decay-2 .faction-wrap,
+body.decay-2 .nkmc-wrap {
+  animation: decayJitter2 0.6s steps(2) infinite, decayFlicker2 3s steps(1) infinite;
+  filter: saturate(0.65) contrast(1.08) hue-rotate(-6deg)
+          drop-shadow(3px 0 rgba(200,60,44,0.55))
+          drop-shadow(-3px 0 rgba(68,255,238,0.5));
 }
 body.decay-2::after {
-  content: '';
-  position: fixed; inset: 0;
-  background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.06) 3px, rgba(0,0,0,0.06) 4px);
-  pointer-events: none; z-index: 80;
-  opacity: 0.5;
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:80; opacity:0.55;
+  background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.09) 3px, rgba(0,0,0,0.09) 4px);
 }
 
-/* LEVEL 3 — third repeat and beyond. Reality is failing. Still readable, still
-   navigable, but visibly breaking down. The Engine should feel dangerous here. */
+/* LEVEL 3 — third repeat and beyond. Reality failing. Heavy but still navigable. */
 body.decay-3 .content,
 body.decay-3 .char-layout-v2,
 body.decay-3 .glossary-wrap,
-body.decay-3 .gif-wrap {
-  animation: decayJitter2 2.8s steps(1) infinite, decayFlicker 3s steps(1) infinite;
-  filter: saturate(0.55) contrast(1.12) hue-rotate(-8deg);
-}
-body.decay-3 .node-title,
-body.decay-3 .char-name,
-body.decay-3 .glossary-term,
-body.decay-3 .node-text,
-body.decay-3 .char-scroll-body {
-  text-shadow: 2.5px 0 rgba(200,60,44,0.55), -2.5px 0 rgba(68,255,238,0.5);
-}
-body.decay-3 .node-image,
-body.decay-3 .char-portrait,
-body.decay-3 .gif-image {
-  filter: saturate(0.5) contrast(1.15) brightness(0.92);
+body.decay-3 .gif-wrap,
+body.decay-3 .faction-wrap,
+body.decay-3 .nkmc-wrap {
+  animation: decayJitter2 0.35s steps(2) infinite, decayFlicker3 1.8s steps(1) infinite;
+  filter: saturate(0.4) contrast(1.14) hue-rotate(-12deg)
+          drop-shadow(5px 0 rgba(200,60,44,0.6))
+          drop-shadow(-5px 0 rgba(68,255,238,0.55));
 }
 body.decay-3::after {
-  content: '';
-  position: fixed; inset: 0;
-  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.12) 2px, rgba(0,0,0,0.12) 3px);
-  pointer-events: none; z-index: 80;
-  opacity: 0.8;
-  animation: decayFlicker 2s steps(1) infinite;
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:80; opacity:0.8;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.14) 2px, rgba(0,0,0,0.14) 3px);
+  animation: decayFlicker3 1.5s steps(1) infinite;
 }
-/* a slow horizontal tear that drifts down the screen at level 3 */
-@keyframes decayTear {
-  0% { top: -5%; opacity: 0; }
-  10% { opacity: 0.7; }
-  90% { opacity: 0.7; }
-  100% { top: 105%; opacity: 0; }
-}
+@keyframes decayTear { 0%{top:-5%;opacity:0;} 10%{opacity:0.7;} 90%{opacity:0.7;} 100%{top:105%;opacity:0;} }
 body.decay-3::before {
-  content: '';
-  position: fixed; left: 0; right: 0; height: 3px;
-  background: rgba(68,255,238,0.35);
-  pointer-events: none; z-index: 81;
-  animation: decayTear 7s linear infinite;
-  mix-blend-mode: screen;
+  content:''; position:fixed; left:0; right:0; height:3px;
+  background: rgba(68,255,238,0.4); pointer-events:none; z-index:81;
+  animation: decayTear 6s linear infinite; mix-blend-mode:screen;
 }
