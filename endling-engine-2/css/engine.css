@@ -22,6 +22,9 @@
 }
 
 *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+/* Root font size — all rem units scale from here. Bumped for legibility, esp. Retina. */
+html { font-size: clamp(16px, 16px + 0.25vw, 18.5px); }
+
 html,body { width:100%; height:100%; overflow:hidden; }
 
 body:has(.char-page) {
