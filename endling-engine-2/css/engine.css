@@ -1362,6 +1362,7 @@ body.decay-1 .gif-wrap {
 body.decay-1 .node-image,
 body.decay-1 .char-portrait,
 body.decay-1 .gif-image {
+  opacity: 1 !important;
   animation: imgSlice 5.5s steps(1) infinite;
   filter: saturate(0.9);
 }
@@ -1385,6 +1386,7 @@ body.decay-2 .gif-wrap {
 body.decay-2 .node-image,
 body.decay-2 .char-portrait,
 body.decay-2 .gif-image {
+  opacity: 1 !important;
   animation: imgSlice 3s steps(1) infinite;
   filter: saturate(0.7) contrast(1.06) hue-rotate(-5deg);
 }
@@ -1416,6 +1418,7 @@ body.decay-3 .gif-wrap {
 body.decay-3 .node-image,
 body.decay-3 .char-portrait,
 body.decay-3 .gif-image {
+  opacity: 1 !important;
   animation: imgSlice 1.3s steps(1) infinite;
   filter: saturate(0.45) contrast(1.12) hue-rotate(-10deg) brightness(0.95);
 }
