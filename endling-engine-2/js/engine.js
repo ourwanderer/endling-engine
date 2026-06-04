@@ -178,7 +178,7 @@ function initDeeperButton(pool) {
     EngineSession.incrementClicks();
     const url = smartRandom(pool);
     // Ontic Loop: fire on third visit to any single node
-    if (EngineSession.getVisitCount(url) >= 2) {
+    if (EngineSession.getVisitCount(url) >= 3) {
       navigateTo('../ontic-loop.html');
       return;
     }
@@ -588,6 +588,23 @@ function initCoordinates(){
 
 // ── RECORD VISIT ─────────────────────────────────────────────────────────────
 
+
+// ── PROGRESSIVE DEGRADATION ON REPEAT VISITS ─────────────────────────────────
+// Reads how many times this node was already seen this session and applies an
+// escalating distortion class to <body>. 1st view = clean. Each repeat adds decay.
+// Purely cosmetic; does not affect navigation. Caps at level 3.
+function applyDegradation() {
+  try {
+    var key = window.location.pathname.split('/').pop();
+    var counts = JSON.parse(sessionStorage.getItem('es_visit_counts') || '{}');
+    var priorVisits = counts[key] || 0; // count BEFORE this visit is recorded
+    if (priorVisits >= 1) {
+      var level = Math.min(priorVisits, 3);
+      document.body.classList.add('decay-' + level);
+    }
+  } catch(e) {}
+}
+
 function recordVisit(){
   EngineSession.addVisited(window.location.pathname);
   EngineSession.addToRecentFour(window.location.pathname);
@@ -668,6 +685,7 @@ function initTVStatic() {
 document.addEventListener('DOMContentLoaded',()=>{
   const overlay=document.getElementById('page-transition');
   if(overlay)overlay.classList.remove('active');
+  applyDegradation();
   recordVisit();
   initOrientationLayout();
   initTVStatic();
