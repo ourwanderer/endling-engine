@@ -1260,81 +1260,195 @@ body:has(.vid-page) .node-nav {
 .zone-domum     { background: #060606; }
 .zone-engine    { background: #060606; }
 
-/* ── PROGRESSIVE DECAY ON REPEAT VISITS ──────────────────────────────────────
-   Applied by applyDegradation() in engine.js from prior visit count.
-   1st visit = clean. 2nd = decay-1, 3rd = decay-2, 4th+ = decay-3.
-   Cosmetic only. The fiction: reality fraying as you loop. Not a 404 look.
-   Uses filter/drop-shadow so it affects IMAGE nodes too, not just text. */
+/* ── PROGRESSIVE DECAY ON REPEAT VISITS (v2 - realistic signal corruption) ───
+   Applied by applyDegradation() from prior visit count.
+   1st=clean, 2nd=decay-1, 3rd=decay-2, 4th+=decay-3.
+   Technique: independent layered RGB-split via pseudo-elements on titles
+   (they carry data-text), clip-path slice displacement, stepped timing for
+   digital jump (not smooth tween), plus scanline + signal-roll overlays.
+   Compositor-friendly (transform/opacity). Works on image nodes too. */
 
-@keyframes decayJitter1 {
-  0%, 100% { transform: translate(0,0); }
+/* ---- Title RGB-split + slice. Hooks onto existing .glitch[data-text] titles ---- */
+body[class*="decay-"] .glitch[data-text] { position: relative; }
+body[class*="decay-"] .glitch[data-text]::before,
+body[class*="decay-"] .glitch[data-text]::after {
+  content: attr(data-text) !important;
+  position: absolute !important; top: 0 !important; left: 0 !important;
+  width: 100% !important; height: auto !important;
+  background: var(--void, #060606) !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
+  opacity: 1 !important;
+}
+/* red channel, drifts one way */
+body[class*="decay-"] .glitch[data-text]::before {
+  color: #ff2d2d;
+  mix-blend-mode: screen;
+}
+/* cyan channel, drifts the other */
+body[class*="decay-"] .glitch[data-text]::after {
+  color: #2dffe6;
+  mix-blend-mode: screen;
+}
+
+/* Slice keyframes: rapid clip-path bands offset horizontally, stepped = digital */
+@keyframes sliceRed {
+  0%   { clip-path: inset(10% 0 80% 0); transform: translate(-2px,0); }
+  20%  { clip-path: inset(60% 0 20% 0); transform: translate(2px,0); }
+  40%  { clip-path: inset(35% 0 50% 0); transform: translate(-3px,0); }
+  60%  { clip-path: inset(85% 0 5% 0);  transform: translate(1px,0); }
+  80%  { clip-path: inset(20% 0 65% 0); transform: translate(3px,0); }
+  100% { clip-path: inset(50% 0 30% 0); transform: translate(-1px,0); }
+}
+@keyframes sliceCyan {
+  0%   { clip-path: inset(70% 0 15% 0); transform: translate(2px,0); }
+  20%  { clip-path: inset(15% 0 70% 0); transform: translate(-3px,0); }
+  40%  { clip-path: inset(80% 0 8% 0);  transform: translate(2px,0); }
+  60%  { clip-path: inset(40% 0 45% 0); transform: translate(-2px,0); }
+  80%  { clip-path: inset(5% 0 85% 0);  transform: translate(3px,0); }
+  100% { clip-path: inset(55% 0 25% 0); transform: translate(-2px,0); }
+}
+
+/* Whole-image slice displacement (for img/gif/portrait nodes that have no text) */
+@keyframes imgSlice {
+  0%, 100% { clip-path: inset(0 0 0 0); transform: translate(0,0); }
+  47% { clip-path: inset(0 0 0 0); transform: translate(0,0); }
+  48% { clip-path: inset(8% 0 78% 0); transform: translate(-6px,0); }
+  49% { clip-path: inset(0 0 0 0); transform: translate(0,0); }
+  62% { clip-path: inset(0 0 0 0); transform: translate(0,0); }
+  63% { clip-path: inset(62% 0 22% 0); transform: translate(7px,0); }
+  64% { clip-path: inset(0 0 0 0); transform: translate(0,0); }
+  78% { clip-path: inset(38% 0 48% 0); transform: translate(-4px,0); }
+  79% { clip-path: inset(0 0 0 0); transform: translate(0,0); }
+}
+
+/* micro position jitter, stepped */
+@keyframes microJitter {
+  0%,100% { transform: translate(0,0); }
   25% { transform: translate(-0.5px, 0.5px); }
   50% { transform: translate(0.5px, -0.5px); }
-  75% { transform: translate(-0.5px, 0); }
-  88% { transform: translate(1px, 0.5px); }
+  75% { transform: translate(-0.5px, -0.5px); }
 }
-@keyframes decayJitter2 {
-  0%, 100% { transform: translate(0,0); }
-  20% { transform: translate(-1.5px, 0.5px) skewX(0.3deg); }
-  40% { transform: translate(1.5px, -1px); }
-  60% { transform: translate(-1px, 1px) skewX(-0.3deg); }
-  80% { transform: translate(2px, -0.5px); }
-  90% { transform: translate(-2px, 0); }
-}
-@keyframes decayFlicker1 { 0%,100%{opacity:1;} 50%{opacity:0.94;} }
-@keyframes decayFlicker2 { 0%,100%{opacity:1;} 45%{opacity:0.85;} 55%{opacity:0.95;} 70%{opacity:0.8;} }
-@keyframes decayFlicker3 { 0%,100%{opacity:1;} 30%{opacity:0.7;} 40%{opacity:0.95;} 60%{opacity:0.6;} 72%{opacity:0.9;} }
 
-/* LEVEL 1 — first repeat. Now clearly noticeable: constant gentle drift + chroma. */
+/* signal roll bar that sweeps down the screen (analogue v-hold slip) */
+@keyframes signalRoll {
+  0%   { transform: translateY(-20%); opacity: 0; }
+  8%   { opacity: 0.5; }
+  92%  { opacity: 0.5; }
+  100% { transform: translateY(2400%); opacity: 0; }
+}
+@keyframes flickerHard {
+  0%,100%{opacity:1;} 47%{opacity:1;} 48%{opacity:0.78;} 49%{opacity:1;}
+  72%{opacity:1;} 73%{opacity:0.85;} 74%{opacity:1;}
+}
+
+/* Static-noise overlay using layered repeating gradients, animated position */
+@keyframes staticShift {
+  0%   { background-position: 0 0, 0 0; }
+  100% { background-position: 0 100px, 40px -60px; }
+}
+
+/* ============ LEVEL 1 — first repeat: subtle but unmistakably "off" ============ */
+body.decay-1 .glitch[data-text]::before { animation: sliceRed 2.4s steps(1) infinite !important; opacity: 0.55 !important; }
+body.decay-1 .glitch[data-text]::after  { animation: sliceCyan 2.9s steps(1) infinite !important; opacity: 0.5 !important; }
 body.decay-1 .content,
 body.decay-1 .char-layout-v2,
 body.decay-1 .glossary-wrap,
-body.decay-1 .gif-wrap,
 body.decay-1 .faction-wrap,
-body.decay-1 .nkmc-wrap {
-  animation: decayJitter1 0.8s ease-in-out infinite, decayFlicker1 4s ease-in-out infinite;
-  filter: saturate(0.85) contrast(1.04)
-          drop-shadow(1.5px 0 rgba(200,60,44,0.4))
-          drop-shadow(-1.5px 0 rgba(68,255,238,0.35));
+body.decay-1 .nkmc-wrap,
+body.decay-1 .gif-wrap {
+  animation: microJitter 0.5s steps(2) infinite, flickerHard 6s steps(1) infinite;
+}
+body.decay-1 .node-image,
+body.decay-1 .char-portrait,
+body.decay-1 .gif-image {
+  animation: imgSlice 5.5s steps(1) infinite;
+  filter: saturate(0.9);
+}
+/* faint scanlines */
+body.decay-1::after {
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:80; opacity:0.35;
+  background: repeating-linear-gradient(0deg, transparent 0 2px, rgba(0,0,0,0.10) 2px 3px);
 }
 
-/* LEVEL 2 — second repeat. Visibly wrong: stronger drift, scanlines, hue shift. */
+/* ============ LEVEL 2 — second repeat: clearly corrupting ============ */
+body.decay-2 .glitch[data-text]::before { animation: sliceRed 1.2s steps(1) infinite !important; opacity: 0.7 !important; }
+body.decay-2 .glitch[data-text]::after  { animation: sliceCyan 1.5s steps(1) infinite !important; opacity: 0.65 !important; }
 body.decay-2 .content,
 body.decay-2 .char-layout-v2,
 body.decay-2 .glossary-wrap,
-body.decay-2 .gif-wrap,
 body.decay-2 .faction-wrap,
-body.decay-2 .nkmc-wrap {
-  animation: decayJitter2 0.6s steps(2) infinite, decayFlicker2 3s steps(1) infinite;
-  filter: saturate(0.65) contrast(1.08) hue-rotate(-6deg)
-          drop-shadow(3px 0 rgba(200,60,44,0.55))
-          drop-shadow(-3px 0 rgba(68,255,238,0.5));
+body.decay-2 .nkmc-wrap,
+body.decay-2 .gif-wrap {
+  animation: microJitter 0.32s steps(2) infinite, flickerHard 3s steps(1) infinite;
+}
+body.decay-2 .node-image,
+body.decay-2 .char-portrait,
+body.decay-2 .gif-image {
+  animation: imgSlice 3s steps(1) infinite;
+  filter: saturate(0.7) contrast(1.06) hue-rotate(-5deg);
 }
 body.decay-2::after {
-  content:''; position:fixed; inset:0; pointer-events:none; z-index:80; opacity:0.55;
-  background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.09) 3px, rgba(0,0,0,0.09) 4px);
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:80; opacity:0.5;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 2px, rgba(0,0,0,0.13) 2px 3px),
+    repeating-linear-gradient(90deg, rgba(255,45,45,0.025) 0 1px, transparent 1px 3px, rgba(45,255,230,0.025) 3px 4px);
+}
+/* signal roll bar appears at L2 */
+body.decay-2 .faction-bg, body.decay-2 main::before { }
+body.decay-2 .signal-roll, body.decay-2::before {
+  content:''; position:fixed; left:0; right:0; height:60px; z-index:81; pointer-events:none;
+  background: linear-gradient(180deg, transparent, rgba(255,255,255,0.04) 40%, rgba(255,255,255,0.07) 50%, rgba(255,255,255,0.04) 60%, transparent);
+  animation: signalRoll 5.5s linear infinite;
 }
 
-/* LEVEL 3 — third repeat and beyond. Reality failing. Heavy but still navigable. */
+/* ============ LEVEL 3 — reality failing. heavy, fast, but still navigable ====== */
+body.decay-3 .glitch[data-text]::before { animation: sliceRed 0.55s steps(1) infinite !important; opacity: 0.85 !important; }
+body.decay-3 .glitch[data-text]::after  { animation: sliceCyan 0.7s steps(1) infinite !important; opacity: 0.8 !important; }
 body.decay-3 .content,
 body.decay-3 .char-layout-v2,
 body.decay-3 .glossary-wrap,
-body.decay-3 .gif-wrap,
 body.decay-3 .faction-wrap,
-body.decay-3 .nkmc-wrap {
-  animation: decayJitter2 0.35s steps(2) infinite, decayFlicker3 1.8s steps(1) infinite;
-  filter: saturate(0.4) contrast(1.14) hue-rotate(-12deg)
-          drop-shadow(5px 0 rgba(200,60,44,0.6))
-          drop-shadow(-5px 0 rgba(68,255,238,0.55));
+body.decay-3 .nkmc-wrap,
+body.decay-3 .gif-wrap {
+  animation: microJitter 0.18s steps(2) infinite, flickerHard 1.4s steps(1) infinite;
+}
+body.decay-3 .node-image,
+body.decay-3 .char-portrait,
+body.decay-3 .gif-image {
+  animation: imgSlice 1.3s steps(1) infinite;
+  filter: saturate(0.45) contrast(1.12) hue-rotate(-10deg) brightness(0.95);
 }
 body.decay-3::after {
-  content:''; position:fixed; inset:0; pointer-events:none; z-index:80; opacity:0.8;
-  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.14) 2px, rgba(0,0,0,0.14) 3px);
-  animation: decayFlicker3 1.5s steps(1) infinite;
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:80; opacity:0.75;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 2px, rgba(0,0,0,0.16) 2px 3px),
+    repeating-linear-gradient(90deg, rgba(255,45,45,0.04) 0 1px, transparent 1px 3px, rgba(45,255,230,0.04) 3px 4px);
+  animation: flickerHard 1s steps(1) infinite;
 }
-@keyframes decayTear { 0%{top:-5%;opacity:0;} 10%{opacity:0.7;} 90%{opacity:0.7;} 100%{top:105%;opacity:0;} }
 body.decay-3::before {
-  content:''; position:fixed; left:0; right:0; height:3px;
-  background: rgba(68,255,238,0.4); pointer-events:none; z-index:81;
-  animation: decayTear 6s linear infinite; mix-blend-mode:screen;
+  content:''; position:fixed; left:0; right:0; height:80px; z-index:81; pointer-events:none;
+  background: linear-gradient(180deg, transparent, rgba(255,255,255,0.05) 40%, rgba(255,255,255,0.09) 50%, rgba(255,255,255,0.05) 60%, transparent);
+  animation: signalRoll 3.2s linear infinite;
+  mix-blend-mode: screen;
+}
+
+/* Respect reduced-motion: drop the animation, keep a faint static tint so the
+   "this page is decayed" signal still reads without movement. */
+@media (prefers-reduced-motion: reduce) {
+  body[class*="decay-"] .glitch[data-text]::before,
+  body[class*="decay-"] .glitch[data-text]::after,
+  body[class*="decay-"] .content,
+  body[class*="decay-"] .char-layout-v2,
+  body[class*="decay-"] .glossary-wrap,
+  body[class*="decay-"] .faction-wrap,
+  body[class*="decay-"] .nkmc-wrap,
+  body[class*="decay-"] .gif-wrap,
+  body[class*="decay-"] .node-image,
+  body[class*="decay-"] .char-portrait,
+  body[class*="decay-"] .gif-image,
+  body[class*="decay-"]::before,
+  body[class*="decay-"]::after { animation: none !important; }
+  body.decay-2 .node-image, body.decay-3 .node-image,
+  body.decay-2 .char-portrait, body.decay-3 .char-portrait { filter: saturate(0.6) contrast(1.05); }
 }
