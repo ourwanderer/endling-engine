@@ -178,7 +178,7 @@ function initDeeperButton(pool) {
     EngineSession.incrementClicks();
     const url = smartRandom(pool);
     // Ontic Loop: fire on third visit to any single node
-    if (EngineSession.getVisitCount(url) >= 3) {
+    if (EngineSession.getVisitCount(url) >= 4) {
       navigateTo('../ontic-loop.html');
       return;
     }
@@ -599,7 +599,7 @@ function applyDegradation() {
     var counts = JSON.parse(sessionStorage.getItem('es_visit_counts') || '{}');
     var priorVisits = counts[key] || 0; // count BEFORE this visit is recorded
     if (priorVisits >= 1) {
-      var level = Math.min(priorVisits, 3);
+      var level = Math.min(priorVisits, 4);
       document.body.classList.add('decay-' + level);
     }
   } catch(e) {}

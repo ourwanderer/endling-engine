@@ -1077,7 +1077,7 @@ main.engine-page:not(.zone-newkyushu):not(.zone-continent):not(.zone-domum):not(
 
 /* Scroll body */
 .char-scroll-body {
-  max-height: 40vh;
+  max-height: 38vh;
   overflow-y: auto;
   padding-right: 1rem;
   text-align: justify;
@@ -1137,6 +1137,19 @@ main.engine-page:not(.zone-newkyushu):not(.zone-continent):not(.zone-domum):not(
   .char-portrait { max-width: 220px; margin: 0 auto; display: block; }
   .char-name { text-align: center; }
   .char-designation { text-align: center; }
+  /* Smaller portrait image on phones so the whole stack fits with room to scroll */
+  .char-layout-v2 .char-portrait { max-height: 38vh; }
+  /* Give the text its own generous scroll and clear the nav with solid padding */
+  .char-scroll-body { max-height: none; overflow-y: visible; }
+  .char-page { padding: 5rem 1.5rem 11rem; }
+}
+
+/* Small laptops / narrow windows (e.g. smaller MacBook viewport) — portrait pages
+   only. Stops the portrait image dominating the viewport so the page can scroll
+   and the text clears the nav. Does NOT touch landscape layout. */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .char-layout-v2:not(.landscape) .char-portrait { max-height: 52vh; }
+  .char-page { padding-bottom: 12rem; }
 }
 
 /* ── NAV GRADIENT ─────────────────────────────────────────────────────────── */
@@ -1404,23 +1417,54 @@ body.decay-2 .signal-roll, body.decay-2::before {
   animation: signalRoll 5.5s linear infinite;
 }
 
-/* ============ LEVEL 3 — reality failing. heavy, fast, but still navigable ====== */
-body.decay-3 .glitch[data-text]::before { animation: sliceRed 0.55s steps(1) infinite !important; opacity: 0.85 !important; }
-body.decay-3 .glitch[data-text]::after  { animation: sliceCyan 0.7s steps(1) infinite !important; opacity: 0.8 !important; }
+
+/* Heavier corruption keyframes for the final visible stage */
+@keyframes violentJitter {
+  0%,100% { transform: translate(0,0) skewX(0deg); }
+  10% { transform: translate(-4px,1px) skewX(0.8deg); }
+  20% { transform: translate(5px,-2px) skewX(-1deg); }
+  30% { transform: translate(-3px,2px) skewX(0.5deg); }
+  45% { transform: translate(6px,0) skewX(-0.8deg); }
+  55% { transform: translate(-6px,-1px) skewX(1.2deg); }
+  70% { transform: translate(3px,2px) skewX(-0.5deg); }
+  85% { transform: translate(-5px,1px) skewX(0.7deg); }
+}
+@keyframes imgSliceHeavy {
+  0%,100% { clip-path: inset(0 0 0 0); transform: translate(0,0); }
+  20% { clip-path: inset(0 0 0 0); transform: translate(0,0); }
+  21% { clip-path: inset(12% 0 70% 0); transform: translate(-14px,0); }
+  23% { clip-path: inset(0 0 0 0); transform: translate(0,0); }
+  38% { clip-path: inset(55% 0 28% 0); transform: translate(16px,0); }
+  40% { clip-path: inset(0 0 0 0); transform: translate(0,0); }
+  54% { clip-path: inset(30% 0 40% 0); transform: translate(-10px,0); }
+  56% { clip-path: inset(0 0 0 0); transform: translate(0,0); }
+  70% { clip-path: inset(75% 0 10% 0); transform: translate(12px,0); }
+  72% { clip-path: inset(0 0 0 0); transform: translate(0,0); }
+  86% { clip-path: inset(8% 0 80% 0); transform: translate(-16px,0); }
+  88% { clip-path: inset(0 0 0 0); transform: translate(0,0); }
+}
+@keyframes hueBreak {
+  0%,100% { filter: saturate(0.35) contrast(1.2) hue-rotate(-14deg) brightness(0.92); }
+  33% { filter: saturate(0.6) contrast(1.3) hue-rotate(20deg) brightness(1.0); }
+  66% { filter: saturate(0.2) contrast(1.15) hue-rotate(-40deg) brightness(0.85); }
+}
+
+/* ============ LEVEL 3 — reality FAILING. The final visible stage. Heavily broken ====== */
+body.decay-3 .glitch[data-text]::before { animation: sliceRed 0.32s steps(1) infinite !important; opacity: 0.95 !important; }
+body.decay-3 .glitch[data-text]::after  { animation: sliceCyan 0.42s steps(1) infinite !important; opacity: 0.9 !important; }
 body.decay-3 .content,
 body.decay-3 .char-layout-v2,
 body.decay-3 .glossary-wrap,
 body.decay-3 .faction-wrap,
 body.decay-3 .nkmc-wrap,
 body.decay-3 .gif-wrap {
-  animation: microJitter 0.18s steps(2) infinite, flickerHard 1.4s steps(1) infinite;
+  animation: violentJitter 0.22s steps(2) infinite, flickerHard 0.9s steps(1) infinite;
 }
 body.decay-3 .node-image,
 body.decay-3 .char-portrait,
 body.decay-3 .gif-image {
   opacity: 1 !important;
-  animation: imgSlice 1.3s steps(1) infinite;
-  filter: saturate(0.45) contrast(1.12) hue-rotate(-10deg) brightness(0.95);
+  animation: imgSliceHeavy 0.85s steps(1) infinite, hueBreak 1.6s steps(1) infinite;
 }
 body.decay-3::after {
   content:''; position:fixed; inset:0; pointer-events:none; z-index:80; opacity:0.75;

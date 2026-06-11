@@ -1664,5 +1664,21 @@ function frame(t){
 }
 requestAnimationFrame(frame);
 </script>
+
+<nav class="node-nav">
+  <button id="btn-back" class="nav-btn">← go back</button>
+  <button id="btn-deeper" class="nav-btn deeper">go deeper →</button>
+</nav>
+<link rel="stylesheet" href="css/engine.css">
+<script src="js/engine.js"></script>
+<script>
+initDeeperButton([
+  { url: 'nodes/nkmc.html', weight: 2 },
+  { url: 'nodes/koa.html', weight: 1 },
+  { url: 'nodes/new-kyushu.html', weight: 1 },
+  { url: 'nodes/sleipnir.html', weight: 2 },
+  { url: 'nodes/the-ookami.html', weight: 1 }
+]);
+</script>
 </body>
 </html>
