@@ -405,39 +405,6 @@ loadImage("nkmc-main-crest.jpeg");
 for (var fk in FACTIONS){ loadImage(FACTIONS[fk].crest); }
 for (var bk in BIKES){ loadImage(BIKES[bk].img); }
 
-/* ---- Saga billboards -------------------------------------------------
-   Image ads load from IMG_BASE (drop the ad-*.png/jpg files there).
-   BRIGHTTHORN / WARPSPASM / DEAD GOD'S GARDEN are PLACEHOLDER pixel
-   wordmarks by the build, not canon marks. Replace by adding an image
-   file and switching the entry from {ph:...} to {img:'file'}.        */
-var ADS = {
-  waste: [
-    {img:'ad-3moons.jpg'},
-    {img:'ad-acid-cola.png'},
-    {ph:'BRIGHTTHORN', ph2:'SPEARS', c1:'#1c2b1c', c2:'#9fd45a', c3:'#e8e3c8'},
-    {ph:"DEAD GOD'S", ph2:'GARDEN', c1:'#140a1a', c2:'#c94fff', c3:'#ffd24a'}
-  ],
-  city: [
-    {img:'ad-yaeko-1.jpg'},
-    {img:'ad-yaeko-2.jpg'},
-    {img:'ad-acid-cola.png'},
-    {img:'ad-headgear.png'},
-    {ph:'WARPSPASM', ph2:'CARS', c1:'#0a1020', c2:'#ff7a1a', c3:'#0ff'}
-  ]
-};
-for (var av in ADS){ ADS[av].forEach(function(a){ if (a.img) loadImage(a.img); }); }
-function makeAdPlaceholder(a){
-  return makeSprite(72, 44, function(g){
-    px(g,0,0,72,44,a.c1);
-    px(g,0,0,72,2,a.c2); px(g,0,42,72,2,a.c2);
-    g.fillStyle = a.c3; g.font = 'bold 9px monospace'; g.textAlign='center';
-    g.fillText(a.ph, 36, 19);
-    g.fillStyle = a.c2; g.font = 'bold 8px monospace';
-    g.fillText(a.ph2, 36, 32);
-  });
-}
-for (var av2 in ADS){ ADS[av2].forEach(function(a){ if (a.ph) a.canvas = makeAdPlaceholder(a); }); }
-
 function drawPixImage(file, cx, cy, maxW, maxH){
   var rec = IMAGES[file];
   if (rec && rec.ok && rec.pix){
@@ -463,244 +430,102 @@ function makeSprite(w,h,fn){
 }
 function px(g, x, y, w, h, col){ g.fillStyle = col; g.fillRect(x,y,w,h); }
 
-function shadeCol(hex, f){
-  var r=parseInt(hex.substr(1,2),16), g=parseInt(hex.substr(3,2),16), b=parseInt(hex.substr(5,2),16);
-  r=Math.min(255,Math.round(r*f)); g=Math.min(255,Math.round(g*f)); b=Math.min(255,Math.round(b*f));
-  return 'rgb('+r+','+g+','+b+')';
-}
-// player bike, rear view, 3 steer frames
-// geometry per bike from the rear-view refs; palette is canon (the paintings)
-function makePlayerSprites(bike, bKey, fKey){
-  var deadgods = (fKey === 'deadgods');
-  var BODY=bike.body, ACC=bike.accent, TIRE=bike.tire;
-  var bodyD=shadeCol(BODY,0.65), bodyL=shadeCol(BODY,1.3);
-  var tireD=shadeCol(TIRE,0.55), tireL=shadeCol(TIRE,1.25);
-
-  function tireBlock(g,ob,x,w,knobby){
-    // tread y12..27, rounded shoulders
-    px(g,x+1+ob,12,w-2,2,tireD);
-    px(g,x+ob,14,w,12,tireD);
-    px(g,x+1+ob,26,w-2,2,tireD);
-    px(g,x+Math.floor(w/2)-1+ob,14,3,12,TIRE);  // centre tread stripe
-    if (knobby) for (var k=14;k<26;k+=3){ px(g,x+ob,k,2,2,tireL); px(g,x+w-2+ob,k+1,2,2,tireL); }
-    else { px(g,x+1+ob,15,1,10,tireL); }
-  }
-  function drawBike(g,ob){
-    var post=null;
-    if (bKey==='kelak'){
-      tireBlock(g,ob,15,14);
-      px(g,10+ob,13,5,6,bodyD); px(g,29+ob,13,5,6,bodyD);   // side panels
-      px(g,12+ob,10,20,3,BODY);                              // fender
-      px(g,13+ob,10,18,1,bodyL);
-      px(g,16+ob,6,12,4,BODY); px(g,17+ob,5,10,1,bodyL);     // dome cowl
-      px(g,19+ob,11,6,1,'#ff3030');                          // brake light
-      px(g,8+ob,20,3,5,'#8a8a96'); px(g,8+ob,25,3,2,'#ffd24a'); // exhaust
-    } else if (bKey==='oracle'){
-      tireBlock(g,ob,17,10);
-      px(g,18+ob,4,8,9,BODY); px(g,20+ob,2,4,2,BODY);        // tall tail
-      px(g,18+ob,4,1,9,bodyL); px(g,25+ob,4,1,9,bodyD);
-      px(g,19+ob,5,6,1,'#ff3030');                           // brake bar
-      for (var s=0;s<3;s++){                                  // triple stacks
-        px(g,8+ob,14+s*4,5,3,'#8a8a96'); px(g,9+ob,15+s*4,2,1,'#23232e');
-        px(g,31+ob,14+s*4,5,3,'#8a8a96'); px(g,33+ob,15+s*4,2,1,'#23232e');
-      }
-    } else if (bKey==='piero'){
-      tireBlock(g,ob,19,6,true);                              // narrow knobby
-      px(g,15+ob,13,2,9,bodyD); px(g,27+ob,13,2,9,bodyD);     // skeletal struts
-      px(g,15+ob,17,14,1,shadeCol(BODY,0.45));                // cross brace
-      px(g,20+ob,2,4,8,BODY); px(g,20+ob,2,1,8,bodyL);        // tail spike
-      px(g,21+ob,3,2,2,ACC);                                  // red mark
-      px(g,21+ob,10,2,1,'#ff3030');
-    } else if (bKey==='latifrons'){
-      tireBlock(g,ob,12,20);
-      for (var t=13;t<31;t+=4) px(g,t+ob,24,2,3,tireL);        // chunky tread feet
-      px(g,10+ob,10,24,4,BODY); px(g,11+ob,10,22,1,bodyL);     // slab fender
-      px(g,18+ob,11,8,1,'#ff3030');
-      px(g,6+ob,16,3,5,'#8a8a96'); px(g,6+ob,21,3,2,'#ffd24a'); // stub pipes
-      px(g,35+ob,16,3,5,'#8a8a96'); px(g,35+ob,21,3,2,'#ffd24a');
-      post = function(or){                                      // horns over rider
-        px(g,10+or,3,5,2,'#3a2e28'); px(g,7+or,1,4,2,'#3a2e28'); px(g,6+or,0,2,2,'#5c4a3a');
-        px(g,29+or,3,5,2,'#3a2e28'); px(g,33+or,1,4,2,'#3a2e28'); px(g,36+or,0,2,2,'#5c4a3a');
-      };
-    } else if (bKey==='exile'){
-      tireBlock(g,ob,17,10);
-      px(g,14+ob,5,16,7,BODY); px(g,15+ob,4,14,1,bodyL);       // dome cowl
-      px(g,14+ob,11,16,2,bodyD);
-      px(g,18+ob,5,8,1,'#ff3030');                             // brake bar
-      px(g,7+ob,14,6,4,'#8a8a96'); px(g,8+ob,15,2,2,'#23232e'); // pod clusters
-      px(g,7+ob,19,6,4,'#8a8a96'); px(g,8+ob,20,2,2,'#23232e');
-      px(g,31+ob,14,6,4,'#8a8a96'); px(g,34+ob,15,2,2,'#23232e');
-      px(g,31+ob,19,6,4,'#8a8a96'); px(g,34+ob,20,2,2,'#23232e');
-    } else if (bKey==='riastrad'){
-      tireBlock(g,ob,18,8);
-      px(g,15+ob,13,2,13,TIRE); px(g,15+ob,15,1,9,'#ffb8e0');  // neon strips
-      px(g,27+ob,13,2,13,TIRE); px(g,28+ob,15,1,9,'#ffb8e0');
-      px(g,16+ob,6,12,6,BODY); px(g,17+ob,5,10,1,bodyL);       // sleek tail
-      px(g,20+ob,3,4,3,BODY);                                  // fin
-      px(g,19+ob,7,6,1,TIRE);                                  // brake glow
-    } else { // taroon
-      tireBlock(g,ob,17,10);
-      px(g,14+ob,5,16,8,BODY); px(g,15+ob,4,14,1,bodyL);       // layered cowl
-      px(g,18+ob,9,8,3,ACC); px(g,19+ob,10,6,1,shadeCol(ACC,1.3)); // chevron
-      px(g,17+ob,6,2,1,'#ff7ad0'); px(g,19+ob,5,2,1,'#ff7ad0'); // smile arc
-      px(g,21+ob,4,2,1,'#ff7ad0'); px(g,23+ob,5,2,1,'#ff7ad0');
-      px(g,25+ob,6,2,1,'#ff7ad0');
-      px(g,11+ob,15,5,5,'#ff7a1a'); px(g,12+ob,16,3,3,'#7a3aa8');  // round pods
-      px(g,28+ob,15,5,5,'#ff7a1a'); px(g,29+ob,16,3,3,'#7a3aa8');
-    }
-    return post;
-  }
-  function drawRider(g,or){
-    if (deadgods){
-      px(g,15+or,5,14,5,'#5e4a36');                 // leathers torso
-      px(g,16+or,4,12,2,'#6e5238');
-      px(g,12+or,3,5,4,'#2a221c'); px(g,27+or,3,5,4,'#2a221c'); // shoulder pads
-      px(g,13+or,1,1,2,'#8a8a96'); px(g,15+or,1,1,2,'#8a8a96'); // spikes
-      px(g,28+or,1,1,2,'#8a8a96'); px(g,30+or,1,2,2,'#8a8a96');
-      px(g,9+or,6,4,3,'#6e5238'); px(g,31+or,6,4,3,'#6e5238');  // arms
-      px(g,19+or,0,6,4,'#3a2e28');                  // rough helm
-      px(g,20+or,2,4,1,'#c8b890');                  // goggles
-    } else {
-      px(g,15+or,5,14,5,'#1d1d2c');                 // jacket
-      px(g,16+or,4,12,2,'#23232e');
-      px(g,21+or,4,2,6,ACC);                        // back stripe
-      px(g,10+or,6,4,3,'#1d1d2c'); px(g,30+or,6,3,3,'#1d1d2c'); // arms
-      px(g,19+or,0,6,4,shadeCol(BODY,1.15));        // round helmet
-      px(g,20+or,2,4,1,'#7af7ff');                  // visor
-    }
-  }
-  function frame(lean){
-    return makeSprite(44,30,function(g){
-      var ob=lean, or=lean*3;
-      px(g,11,28,22,2,'rgba(0,0,0,0.5)');           // shadow
-      var post = drawBike(g,ob);
-      drawRider(g,or);
-      if (post) post(or);
+// player bike, rear view, 3 steer frames, palette per bike
+function makePlayerSprites(bike){
+  function frame(lean){ // lean: -1, 0, 1
+    return makeSprite(32, 24, function(g){
+      var ob = lean;        // bike offset
+      var or = lean*3;      // rider offset (leans more)
+      // shadow
+      px(g, 6, 22, 20, 2, 'rgba(0,0,0,0.5)');
+      // fat rear tire, rounded corners
+      px(g, 10+ob, 11, 12, 11, '#14141a');
+      px(g, 9+ob, 13, 14, 7, '#14141a');
+      // hub stripe in the bike's tire colour
+      px(g, 14+ob, 15, 4, 5, bike.tire);
+      // wide fender over tire
+      px(g, 7+ob, 9, 18, 3, bike.body);
+      // brake light
+      px(g, 13+ob, 10, 6, 1, '#ff3030');
+      // tail flares
+      px(g, 3+ob, 8, 5, 3, bike.body);
+      px(g, 24+ob, 8, 5, 3, bike.body);
+      // exhausts, low and flanking
+      px(g, 2+ob, 12, 3, 6, '#9a9aa8');
+      px(g, 27+ob, 12, 3, 6, '#9a9aa8');
+      px(g, 2+ob, 18, 3, 2, '#ffd24a');
+      px(g, 27+ob, 18, 3, 2, '#ffd24a');
+      // rider: low hunched lump, wide shoulders
+      px(g, 11+or, 4, 10, 5, '#23232e');
+      px(g, 12+or, 3, 8, 2, '#23232e');
+      // back stripe in accent colour
+      px(g, 15+or, 3, 2, 6, bike.accent);
+      // arms reaching forward
+      px(g, 7+or, 5, 4, 3, '#23232e');
+      px(g, 21+or, 5, 4, 3, '#23232e');
+      px(g, 7+or, 7, 2, 2, '#15151c');
+      px(g, 23+or, 7, 2, 2, '#15151c');
+      // helmet tucked low + visor strip
+      px(g, 13+or, 0, 6, 4, bike.accent);
+      px(g, 14+or, 2, 4, 1, '#1ad8ff');
     });
   }
-  var wires = deadgods
-    ? [{x:13,y:8,len:8,col:'#2a221c'},{x:31,y:8,len:6,col:'#5e4a36'},{x:29,y:14,len:7,col:'#15151c'}]
-    : [{x:14,y:8,len:8,col:ACC},{x:30,y:8,len:6,col:'#0ff'},{x:16,y:13,len:7,col:'#15151c'}];
-  return { L: frame(-1), C: frame(0), R: frame(1), wires:wires };
+  return { L: frame(-1), C: frame(0), R: frame(1) };
 }
 
 // roadside + obstacle sprites per venue
 var SPR = {};
 function buildWorldSprites(){
   // -- Dawn Waste --
-  SPR.rock = makeSprite(24,18,function(g){
-    px(g,3,8,18,10,'#8a7763'); px(g,1,12,22,6,'#6e5d4c');
-    px(g,6,5,11,5,'#a08a72'); px(g,9,3,6,3,'#b89e80');
-    px(g,5,7,5,2,'#c4ad90'); px(g,14,10,6,2,'#5c4d40');
+  SPR.rock = makeSprite(22,16,function(g){
+    px(g,4,6,14,10,'#8a7763'); px(g,2,10,18,6,'#6e5d4c');
+    px(g,7,4,8,4,'#a08a72'); px(g,6,6,4,2,'#c4ad90');
   });
-  SPR.wreck = makeSprite(34,18,function(g){
-    // rusted car shell, nose buried
-    px(g,2,9,30,7,'#8f4a32');           // body
-    px(g,6,5,18,5,'#a35a3a');           // cabin
-    px(g,8,6,6,3,'#1a1410'); px(g,16,6,6,3,'#1a1410'); // dead windows
-    px(g,2,9,5,4,'#6e3a26');            // crumpled nose
-    px(g,4,14,5,4,'#2a221c'); px(g,24,14,5,4,'#2a221c'); // sunk wheels
-    px(g,25,15,3,2,'#4a3a30');
-    px(g,12,3,3,2,'#5c4338');           // torn roof flap
-    px(g,20,10,8,2,'#d98a4a'); px(g,5,11,6,1,'#d98a4a'); // rust streaks
+  SPR.wreck = makeSprite(26,18,function(g){
+    px(g,3,10,20,6,'#7a4a3a'); px(g,6,6,12,5,'#8f5a45');
+    px(g,4,13,5,5,'#3a2e28'); px(g,17,13,5,5,'#3a2e28');
+    px(g,10,3,5,4,'#5c4338'); px(g,8,8,3,2,'#d98a4a');
   });
-  SPR.spire = makeSprite(18,46,function(g){
-    // red rock hoodoo spire
-    px(g,6,0,6,8,'#9c5a42');
-    px(g,5,8,8,10,'#8a4d38');
-    px(g,4,18,10,12,'#7a4232');
-    px(g,3,30,12,16,'#6e3a2c');
-    px(g,7,2,2,4,'#b87050'); px(g,6,12,2,6,'#a8604a'); // sunlit edge
-    px(g,11,22,2,8,'#4f2a20');                          // shade edge
-  });
-  SPR.skull = makeSprite(30,16,function(g){
-    // buffalo skull, half sunk
-    px(g,11,4,8,9,'#efe8d4');            // cranium
-    px(g,12,11,6,5,'#e0d6bc');           // snout
-    px(g,13,13,1,2,'#a89a7c'); px(g,16,13,1,2,'#a89a7c'); // nostrils
-    px(g,12,7,2,2,'#15110c'); px(g,16,7,2,2,'#15110c');   // sockets
-    px(g,5,5,6,2,'#e8e0cc'); px(g,2,2,4,4,'#d8cfb8');     // left horn
-    px(g,19,5,6,2,'#e8e0cc'); px(g,24,2,4,4,'#d8cfb8');   // right horn
-    px(g,2,1,2,2,'#c4b89c'); px(g,26,1,2,2,'#c4b89c');    // horn tips
+  SPR.spire = makeSprite(14,40,function(g){
+    px(g,5,0,4,40,'#7d6a55'); px(g,3,8,8,4,'#8f7a62');
+    px(g,2,20,10,4,'#6e5d4c'); px(g,4,32,6,4,'#5c4d40');
   });
   SPR.bones = makeSprite(26,12,function(g){
     px(g,2,6,22,3,'#e8e0cc'); px(g,4,2,3,8,'#e8e0cc');
     px(g,10,3,3,7,'#d8cfb8'); px(g,17,2,3,8,'#e8e0cc');
   });
   // -- New Kyushu --
-  SPR.pylon = makeSprite(12,46,function(g){
-    px(g,5,0,2,46,'#2e2e3e'); px(g,5,0,1,46,'#454560');
-    px(g,1,3,10,2,'#2e2e3e');
-    px(g,0,2,3,4,'#ff2d95'); px(g,9,2,3,4,'#0ff');
-    px(g,0,6,3,1,'#7a1648'); px(g,9,6,3,1,'#077');
+  SPR.pylon = makeSprite(10,44,function(g){
+    px(g,4,0,2,44,'#3a3a4a'); px(g,1,4,8,2,'#3a3a4a');
+    px(g,0,3,2,4,'#ff2d95'); px(g,8,3,2,4,'#0ff');
   });
-  SPR.sign1 = makeSprite(24,42,function(g){
-    px(g,10,20,4,22,'#222230');
-    px(g,1,1,22,19,'#0c0c18'); px(g,2,2,20,17,'#181830');
-    px(g,4,4,4,13,'#ff2d95');                       // vertical neon bar
-    px(g,10,4,9,3,'#0ff'); px(g,10,9,7,3,'#39ff14');
-    px(g,10,14,9,3,'#ffe14a');
-    px(g,3,3,1,15,'#ff8ac8');                        // glow edge
+  SPR.sign1 = makeSprite(22,40,function(g){
+    px(g,9,18,4,22,'#222230');
+    px(g,2,2,18,16,'#12121e'); px(g,3,3,16,14,'#1d1d30');
+    px(g,5,5,12,3,'#ff2d95'); px(g,5,10,8,3,'#0ff'); px(g,5,14,10,2,'#39ff14');
   });
-  SPR.sign2 = makeSprite(24,42,function(g){
-    px(g,10,20,4,22,'#222230');
-    px(g,1,1,22,19,'#0c0c18'); px(g,3,3,18,15,'#101028');
-    px(g,5,5,5,11,'#ffe14a'); px(g,12,5,7,4,'#ff2d95');
-    px(g,12,11,7,5,'#0ff'); px(g,13,12,5,3,'#066');
+  SPR.sign2 = makeSprite(22,40,function(g){
+    px(g,9,18,4,22,'#222230');
+    px(g,2,2,18,16,'#12121e');
+    px(g,4,4,14,12,'#101024');
+    px(g,6,6,4,8,'#ffe14a'); px(g,12,6,4,3,'#ff2d95'); px(g,12,11,4,3,'#0ff');
   });
   SPR.barrier = makeSprite(26,12,function(g){
     px(g,1,4,24,6,'#d8d8e0');
     px(g,2,5,5,4,'#ff2d95'); px(g,12,5,5,4,'#ff2d95'); px(g,21,5,4,4,'#ff2d95');
     px(g,2,10,3,2,'#444'); px(g,21,10,3,2,'#444');
   });
-  // police blockade, two frames for flashing lights
-  function blockadeFrame(phase){
-    return makeSprite(40,18,function(g){
-      px(g,2,8,36,8,'#1d1d2c');                       // wall
-      for (var i=0;i<5;i++) px(g,3+i*7,9,4,6,(i%2?'#e8e8f0':'#2e2e44')); // hazard stripes
-      px(g,0,14,4,4,'#15151c'); px(g,36,14,4,4,'#15151c');               // feet
-      px(g,6,4,10,4,'#0c0c16'); px(g,24,4,10,4,'#0c0c16');               // light housings
-      px(g,7,5,8,2, phase? '#ff3040':'#23040a');       // red
-      px(g,25,5,8,2, phase? '#0a0a3a':'#3060ff');      // blue
-      px(g,16,1,8,3,'#d8d8e0'); g.fillStyle='#15151c'; g.font='bold 3px monospace';
-    });
-  }
-  SPR.blockadeA = blockadeFrame(1);
-  SPR.blockadeB = blockadeFrame(0);
-  SPR.car = makeSprite(28,16,function(g){
-    // ground spinner silhouette: low, long, neon trim
-    px(g,1,7,26,7,'#10141f');             // body
-    px(g,5,3,16,5,'#0c1019');             // canopy
-    px(g,7,4,12,3,'#1d3550');             // glass
-    px(g,1,7,26,1,'#0ff');                // roofline trim
-    px(g,2,13,4,3,'#05070c'); px(g,22,13,4,3,'#05070c'); // wheels
-    px(g,2,9,3,2,'#ff3040'); px(g,23,9,3,2,'#ff3040');   // tail lights
-    px(g,11,13,6,1,'#0ff');               // underglow
+  SPR.car = makeSprite(24,18,function(g){
+    px(g,2,6,20,9,'#384a8a'); px(g,5,2,14,6,'#2a3a6e');
+    px(g,7,3,10,3,'#0e1626');
+    px(g,3,13,5,5,'#15151c'); px(g,16,13,5,5,'#15151c');
+    px(g,3,7,3,3,'#ff4444'); px(g,18,7,3,3,'#ff4444');
   });
-  SPR.car2 = makeSprite(28,16,function(g){
-    px(g,1,7,26,7,'#1a1024');
-    px(g,5,3,16,5,'#140a1c');
-    px(g,7,4,12,3,'#3a1d50');
-    px(g,1,7,26,1,'#ff2d95');
-    px(g,2,13,4,3,'#05070c'); px(g,22,13,4,3,'#05070c');
-    px(g,2,9,3,2,'#ff7a1a'); px(g,23,9,3,2,'#ff7a1a');
-    px(g,11,13,6,1,'#ff2d95');
-  });
-  // billboard frame: panel area is (4,2)-(60,34), image pasted at draw time
-  SPR.billboard = makeSprite(64,52,function(g){
-    px(g,8,36,4,16,'#3a3a44'); px(g,52,36,4,16,'#3a3a44'); // legs
-    px(g,9,36,1,16,'#55555f'); px(g,53,36,1,16,'#55555f');
-    px(g,2,0,60,38,'#2a2a32');                              // frame
-    px(g,4,2,56,34,'#101016');                              // panel
-    px(g,2,0,60,1,'#4a4a55');
-  });
-  // portrait variant: panel area is (4,2)-(40,52) of 44x66
-  SPR.billboardP = makeSprite(44,66,function(g){
-    px(g,6,54,4,12,'#3a3a44'); px(g,34,54,4,12,'#3a3a44');
-    px(g,7,54,1,12,'#55555f'); px(g,35,54,1,12,'#55555f');
-    px(g,2,0,40,54,'#2a2a32');
-    px(g,4,2,36,50,'#101016');
-    px(g,2,0,40,1,'#4a4a55');
+  SPR.car2 = makeSprite(24,18,function(g){
+    px(g,2,6,20,9,'#7a2a5a'); px(g,5,2,14,6,'#5e1e44');
+    px(g,7,3,10,3,'#0e1626');
+    px(g,3,13,5,5,'#15151c'); px(g,16,13,5,5,'#15151c');
+    px(g,3,7,3,3,'#ff7744'); px(g,18,7,3,3,'#ff7744');
   });
   // shared
   SPR.checkBanner = makeSprite(64,26,function(g){
@@ -728,15 +553,15 @@ var cars = [];        // city traffic
 
 var VENUES = {
   waste: {
-    skyTop:'#1d1038', skyMid:'#c33d5e', skyLow:'#ff9a3c', skyGlow:'#ffd28a',
-    ground:'#d49350', ground2:'#c48346', rumble:'#8a5a36', rumble2:'#d8b888',
+    skyTop:'#2b1a3a', skyMid:'#b3475a', skyLow:'#f2a05a', skyGlow:'#ffd28a',
+    ground:'#c98e52', ground2:'#bd824a', rumble:'#8a5a36', rumble2:'#d8b888',
     road:'#9c6e44', road2:'#946841', lane:'#e8d2a8',
-    fogColor:'#f0a866',
-    decor:['rock','spire','skull','wreck'], obstacles:['rock','skull','wreck'],
+    fogColor:'#e8a86a',
+    decor:['rock','spire','bones','wreck'], obstacles:['rock','wreck'],
     music: MUSIC_WASTE
   },
   city: {
-    skyTop:'#04040d', skyMid:'#10102a', skyLow:'#3c1656', skyGlow:'#ff2d95',
+    skyTop:'#05050f', skyMid:'#141430', skyLow:'#33174a', skyGlow:'#ff2d95',
     ground:'#101018', ground2:'#0c0c14', rumble:'#ff2d95', rumble2:'#0ff',
     road:'#1c1c2a', road2:'#181826', lane:'#0ff',
     fogColor:'#1a1030',
@@ -789,25 +614,14 @@ function buildTrack(venueKey){
   segments[fin].sprites.push({ kind:'finishBanner', offset:0, frac:2.4, banner:true });
 
   var V = VENUES[venueKey];
-  // roadside decor (collidable: off-road excursions carry risk)
-  for (var n=20; n<segments.length-30; n+=randInt(3,7)){
+  // roadside decor (non colliding)
+  for (var n=20; n<segments.length-30; n+=randInt(4,9)){
     var side = Math.random()<0.5 ? -1 : 1;
     segments[n].sprites.push({
       kind: pick(V.decor),
       offset: side * rand(1.9, 3.0),
       frac: rand(0.5, 0.9), collide:true, decor:true
     });
-  }
-  // Saga billboards, alternating sides
-  var adList = ADS[venueKey], adIdx = randInt(0, adList.length-1), bbSide = Math.random()<0.5?-1:1;
-  for (var bb=60; bb<segments.length-80; bb+=randInt(26,42)){
-    if (nearCheckpoint(bb)) continue;
-    segments[bb].sprites.push({
-      kind:'billboard', ad: adList[adIdx % adList.length],
-      offset: bbSide * rand(2.1, 2.5),
-      frac: rand(1.35, 1.6), collide:true, decor:true
-    });
-    adIdx++; bbSide = -bbSide;
   }
   // obstacles
   if (venueKey === 'waste'){
@@ -819,14 +633,10 @@ function buildTrack(venueKey){
       });
     }
   } else {
-    // static barriers and the occasional police blockade
+    // static barriers, sparse
     for (var m2=120; m2<segments.length-60; m2+=randInt(60, 110)){
       if (nearCheckpoint(m2)) continue;
-      if (Math.random() < 0.3){
-        segments[m2].sprites.push({ kind:'blockade', offset: rand(-0.55,0.55), frac:0.9, collide:true });
-      } else {
-        segments[m2].sprites.push({ kind:'barrier', offset: rand(-0.7,0.7), frac:0.5, collide:true, small:true });
-      }
+      segments[m2].sprites.push({ kind:'barrier', offset: rand(-0.7,0.7), frac:0.5, collide:true, small:true });
     }
     // moving traffic
     for (var c=0; c<TUNING.CITY_TRAFFIC; c++){
@@ -881,7 +691,7 @@ function startRace(){
     score:0, mood:60, distRatio:0,
     checkpointsHit:{},
     quip:null, quipT:0,
-    shake:0, crashFlash:0, offRoadBump:0, hitStop:0, impactWhite:0,
+    shake:0, crashFlash:0, offRoadBump:0,
     // quirk state
     limiterOn: true, wentWild:false,
     shiftT: rand(10,16), shiftMod:{speed:1,turn:1},
@@ -889,7 +699,7 @@ function startRace(){
     flow:0, flowQuipT:0,
     epaQuirk:null, ignoreT:0,
     nearMissCooldown:0,
-    playerSpr: makePlayerSprites(B, bKey, fKey),
+    playerSpr: makePlayerSprites(B),
     steer:0
   };
   if (B.quirk === 'epa') adoptEPA();
@@ -938,15 +748,6 @@ function update(dt){
     return;
   }
   if (STATE !== 'race') return;
-
-  // hit-stop: world freezes for a beat on a hard crash
-  if (G.hitStop > 0){
-    G.hitStop -= dt;
-    G.impactWhite = Math.max(0, (G.impactWhite||0) - dt*5);
-    G.crashFlash = Math.max(0, G.crashFlash - dt*1.2);
-    return;
-  }
-  if (G.impactWhite > 0) G.impactWhite = Math.max(0, G.impactWhite - dt*5);
 
   musicUpdate();
   var B = G.B, V = G.V, quirk = activeQuirk();
@@ -1120,8 +921,7 @@ function checkHits(seg, speedPct){
 function doCrash(hard){
   var pen = G.B.crashPenalty;
   G.speed *= (pen <= 0.5 ? 0.45 : 0.18);
-  G.shake = hard ? 5 : 3; G.crashFlash = 1;
-  if (hard){ G.hitStop = 0.16; G.impactWhite = 1; }
+  G.shake = 3; G.crashFlash = 1;
   moodAdd(-12 * pen);
   say('crash');
   noiseBurst(0.32, 0.4);
@@ -1245,9 +1045,6 @@ function renderAttract(){
   if (Math.floor(attractT*2)%2===0)
     textGlow('INSERT COIN  /  PRESS START', W/2, 218, 7, '#ffe14a', '#ffe14a');
   text('ARROWS: STEER+SPEED   SPACE: BIKE ACTION   M: MUTE', W/2, 232, 4, '#777');
-  // manufacturer credit
-  drawPixImage('ad-3moons.jpg', W-38, 26, 44, 32);
-  text('ARCADE DIVISION', W-38, 46, 3, '#c1272d');
 }
 var starSeed = [];
 (function(){ for (var i=0;i<60;i++) starSeed.push([Math.random()*W, Math.random()*H*0.6, Math.random()]); })();
@@ -1350,10 +1147,6 @@ function renderRace(){
     ctx.fillStyle = 'rgba(255,80,40,'+(G.crashFlash*0.25)+')';
     ctx.fillRect(0,0,W,H);
   }
-  if (G.impactWhite > 0){
-    ctx.fillStyle = 'rgba(255,255,255,'+(G.impactWhite*0.65).toFixed(3)+')';
-    ctx.fillRect(0,0,W,H);
-  }
   ctx.setTransform(1,0,0,1,0,0);
   drawHUD();
   if (STATE==='countdown'){
@@ -1366,29 +1159,24 @@ function renderRace(){
   }
 }
 function drawSky(V, baseSeg){
-  // banded gradient sky, dithered seams
-  var bands = 36, bandH = H*0.6/bands;
+  // banded gradient sky, dithered by rows
+  var bands = 24;
   for (var i=0;i<bands;i++){
     var t = i/bands;
     var col;
     if (t < 0.45) col = mixCol(V.skyTop, V.skyMid, t/0.45);
     else col = mixCol(V.skyMid, V.skyLow, (t-0.45)/0.55);
     ctx.fillStyle = col;
-    ctx.fillRect(0, Math.floor(i*bandH), W, Math.ceil(bandH)+1);
-    if (i>0 && (i%3)===0){ // dither seam
-      ctx.globalAlpha = 0.45;
-      for (var dx2=(i%2)*2; dx2<W; dx2+=4) ctx.fillRect(dx2, Math.floor(i*bandH)-1, 2, 1);
-      ctx.globalAlpha = 1;
-    }
+    ctx.fillRect(0, Math.floor(i*H*0.6/bands), W, Math.ceil(H*0.6/bands)+1);
   }
   // parallax offset from curve
   var par = -(baseSeg.curve) * 14;
   if (G.fKey === 'deadgods'){
-    drawWasteSun(par);
     // three moons (lore)
     moon(W*0.2+par*0.3, 30, 13, '#f7e9c6', 0.9);
     moon(W*0.62+par*0.3, 18, 8, '#e8cfa0', 0.8);
     moon(W*0.8+par*0.3, 44, 5, '#d8b888', 0.7);
+    // mesa silhouettes
     drawMesas(par);
   } else {
     drawStars();
@@ -1398,20 +1186,6 @@ function drawSky(V, baseSeg){
   // ground base below horizon
   ctx.fillStyle = V.ground; ctx.fillRect(0, Math.floor(H*0.6)-2, W, H);
 }
-function drawWasteSun(par){
-  // huge banded Out Run sun sitting on the horizon
-  var hor = Math.floor(H*0.6), cx = Math.round(W*0.42 + par*0.15), r = 46;
-  for (var i=0;i<8;i++){
-    var rr = r - i*5;
-    if (rr <= 0) break;
-    ctx.fillStyle = mixCol('#ff5a3c', '#ffd24a', i/7);
-    var sy = hor - rr;
-    ctx.fillRect(cx-rr, Math.max(0,hor-rr), rr*2, rr); // banded half-disc by stacked rects
-  }
-  // horizontal slice gaps for the classic look
-  ctx.fillStyle = 'rgba(0,0,0,0.12)';
-  for (var yy=hor-r; yy<hor; yy+=7) ctx.fillRect(cx-r, yy, r*2, 2);
-}
 function moon(x,y,r,col,alpha){
   ctx.save(); ctx.globalAlpha = alpha;
   ctx.fillStyle = col;
@@ -1420,68 +1194,33 @@ function moon(x,y,r,col,alpha){
   ctx.beginPath(); ctx.arc(Math.round(x)-r*0.3,Math.round(y)-r*0.2,r*0.8,0,Math.PI*2); ctx.fill();
   ctx.restore();
 }
-var mesaSeed = [], mesaFarSeed = [], skySeed = [], skyFarSeed = [];
+var mesaSeed = [], skySeed = [];
 (function(){
   var x=0; while (x<W*2){ var w=randInt(30,80),h=randInt(12,34); mesaSeed.push([x,w,h]); x+=w+randInt(8,30); }
-  x=0; while (x<W*2){ var wf=randInt(40,110),hf=randInt(6,16); mesaFarSeed.push([x,wf,hf]); x+=wf+randInt(4,20); }
-  x=0; while (x<W*2){ var w2=randInt(14,34),h2=randInt(34,92),sp=Math.random(); skySeed.push([x,w2,h2,sp]); x+=w2+randInt(2,8); }
-  x=0; while (x<W*2){ var w3=randInt(20,50),h3=randInt(18,46); skyFarSeed.push([x,w3,h3,Math.random()]); x+=w3+randInt(1,6); }
+  x=0; while (x<W*2){ var w2=randInt(8,22),h2=randInt(14,52); skySeed.push([x,w2,h2,Math.random()]); x+=w2+randInt(1,5); }
 })();
 function drawMesas(par){
   var hor = Math.floor(H*0.6);
-  // far layer, hazy
-  ctx.fillStyle = '#a35a48';
-  for (var j=0;j<mesaFarSeed.length;j++){
-    var f = mesaFarSeed[j];
-    var fx = Math.round((f[0]+par*0.3+W*2)%(W*2)) - W*0.5;
-    ctx.fillRect(fx, hor-f[2], f[1], f[2]);
-  }
-  // near layer
+  ctx.fillStyle = '#7a4a3a';
   for (var i=0;i<mesaSeed.length;i++){
     var m = mesaSeed[i];
     var mx = Math.round((m[0]+par*0.6+W*2)%(W*2)) - W*0.5;
-    ctx.fillStyle = '#7a4a3a';
     ctx.fillRect(mx, hor-m[2], m[1], m[2]);
     ctx.fillRect(mx+4, hor-m[2]-4, m[1]-8, 4);
-    ctx.fillStyle = '#8f584a';                       // sunlit cap edge
-    ctx.fillRect(mx+4, hor-m[2]-4, m[1]-8, 1);
   }
 }
 function drawSkyline(par){
   var hor = Math.floor(H*0.6);
-  // far towers, dim silhouettes with faint base glow
-  for (var j=0;j<skyFarSeed.length;j++){
-    var f = skyFarSeed[j];
-    var fx = Math.round((f[0]+par*0.3+W*2)%(W*2)) - W*0.5;
-    ctx.fillStyle = '#0a0a16';
-    ctx.fillRect(fx, hor-f[2], f[1], f[2]);
-    ctx.fillStyle = 'rgba(255,45,149,0.12)';
-    ctx.fillRect(fx, hor-Math.floor(f[2]*0.3), f[1], Math.floor(f[2]*0.3));
-  }
-  // near towers: huge, lit from below
   for (var i=0;i<skySeed.length;i++){
     var b = skySeed[i];
     var bx = Math.round((b[0]+par*0.6+W*2)%(W*2)) - W*0.5;
-    var bh = b[2], glowCol = b[3] > 0.5 ? [255,45,149] : [0,255,255];
     ctx.fillStyle = '#0d0d1c';
-    ctx.fillRect(bx, hor-bh, b[1], bh);
-    // underglow: brightest at street level fading up the face
-    var gSteps = 5, gH = Math.floor(bh*0.55/gSteps);
-    for (var s=0;s<gSteps;s++){
-      ctx.fillStyle = 'rgba('+glowCol[0]+','+glowCol[1]+','+glowCol[2]+','+(0.22*(1-s/gSteps)).toFixed(3)+')';
-      ctx.fillRect(bx, hor-(s+1)*gH, b[1], gH);
-    }
-    // window grid
+    ctx.fillRect(bx, hor-b[2], b[1], b[2]);
+    // lit windows
     ctx.fillStyle = b[3] > 0.5 ? '#ff2d95' : '#0ff';
-    for (var wy=hor-bh+3; wy<hor-4; wy+=5){
-      for (var wx=bx+2; wx<bx+b[1]-2; wx+=5){
-        if (((wx*7+wy*13)%17)<4) ctx.fillRect(wx, wy, 2, 2);
-      }
-    }
-    // antenna with beacon on the tallest
-    if (bh > 70){
-      ctx.fillStyle = '#23232e'; ctx.fillRect(bx+(b[1]>>1), hor-bh-7, 1, 7);
-      if (Math.floor(performance.now()/600)%2) { ctx.fillStyle='#ff3040'; ctx.fillRect(bx+(b[1]>>1)-1, hor-bh-9, 2, 2); }
+    for (var wy=hor-b[2]+3; wy<hor-4; wy+=6){
+      if (((bx+wy)%7)<3) ctx.fillRect(bx+2, wy, 2, 2);
+      if (b[1]>12 && ((bx+wy)%5)<2) ctx.fillRect(bx+b[1]-5, wy, 2, 2);
     }
   }
 }
@@ -1525,15 +1264,7 @@ function poly(x1,y1,x2,y2,x3,y3,x4,y4,col){
 function drawSprite(seg, s, zPct){
   var p = seg.p1.screen;
   var scale = seg.p1.screen.scale;
-  var kind = s.kind;
-  if (kind === 'blockade') kind = (Math.floor(performance.now()/300)%2) ? 'blockadeA' : 'blockadeB';
-  var adArt = null;
-  if (s.kind === 'billboard' && s.ad){
-    if (s.ad.img){ var rec0 = IMAGES[s.ad.img]; if (rec0 && rec0.ok && rec0.pix) adArt = rec0.pix; }
-    else if (s.ad.canvas) adArt = s.ad.canvas;
-    if (adArt && adArt.height > adArt.width) kind = 'billboardP';
-  }
-  var spr = SPR[kind];
+  var spr = SPR[s.kind];
   if (!spr || p.w <= 0) return;
   var destW = Math.max(1, Math.round(s.frac * p.w));
   if (destW > W * (s.banner ? 1.6 : 0.7)) return; // too close to camera, skip giant slab
@@ -1546,20 +1277,6 @@ function drawSprite(seg, s, zPct){
   if (visH <= 0) return;
   ctx.imageSmoothingEnabled = false;
   ctx.drawImage(spr, 0, 0, spr.width, Math.max(1,Math.floor(spr.height*visH/destH)), dx, dy, destW, visH);
-  // billboard: paste the ad into the panel area of whichever frame was used
-  if (s.kind === 'billboard' && adArt){
-    var portrait = (kind === 'billboardP');
-    var fw = portrait ? 44 : 64;
-    var panel = portrait ? [4,2,36,50] : [4,2,56,34];
-    var k = destW/fw;
-    var pxX = dx + Math.round(panel[0]*k), pxY = dy + Math.round(panel[1]*k);
-    var pxW = Math.round(panel[2]*k), pxH = Math.round(panel[3]*k);
-    var s2 = Math.min(pxW/adArt.width, pxH/adArt.height);
-    var aw = Math.max(1,Math.floor(adArt.width*s2)), ah = Math.max(1,Math.floor(adArt.height*s2));
-    var ax = pxX + ((pxW-aw)>>1), ay = pxY + ((pxH-ah)>>1);
-    var aClipH = Math.min(ah, clip - ay);
-    if (aClipH > 0) ctx.drawImage(adArt, 0, 0, adArt.width, Math.max(1,Math.floor(adArt.height*aClipH/ah)), ax, ay, aw, aClipH);
-  }
 }
 function drawPlayer(){
   var sprset = G.playerSpr;
@@ -1567,26 +1284,8 @@ function drawPlayer(){
   var scale = 3;
   var dw = spr.width*scale, dh = spr.height*scale;
   var bounce = (G.speed>0) ? Math.sin(performance.now()/55)* (G.offRoadBump>0?2.2:0.8) : 0;
-  var px0 = Math.round(W/2-dw/2), py0 = Math.round(H-18-dh+bounce);
   ctx.imageSmoothingEnabled = false;
-  ctx.drawImage(spr, px0, py0, dw, dh);
-  // dangling wires (wires everywhere): sway with speed
-  var or = G.steer < 0 ? -3 : (G.steer > 0 ? 3 : 0);
-  var t = performance.now()/170;
-  var spd = G.speed / G.maxSpeed;
-  ctx.lineWidth = 2;
-  for (var wi=0; wi<sprset.wires.length; wi++){
-    var w = sprset.wires[wi];
-    var sx = px0 + (w.x + or)*scale, sy = py0 + w.y*scale;
-    var sway = Math.sin(t + wi*2.1) * (2 + spd*5) * (wi%2 ? -1 : 1);
-    var ex = sx + sway, ey = sy + w.len*scale*0.8 + Math.cos(t*1.3+wi)*1.5;
-    ctx.strokeStyle = w.col;
-    ctx.beginPath();
-    ctx.moveTo(sx, sy);
-    ctx.quadraticCurveTo(sx + sway*0.4, sy + w.len*scale*0.45, ex, ey);
-    ctx.stroke();
-    ctx.fillStyle = w.col; ctx.fillRect(Math.round(ex)-1, Math.round(ey), 2, 2); // connector tip
-  }
+  ctx.drawImage(spr, Math.round(W/2-dw/2), Math.round(H-18-dh+bounce), dw, dh);
 }
 function drawHUD(){
   var F = G.F;
