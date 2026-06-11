@@ -438,6 +438,36 @@ function makeAdPlaceholder(a){
 }
 for (var av2 in ADS){ ADS[av2].forEach(function(a){ if (a.ph) a.canvas = makeAdPlaceholder(a); }); }
 
+/* ---- v1.3 image assets: bike sprite sheets + scenery from the paintings.
+   All optional: if a file is missing the game falls back to procedural art. */
+var SPRITE_SHEETS = {};   // bKey -> {L,C,R} canvases sliced from sheet
+for (var sk in BIKES) loadImage('spr-'+sk+'.png');
+['scen-ridge-far.png','scen-ridge-near.png','scen-rock.png','scen-grass.png'].forEach(loadImage);
+function sliceSheet(bKey){
+  if (SPRITE_SHEETS[bKey]) return SPRITE_SHEETS[bKey];
+  var rec = IMAGES['spr-'+bKey+'.png'];
+  if (!rec || !rec.ok) return null;
+  var img = rec.img, cw = Math.floor(img.naturalWidth/3), ch = img.naturalHeight;
+  var frames = {};
+  ['L','C','R'].forEach(function(f,i){
+    var c = document.createElement('canvas'); c.width=cw; c.height=ch;
+    var g = c.getContext('2d'); g.imageSmoothingEnabled=false;
+    g.drawImage(img, i*cw, 0, cw, ch, 0, 0, cw, ch);
+    frames[f]=c;
+  });
+  SPRITE_SHEETS[bKey]=frames;
+  return frames;
+}
+function imageKindCanvas(file){
+  var rec = IMAGES[file];
+  if (!rec || !rec.ok) return null;
+  var c = document.createElement('canvas');
+  c.width = rec.img.naturalWidth; c.height = rec.img.naturalHeight;
+  var g = c.getContext('2d'); g.imageSmoothingEnabled=false;
+  g.drawImage(rec.img, 0, 0);
+  return c;
+}
+
 function drawPixImage(file, cx, cy, maxW, maxH){
   var rec = IMAGES[file];
   if (rec && rec.ok && rec.pix){
@@ -471,6 +501,16 @@ function shadeCol(hex, f){
 // player bike, rear view, 3 steer frames
 // geometry per bike from the rear-view refs; palette is canon (the paintings)
 function makePlayerSprites(bike, bKey, fKey){
+  var deadgods = (fKey === 'deadgods');
+  // wire anchors as fractions of frame size so image and procedural sprites share them
+  var wires = deadgods
+    ? [{fx:0.30,fy:0.20,len:0.30,col:'#2a221c'},{fx:0.70,fy:0.20,len:0.24,col:'#5e4a36'},{fx:0.66,fy:0.45,len:0.26,col:'#15151c'}]
+    : [{fx:0.32,fy:0.20,len:0.30,col:bike.accent},{fx:0.68,fy:0.20,len:0.24,col:'#0ff'},{fx:0.36,fy:0.42,len:0.26,col:'#15151c'}];
+  var sheet = sliceSheet(bKey);
+  if (sheet) return { L:sheet.L, C:sheet.C, R:sheet.R, wires:wires, fromImage:true };
+  return makeProceduralPlayer(bike, bKey, fKey, wires);
+}
+function makeProceduralPlayer(bike, bKey, fKey, wires){
   var deadgods = (fKey === 'deadgods');
   var BODY=bike.body, ACC=bike.accent, TIRE=bike.tire;
   var bodyD=shadeCol(BODY,0.65), bodyL=shadeCol(BODY,1.3);
@@ -578,10 +618,10 @@ function makePlayerSprites(bike, bKey, fKey){
       if (post) post(or);
     });
   }
-  var wires = deadgods
-    ? [{x:13,y:8,len:8,col:'#2a221c'},{x:31,y:8,len:6,col:'#5e4a36'},{x:29,y:14,len:7,col:'#15151c'}]
-    : [{x:14,y:8,len:8,col:ACC},{x:30,y:8,len:6,col:'#0ff'},{x:16,y:13,len:7,col:'#15151c'}];
-  return { L: frame(-1), C: frame(0), R: frame(1), wires:wires };
+  var wiresOut = wires || (deadgods
+    ? [{fx:0.30,fy:0.27,len:0.27,col:'#2a221c'},{fx:0.70,fy:0.27,len:0.20,col:'#5e4a36'},{fx:0.66,fy:0.47,len:0.23,col:'#15151c'}]
+    : [{fx:0.32,fy:0.27,len:0.27,col:ACC},{fx:0.68,fy:0.27,len:0.20,col:'#0ff'},{fx:0.36,fy:0.43,len:0.23,col:'#15151c'}]);
+  return { L: frame(-1), C: frame(0), R: frame(1), wires:wiresOut };
 }
 
 // roadside + obstacle sprites per venue
@@ -728,11 +768,11 @@ var cars = [];        // city traffic
 
 var VENUES = {
   waste: {
-    skyTop:'#1d1038', skyMid:'#c33d5e', skyLow:'#ff9a3c', skyGlow:'#ffd28a',
+    skyTop:'#23466a', skyMid:'#c4798e', skyLow:'#f2b49a', skyGlow:'#ffd28a',
     ground:'#d49350', ground2:'#c48346', rumble:'#8a5a36', rumble2:'#d8b888',
     road:'#9c6e44', road2:'#946841', lane:'#e8d2a8',
-    fogColor:'#f0a866',
-    decor:['rock','spire','skull','wreck'], obstacles:['rock','skull','wreck'],
+    fogColor:'#e8a8a0',
+    decor:['rock','spire','skull','wreck','irock','grass','grass'], obstacles:['rock','skull','wreck'],
     music: MUSIC_WASTE
   },
   city: {
@@ -792,10 +832,12 @@ function buildTrack(venueKey){
   // roadside decor (collidable: off-road excursions carry risk)
   for (var n=20; n<segments.length-30; n+=randInt(3,7)){
     var side = Math.random()<0.5 ? -1 : 1;
+    var dk = pick(V.decor);
     segments[n].sprites.push({
-      kind: pick(V.decor),
+      kind: dk,
       offset: side * rand(1.9, 3.0),
-      frac: rand(0.5, 0.9), collide:true, decor:true
+      frac: dk==='grass' ? rand(0.25,0.4) : rand(0.5, 0.9),
+      collide: dk!=='grass', decor:true
     });
   }
   // Saga billboards, alternating sides
@@ -1210,11 +1252,16 @@ function render(){
   if (STATE==='finish'||STATE==='gameover') return renderEnd();
 }
 function text(t, x, y, size, col, align){
+  if (size < 6) size = 6;            // legibility floor
   ctx.font = size + 'px "Press Start 2P", monospace';
-  ctx.fillStyle = col || '#fff';
   ctx.textAlign = align || 'center';
   ctx.textBaseline = 'top';
-  ctx.fillText(t, Math.round(x), Math.round(y));
+  var rx = Math.round(x), ry = Math.round(y);
+  ctx.fillStyle = '#0a0a10';         // hard outline for contrast on busy art
+  ctx.fillText(t, rx-1, ry); ctx.fillText(t, rx+1, ry);
+  ctx.fillText(t, rx, ry-1); ctx.fillText(t, rx, ry+1);
+  ctx.fillStyle = col || '#fff';
+  ctx.fillText(t, rx, ry);
 }
 function textGlow(t,x,y,size,col,glow,align){
   ctx.save(); ctx.shadowColor = glow||col; ctx.shadowBlur = 6;
@@ -1386,10 +1433,10 @@ function drawSky(V, baseSeg){
   if (G.fKey === 'deadgods'){
     drawWasteSun(par);
     // three moons (lore)
-    moon(W*0.2+par*0.3, 30, 13, '#f7e9c6', 0.9);
-    moon(W*0.62+par*0.3, 18, 8, '#e8cfa0', 0.8);
-    moon(W*0.8+par*0.3, 44, 5, '#d8b888', 0.7);
-    drawMesas(par);
+    moon(W*0.2+par*0.3, 30, 13, '#e8e2da', 0.85);
+    moon(W*0.62+par*0.3, 18, 8, '#d4cfd2', 0.7);
+    moon(W*0.8+par*0.3, 44, 5, '#c4bcc4', 0.6);
+    if (!drawRidges(par)) drawMesas(par);
   } else {
     drawStars();
     moon(W*0.78+par*0.2, 26, 9, '#cfd6ff', 0.55);
@@ -1397,6 +1444,23 @@ function drawSky(V, baseSeg){
   }
   // ground base below horizon
   ctx.fillStyle = V.ground; ctx.fillRect(0, Math.floor(H*0.6)-2, W, H);
+}
+var RIDGES = {};
+function drawRidges(par){
+  if (!RIDGES.far)  RIDGES.far  = imageKindCanvas('scen-ridge-far.png');
+  if (!RIDGES.near) RIDGES.near = imageKindCanvas('scen-ridge-near.png');
+  if (!RIDGES.far || !RIDGES.near) return false;
+  var hor = Math.floor(H*0.6);
+  ctx.imageSmoothingEnabled = false;
+  function layer(img, mult, dh){
+    var dw = W*1.5;
+    var off = ((par*mult) % dw + dw) % dw;
+    ctx.drawImage(img, -off, hor-dh, dw, dh);
+    ctx.drawImage(img, dw-off, hor-dh, dw, dh);
+  }
+  layer(RIDGES.far, 0.35, 44);
+  layer(RIDGES.near, 0.7, 34);
+  return true;
 }
 function drawWasteSun(par){
   // huge banded Out Run sun sitting on the horizon
@@ -1527,6 +1591,8 @@ function drawSprite(seg, s, zPct){
   var scale = seg.p1.screen.scale;
   var kind = s.kind;
   if (kind === 'blockade') kind = (Math.floor(performance.now()/300)%2) ? 'blockadeA' : 'blockadeB';
+  if (kind === 'irock' && !SPR.irock) SPR.irock = imageKindCanvas('scen-rock.png');
+  if (kind === 'grass' && !SPR.grass) SPR.grass = imageKindCanvas('scen-grass.png');
   var adArt = null;
   if (s.kind === 'billboard' && s.ad){
     if (s.ad.img){ var rec0 = IMAGES[s.ad.img]; if (rec0 && rec0.ok && rec0.pix) adArt = rec0.pix; }
@@ -1564,26 +1630,27 @@ function drawSprite(seg, s, zPct){
 function drawPlayer(){
   var sprset = G.playerSpr;
   var spr = G.steer < 0 ? sprset.L : (G.steer > 0 ? sprset.R : sprset.C);
-  var scale = 3;
+  var scale = sprset.fromImage ? (96 / spr.height) : 3;   // normalise image sprites to ~108px tall
   var dw = spr.width*scale, dh = spr.height*scale;
   var bounce = (G.speed>0) ? Math.sin(performance.now()/55)* (G.offRoadBump>0?2.2:0.8) : 0;
-  var px0 = Math.round(W/2-dw/2), py0 = Math.round(H-18-dh+bounce);
+  var px0 = Math.round(W/2-dw/2), py0 = Math.round(H-14-dh+bounce);
   ctx.imageSmoothingEnabled = false;
-  ctx.drawImage(spr, px0, py0, dw, dh);
+  ctx.drawImage(spr, px0, py0, Math.round(dw), Math.round(dh));
   // dangling wires (wires everywhere): sway with speed
-  var or = G.steer < 0 ? -3 : (G.steer > 0 ? 3 : 0);
+  var or = G.steer < 0 ? -dw*0.04 : (G.steer > 0 ? dw*0.04 : 0);
   var t = performance.now()/170;
   var spd = G.speed / G.maxSpeed;
   ctx.lineWidth = 2;
   for (var wi=0; wi<sprset.wires.length; wi++){
     var w = sprset.wires[wi];
-    var sx = px0 + (w.x + or)*scale, sy = py0 + w.y*scale;
+    var sx = px0 + w.fx*dw + or, sy = py0 + w.fy*dh;
+    var wl = w.len*dh;
     var sway = Math.sin(t + wi*2.1) * (2 + spd*5) * (wi%2 ? -1 : 1);
-    var ex = sx + sway, ey = sy + w.len*scale*0.8 + Math.cos(t*1.3+wi)*1.5;
+    var ex = sx + sway, ey = sy + wl*0.8 + Math.cos(t*1.3+wi)*1.5;
     ctx.strokeStyle = w.col;
     ctx.beginPath();
     ctx.moveTo(sx, sy);
-    ctx.quadraticCurveTo(sx + sway*0.4, sy + w.len*scale*0.45, ex, ey);
+    ctx.quadraticCurveTo(sx + sway*0.4, sy + wl*0.45, ex, ey);
     ctx.stroke();
     ctx.fillStyle = w.col; ctx.fillRect(Math.round(ex)-1, Math.round(ey), 2, 2); // connector tip
   }
