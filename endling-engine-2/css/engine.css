@@ -851,6 +851,7 @@ main.engine-page:not(.zone-newkyushu):not(.zone-continent):not(.zone-domum):not(
 
 /* ── ART NODE TITLE ─────────────────────────────────────────────────────── */
 .art-label {
+  display: none; /* faint image captions hidden per design; remove this line to restore */
   position: fixed;
   bottom: 5.5rem;
   left: 50%;
@@ -1167,27 +1168,39 @@ main.engine-page:not(.zone-newkyushu):not(.zone-continent):not(.zone-domum):not(
     min-height: 100vh;
     overflow-y: auto;
     overflow-x: hidden;
-    justify-content: flex-start;
+    justify-content: center;
     padding-top: 4.5rem;
+    padding-bottom: 6rem;
   }
-  /* Real spacer below content blocks — a generated block always creates
-     scrollable height, immune to iOS Safari padding/min-height quirks. */
+  /* Modest spacer for text-heavy pages so the last line clears the nav.
+     Single-image pages stay centred (their content fits, so center wins and
+     the small spacer is harmless). */
   .engine-page .content::after,
   .char-page .char-layout-v2::after {
     content: '';
     display: block;
     width: 100%;
-    height: 10rem;
+    height: 3rem;
     flex: 0 0 auto;
   }
-  /* Char pages already stack; ensure they also scroll the whole page */
+  /* Character pages (taller stacks) start from top and get a real spacer */
   .engine-page.char-page {
     height: auto;
     min-height: 100vh;
     overflow-y: auto;
+    justify-content: flex-start;
   }
+  .char-page .char-layout-v2::after { height: 7rem; }
   /* Keep background image pinned as a backdrop while content scrolls */
   .engine-page > .bg-image { position: fixed; }
+  /* Location coordinate text: lift above the nav on narrow screens so it
+     doesn't sit behind the buttons. */
+  .coordinates {
+    bottom: 4.5rem;
+    right: 1rem;
+    font-size: 0.45rem;
+    opacity: 0.2;
+  }
 }
 
 /* ── NAV GRADIENT ─────────────────────────────────────────────────────────── */
