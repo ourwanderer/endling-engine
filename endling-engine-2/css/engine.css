@@ -1137,11 +1137,12 @@ main.engine-page:not(.zone-newkyushu):not(.zone-continent):not(.zone-domum):not(
   .char-portrait { max-width: 220px; margin: 0 auto; display: block; }
   .char-name { text-align: center; }
   .char-designation { text-align: center; }
-  /* Smaller portrait image on phones so the whole stack fits with room to scroll */
   .char-layout-v2 .char-portrait { max-height: 38vh; }
-  /* Give the text its own generous scroll and clear the nav with solid padding */
   .char-scroll-body { max-height: none; overflow-y: visible; }
-  .char-page { padding: 5rem 1.5rem 11rem; }
+  /* Page is exactly as tall as content; margin below the block guarantees
+     scrollable clearance above the fixed nav. */
+  .char-page { min-height: auto; padding: 5rem 1.5rem 2rem; }
+  .char-page .char-layout-v2 { margin-bottom: 9rem; }
 }
 
 /* Small laptops / narrow windows (e.g. smaller MacBook viewport) — portrait pages
@@ -1149,7 +1150,9 @@ main.engine-page:not(.zone-newkyushu):not(.zone-continent):not(.zone-domum):not(
    and the text clears the nav. Does NOT touch landscape layout. */
 @media (min-width: 641px) and (max-width: 1024px) {
   .char-layout-v2:not(.landscape) .char-portrait { max-height: 52vh; }
-  .char-page { padding-bottom: 12rem; }
+  /* Reliable scroll clearance via margin on the content block, not container padding */
+  .char-page { min-height: auto; padding-bottom: 2rem; }
+  .char-page .char-layout-v2 { margin-bottom: 9rem; }
 }
 
 /* ── NAV GRADIENT ─────────────────────────────────────────────────────────── */
