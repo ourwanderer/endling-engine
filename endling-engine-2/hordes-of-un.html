@@ -107,6 +107,13 @@ tr.sel td{color:var(--c64-yellow);}
 .flexrow{display:flex;flex-wrap:wrap;gap:10px;}
 .flexrow > div{flex:1 1 240px;}
 .note{color:var(--c64-grey);margin-top:8px;}
+#splash{position:fixed;inset:0;background:var(--c64-black);z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;padding:10px;}
+#splash img{max-width:min(100%,760px);max-height:78vh;image-rendering:pixelated;display:block;}
+#splashPrompt{color:var(--c64-yellow);margin-top:14px;font-size:12px;animation:blink 1s steps(1) infinite;}
+#splashFallback{display:none;color:var(--c64-white);text-align:center;}
+#commentary p.weird{color:#CC66CC;}
+.roaditem{color:var(--c64-lgrey);margin:0 0 4px 0;}
+.roaditem.func{color:var(--c64-cyan);}
 @media(max-width:520px){
   #monitor{padding:10px;}
   #screen, #screen *{font-size:8px;}
@@ -115,6 +122,12 @@ tr.sel td{color:var(--c64-yellow);}
 </style>
 </head>
 <body>
+<div id="splash">
+  <img id="splashImg" src="images/endling/hordes-splash.png" alt="HORDES OF UN">
+  <div id="splashFallback"><h1 style="font-size:22px">HORDES OF UN</h1><p class="sub">3MOONS ULTRACORP SOFTWARE DIVISION (C) 1987</p></div>
+  <div id="splashPrompt">CLICK OR PRESS FIRE TO BEGIN</div>
+</div>
+
 <div id="monitor"><div id="screen">
 
 <div class="hdr">
@@ -229,10 +242,18 @@ tr.sel td{color:var(--c64-yellow);}
       <button id="spd1">SLOW</button>
       <button id="spd2" class="on">QUICK</button>
       <button id="spd3">SWIFT</button>
+      <button id="btnSnd">SND ON</button>
     </div>
     <div id="commentary"></div>
     <div id="battlePost" style="margin-top:8px"></div>
   </div>
+</div>
+
+<div id="scr-road" class="screenpane">
+  <div class="sub" id="roadDays"></div>
+  <div class="panel"><div class="sub">WORD ON THE ROAD</div><div id="roadNews"></div></div>
+  <div class="panel"><div class="sub">THE HEALER'S REPORT</div><div id="roadHealer"></div></div>
+  <div class="panel"><button id="btnRoadOn" class="act">ON TO THE NEXT FIELD</button></div>
 </div>
 
 <div id="scr-system" class="screenpane">
@@ -263,6 +284,35 @@ function pick(arr){return arr[ri(0,arr.length-1)];}
 function chance(p){return Math.random()<p;}
 function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
 function dist2(a,b){var dx=a.x-b.x,dy=a.y-b.y;return Math.sqrt(dx*dx+dy*dy);}
+
+/* ---------- SOUND (SID-ish bleeps via WebAudio) ---------- */
+var SND={on:true,ctx:null,last:0};
+function sndInit(){ if(SND.ctx)return; try{SND.ctx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){SND.ctx=null;} }
+function tone(freq,dur,type,vol,slide){
+  if(!SND.on||!SND.ctx)return;
+  try{
+    var c=SND.ctx,o=c.createOscillator(),g=c.createGain();
+    o.type=type||"square"; o.frequency.setValueAtTime(freq,c.currentTime);
+    if(slide)o.frequency.exponentialRampToValueAtTime(Math.max(30,slide),c.currentTime+dur);
+    g.gain.setValueAtTime(vol||0.04,c.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+dur);
+    o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+dur);
+  }catch(e){}
+}
+function sfx(kind){
+  if(!SND.on||!SND.ctx)return;
+  var now=Date.now();
+  if(kind==="hit"||kind==="shoot"){ if(now-SND.last<70)return; SND.last=now; }
+  if(kind==="shoot"){ tone(1100,0.05,"triangle",0.03,500); }
+  else if(kind==="hit"){ tone(160,0.05,"square",0.05,90); }
+  else if(kind==="kill"){ tone(300,0.12,"square",0.05,70); }
+  else if(kind==="stab"){ tone(220,0.15,"square",0.06); tone(277,0.15,"square",0.05); }
+  else if(kind==="rout"){ tone(700,0.5,"sawtooth",0.05,80); }
+  else if(kind==="win"){ [523,659,784].forEach(function(f,i){setTimeout(function(){tone(f,0.12,"square",0.06);},i*110);}); }
+  else if(kind==="lose"){ [392,311,262].forEach(function(f,i){setTimeout(function(){tone(f,0.16,"square",0.06);},i*140);}); }
+  else if(kind==="weird"){ tone(200+Math.random()*400,0.25,"sine",0.05,200+Math.random()*600); }
+  else if(kind==="click"){ tone(880,0.03,"square",0.03); }
+}
 
 /* ---------- NAME POOLS ---------- */
 var SEED_FIRST=["DOSS","KELLAN","MAREK","ORRIN","TAVE","BREN","HALLOW","CUDD","VESPER","RONE","SELLA","MIRETH","JORAL","PADRIG","OSK","FENWICK","DARRA","LUNE","CASPAR","IVETH","TOMMEN","GRISELL","MORCAN","ELDA","RUFT","SABLE","QUINNETH","HARROW","BEDE","NISSA","CORBEL","THANE","MERROW","ULLE","PRIMM","GARRICK","WYNNE","DOVEY","STANNOCK","REVA"];
@@ -361,6 +411,23 @@ var STARS=[
   {name:"BRIA",cls:"CATAPHRACT",note:"NIGHTCUTTER. SWORN. WILL NOT HEAR TERMS.",pow:19},
   {name:"IRLA",cls:"OUTRIDER",note:"SEA-BORN OF RIN. HATES GRANITE CITIES. HERE FOR HER OWN REASONS.",pow:19},
   {name:"BAIDEN",cls:"ARCHER",note:"KEEPS THE SWAN BOW. THE BOW IS NOT FOR SALE EITHER.",pow:18}
+];
+
+var ROAD_NEWS=[
+"WORD FROM KREYTE: THE THREE GATES CLOSE AT DUSK NOW. NO REASON GIVEN.",
+"GRAIN BARGES OUT OF RIN ARE PAYING DOUBLE FOR SWORN BLADES.",
+"A PILGRIM COLUMN PASSES SOUTH ALONG THE ROAD, SINGING THE COUNTING SONG.",
+"RAYSE RAISES ITS TOLLS AGAIN. CARTERS CURSE THE NAME.",
+"STEPPE RIDERS SEEN NORTH OF THE GRASS LINE. MORE THAN LAST YEAR, THE HERDERS SAY.",
+"A PREACHER IN THE BOWL CLAIMS HIS LINES BURNED TRUE. THE TEMPLE IS ASKING QUESTIONS.",
+"THE NIGHTCUTTERS TURNED DOWN A CONTRACT. NO ONE WILL SAY WHOSE.",
+"A DEAD ENGINE HUMMED FOR A NIGHT, THEY SAY. THEN STOPPED. NO ONE SLEPT.",
+"WOLVES TOOK A WAYHOUSE MULE. THE KEEPER WANTS BLADES AND PAYS IN BEER.",
+"A GILDED BAY FACTOR IS BUYING IRON AT ANY PRICE. SMITHS SMILE.",
+"TWO COMPANIES BRAWLED OVER A WELL. THE WELL WON.",
+"THE SWAN COMPANY DRILLS AT DAWN. BAIDEN LOOSES A HUNDRED BEFORE BREAKFAST, THEY SAY.",
+"SNOW ON THE FAR GRASS ALREADY. THE HERDS MOVE EARLY THIS YEAR.",
+"A MASKED RIDER ASKED AFTER YOUR COMPANY BY NAME. THEN RODE ON."
 ];
 
 /* ---------- GAME STATE ---------- */
@@ -601,14 +668,17 @@ function renderFighterDetail(){
   });
   html+='</div>';
   html+='<div class="note">CONDITION '+condTag(f)+(f.wounded?' / <span class="bad">CARRYING A WOUND</span>':'')+' / MORALE '+f.morale+'</div>';
-  html+='<div style="margin-top:6px"><button id="btnRelease">RELEASE FROM SERVICE</button></div>';
+  var sellVal=f.wage*3;
+  html+='<div style="margin-top:6px"><button id="btnRelease">SELL HIS CONTRACT ('+sellVal+' COIN)</button></div>';
   box.innerHTML=html;
   document.getElementById("btnRelease").addEventListener("click",function(){
     if(S.squad.length<=8){setFooter("YOU CANNOT KEEP FEWER THAN 8 BLADES.");return;}
+    S.coin+=sellVal;
     S.squad=S.squad.filter(function(x){return x.id!==f.id;});
     S.muster=S.muster.filter(function(id){return id!==f.id;});
-    selFighterId=null; renderSquad(); renderFighterDetail(); renderHeader();
-    setFooter(f.name+" WALKS THE ROAD ALONE.");
+    S.market.push(f);
+    selFighterId=null; renderSquad(); renderFighterDetail(); renderHeader(); renderMarket();
+    setFooter(f.name+" MARCHES UNDER ANOTHER BANNER. +"+sellVal+" COIN.");
   });
 }
 
@@ -757,7 +827,18 @@ function renderStores(){
     '<p>HERBS <span class="white">'+S.stores.herbs+'</span>'+
     ' / IRON <span class="white">'+S.stores.iron+'</span>'+
     ' / COIN <span class="white">'+S.coin+'</span></p>'+
-    '<p class="note">HERBS FEED THE HEALER. ONE PER WOUNDED MAN PER WEEK. IRON IS SPENT BY THE ARMOURER AT WEEK END, RE-FITTING ONE WEARY FIGHTER PER PIECE. WIN A FIELD TO STRIP ITS FINDS.</p>';
+    '<p><button id="btnBuyHerbs"'+(S.coin<21?' disabled':'')+'>BUY 3 HERBS (21)</button> '+
+    '<button id="btnBuyIron"'+(S.coin<20?' disabled':'')+'>BUY 2 IRON (20)</button> '+
+    '<span class="dim">A PILGRIM ROAD TRADER CALLS WEEKLY.</span></p>'+
+    '<p class="note">HERBS FEED THE HEALER. ONE PER WOUNDED MAN PER WEEK. IRON IS SPENT BY THE ARMOURER AT WEEK END, RE-FITTING ONE WEARY FIGHTER PER PIECE. WIN A FIELD TO STRIP ITS FINDS, OR PAY THE TRADER.</p>';
+  document.getElementById("btnBuyHerbs").onclick=function(){
+    if(S.coin<21)return; S.coin-=21; S.stores.herbs+=3;
+    renderHeader(); renderStaff(); setFooter("THREE HERBS FOR THE STORES.");
+  };
+  document.getElementById("btnBuyIron").onclick=function(){
+    if(S.coin<20)return; S.coin-=20; S.stores.iron+=2;
+    renderHeader(); renderStaff(); setFooter("TWO IRON FOR THE ARMOURER.");
+  };
 }
 
 /* ---------- MARKET ---------- */
@@ -1428,6 +1509,7 @@ function runPlayback(sim,startIdx){
       return;
     }
     drawTick(ctx,sim,i);
+    if(sim.ticks[i].pj.length&&i%3===0)sfx("shoot");
     if(i===0) sim.events.filter(function(e){return e.t===0;}).forEach(pushLine);
     sim.events.filter(function(e){return e.t===i+1;}).forEach(pushLine);
     document.getElementById("battleScore").textContent=
@@ -1440,6 +1522,9 @@ function pushLine(e){
   var p=document.createElement("p");
   p.className=e.cls; p.textContent=e.txt;
   c.appendChild(p); c.scrollTop=c.scrollHeight;
+  if(e.cls==="hitA"||e.cls==="hitB")sfx("kill");
+  else if(e.cls==="big"){ if(e.txt.indexOf("BREAKS")>=0)sfx("rout"); else sfx("stab"); }
+  else if(e.cls==="weird")sfx("weird");
 }
 var CLASS_DRAW={
   SHIELDLINE:"#B2B2B2",HALBERDIER:"#75CEC8",ARCHER:"#A9FF9F",
@@ -1546,9 +1631,16 @@ function finishBattle(sim){
   var me=S.companies[0];
   var purse=0, renownGain=0, deadNames=[], hurtNames=[];
 
-  if(sim.winner==="A"){fx.result="W";me.pts+=3;me.w++;opp.l++;purse=60+ri(0,30);renownGain=ri(6,10);}
-  else if(sim.winner==="B"){fx.result="L";me.l++;opp.pts+=3;opp.w++;purse=15;renownGain=ri(0,2);}
-  else {fx.result="D";me.pts+=1;me.d++;opp.pts+=1;opp.d++;purse=30;renownGain=ri(2,4);}
+  var bounty=0, loot=0;
+  if(sim.winner==="A"){
+    fx.result="W";me.pts+=3;me.w++;opp.l++;
+    purse=95+ri(0,40); loot=sim.bDown.length*4;
+    if(opp.strength>1)bounty=Math.round((opp.strength-1)*150);
+    renownGain=ri(6,10);
+  }
+  else if(sim.winner==="B"){fx.result="L";me.l++;opp.pts+=3;opp.w++;purse=25;renownGain=ri(0,2);}
+  else {fx.result="D";me.pts+=1;me.d++;opp.pts+=1;opp.d++;purse=45;loot=sim.bDown.length*2;renownGain=ri(2,4);}
+  purse+=loot+bounty;
 
   sim.aDown.forEach(function(u){
     var f=u.f;
@@ -1585,7 +1677,7 @@ function finishBattle(sim){
   var post='<div class="panel">';
   post+='<div class="'+(sim.winner==="A"?"good":sim.winner==="B"?"bad":"dim")+'">'+
     (sim.winner==="A"?"VICTORY.":sim.winner==="B"?"DEFEAT.":"BLOODIED DRAW.")+'</div>';
-  post+='<p class="note">PURSE +'+purse+'. WAGES -'+wages+'. RENOWN +'+renownGain+'.</p>';
+  post+='<p class="note">PURSE +'+purse+(loot?' (INCL. '+loot+' STRIPPED FROM THE FALLEN)':'')+(bounty?' (INCL. '+bounty+' BOUNTY FOR A NAMED COMPANY)':'')+'. WAGES -'+wages+'. RENOWN +'+renownGain+'.</p>';
   var fLines=[];
   if(forage.herbs)fLines.push(forage.herbs+" HERBS");
   if(forage.iron)fLines.push(forage.iron+" IRON");
@@ -1598,6 +1690,7 @@ function finishBattle(sim){
   post+='<button id="btnEndWeek" class="act">MARCH ON. THE WEEK PASSES.</button></div>';
   document.getElementById("battlePost").innerHTML=post;
   document.getElementById("btnEndWeek").addEventListener("click",endWeek);
+  sfx(sim.winner==="A"?"win":sim.winner==="B"?"lose":"stab");
   renderHeader();
 }
 function woundedRec(){
@@ -1605,7 +1698,9 @@ function woundedRec(){
   return 4+(S.stores.herbs>0?S.staff.healer.bonus:2);
 }
 function endWeek(){
-  simRivalWeek();
+  var news=[];
+  var head=simRivalWeek();
+  if(head)news.push({t:"WORD OF THE WEEK: "+head,func:true});
   var wounded=S.squad.filter(function(f){return f.wounded;})
     .sort(function(a,b){return a.condition-b.condition;});
   wounded.forEach(function(f){
@@ -1615,12 +1710,17 @@ function endWeek(){
       else rec=6;
     }
     f.condition=clamp(f.condition+rec,5,100);
-    if(f.condition>=60)f.wounded=false;
+    if(f.condition>=60){
+      f.wounded=false;
+      news.push({t:(S.staff.healer?S.staff.healer.name+" PRONOUNCES "+f.name+" FIT TO MARCH.":f.name+" IS BACK ON HIS FEET, MORE OR LESS."),func:true});
+    }
   });
+  if(wounded.length&&S.staff.healer&&S.stores.herbs===0)
+    news.push({t:S.staff.healer.name+": THE HERB STORES ARE EMPTY, MASTER. MENDING GOES SLOW.",func:true});
   S.squad.forEach(function(f){
     if(f.wounded)return;
     var marched=S.muster.indexOf(f.id)>=0;
-    f.condition=clamp(f.condition+8+(marched?0:6),5,100);
+    f.condition=clamp(f.condition+(marched?22:32),5,100);
     if(S.coin<0)f.morale=clamp(f.morale-8,10,100);
     else f.morale=clamp(f.morale+3,10,100);
   });
@@ -1631,16 +1731,59 @@ function endWeek(){
     weary[spent].condition=clamp(weary[spent].condition+10,5,100);
     S.stores.iron--; spent++;
   }
+  if(spent>0)news.push({t:"THE ARMOURER SPENDS "+spent+" IRON RE-FITTING WEARY BLADES.",func:true});
+  if(S.coin<0){
+    news.push({t:S.staff.second.name+": THE MEN TALK, MASTER. EMPTY PURSES EMPTY CAMPS.",func:true});
+    var byMorale=S.squad.slice().sort(function(a,b){return a.morale-b.morale;});
+    var gone=0;
+    for(var gi=0;gi<byMorale.length;gi++){
+      if(gone>=2||S.squad.length<=8)break;
+      if(chance(0.35)){
+        var df=byMorale[gi];
+        S.squad=S.squad.filter(function(x){return x.id!==df.id;});
+        S.muster=S.muster.filter(function(id){return id!==df.id;});
+        gone++;
+        news.push({t:df.name+" IS GONE IN THE NIGHT. UNPAID.",func:true});
+      }
+    }
+  }
   if(S.market.length>4){S.market.splice(0,ri(1,3));}
   refillMarket();
   refillStaffMarket();
+  news.push({t:"NEW BLADES ON THE ROAD SEEK A COMPANY.",func:false});
+  var fl=ROAD_NEWS.slice();
+  news.push({t:fl.splice(ri(0,fl.length-1),1)[0],func:false});
+  news.push({t:fl.splice(ri(0,fl.length-1),1)[0],func:false});
   pendingWeek=null;
   S.week++;
   if(S.week>14){S.seasonOver=true;}
-  renderAll(); show(S.seasonOver?"campaign":"staff");
-  setFooter(S.seasonOver?"THE SEASON ENDS. THE LEDGER REMEMBERS.":"WEEK "+S.week+". THE CAMP REPORT IS IN.");
+  renderAll();
+  renderRoad(news);
+  show("road");
+}
+function renderRoad(news){
+  document.getElementById("roadDays").textContent="THE ROAD: SIX DAYS PASS ON THE MARCH TO THE NEXT FIELD.";
+  document.getElementById("roadNews").innerHTML=news.map(function(n){
+    return '<p class="roaditem'+(n.func?' func':'')+'">'+n.t+'</p>';
+  }).join("");
+  var hEl=document.getElementById("roadHealer");
+  var wl=S.squad.filter(function(f){return f.wounded;});
+  if(!wl.length){
+    hEl.innerHTML='<p class="roaditem">NO ONE UNDER THE KNIFE.'+(S.staff.healer?' THE HEALER SHARPENS IT ANYWAY.':'')+'</p>';
+  } else {
+    var rec=woundedRec();
+    hEl.innerHTML=wl.map(function(f){
+      var wk=Math.max(1,Math.ceil((60-f.condition)/rec));
+      return '<p class="roaditem">'+f.name+': CONDITION '+f.condition+'%. FIT IN ABOUT '+wk+' WEEK'+(wk>1?'S':'')+'.</p>';
+    }).join("")+'<p class="roaditem dim">HERBS IN STORE: '+S.stores.herbs+'</p>';
+  }
+  document.getElementById("btnRoadOn").onclick=function(){
+    show(S.seasonOver?"campaign":"battle");
+    setFooter(S.seasonOver?"THE SEASON ENDS. THE LEDGER REMEMBERS.":"WEEK "+S.week+". THE NEXT FIELD WAITS.");
+  };
 }
 function simRivalWeek(){
+  var head=null;
   var others=S.companies.filter(function(c){return !c.player;});
   var pool=others.slice().sort(function(){return Math.random()-0.5;});
   var myFx=S.fixtures.find(function(fx){return fx.week===S.week;});
@@ -1650,10 +1793,11 @@ function simRivalWeek(){
     var x=free[i],y=free[i+1];
     var px=x.strength*(0.8+Math.random()*0.4);
     var py=y.strength*(0.8+Math.random()*0.4);
-    if(Math.abs(px-py)<0.08){x.pts++;y.pts++;x.d++;y.d++;}
-    else if(px>py){x.pts+=3;x.w++;y.l++;}
-    else {y.pts+=3;y.w++;x.l++;}
+    if(Math.abs(px-py)<0.08){x.pts++;y.pts++;x.d++;y.d++;if(!head)head=x.name+" AND "+y.name+" FIGHT TO A BLOODY STAND-OFF.";}
+    else if(px>py){x.pts+=3;x.w++;y.l++;if(!head)head=x.name+" BLOODIES "+y.name+".";}
+    else {y.pts+=3;y.w++;x.l++;if(!head)head=y.name+" BLOODIES "+x.name+".";}
   }
+  return head;
 }
 
 /* ---------- SYSTEM ---------- */
@@ -1663,16 +1807,36 @@ document.getElementById("btnNew").addEventListener("click",function(){
   if(S&&!confirm("ABANDON THE CURRENT CAMPAIGN?"))return;
   newCampaign();
 });
+document.getElementById("btnSnd").addEventListener("click",function(){
+  SND.on=!SND.on;
+  this.textContent=SND.on?"SND ON":"SND OFF";
+});
+document.addEventListener("click",function(e){ if(e.target.closest("button"))sfx("click"); });
 
 /* ---------- BOOT ---------- */
 (function boot(){
-  var loaded=false;
-  try{ loaded=!!localStorage.getItem(SAVE_KEY); }catch(e){}
-  if(loaded){ if(!loadGame()){newCampaign();} } else { newCampaign(); }
+  var img=document.getElementById("splashImg");
+  img.addEventListener("error",function(){
+    img.style.display="none";
+    document.getElementById("splashFallback").style.display="block";
+  });
+  var begun=false;
+  function begin(){
+    if(begun)return; begun=true;
+    document.removeEventListener("keydown",begin);
+    sndInit(); sfx("stab");
+    document.getElementById("splash").style.display="none";
+    var loaded=false;
+    try{ loaded=!!localStorage.getItem(SAVE_KEY); }catch(e){}
+    if(loaded){ if(!loadGame()){newCampaign();} } else { newCampaign(); }
+  }
+  document.getElementById("splash").addEventListener("click",begin);
+  document.addEventListener("keydown",begin);
 })();
 </script>
 <style>
 /* Engine nav — scoped, minimal, doesn't touch game styles */
+body{padding-bottom:6rem;}
 .node-nav{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:center;gap:2rem;padding:1.2rem 0 1.4rem;z-index:500;pointer-events:none;background:linear-gradient(180deg,transparent,rgba(0,0,0,0.75));}
 .node-nav .nav-btn{pointer-events:all;font-family:'Space Mono',monospace;font-size:0.8rem;letter-spacing:0.15em;background:transparent;border:1px solid rgba(178,178,178,0.4);color:#b2b2b2;padding:0.6rem 1.4rem;cursor:pointer;text-transform:lowercase;}
 .node-nav .nav-btn:hover{border-color:#fff;color:#fff;background:transparent;}
