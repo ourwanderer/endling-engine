@@ -1,0 +1,1675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HORDES OF UN</title>
+<!-- HORDES OF UN. Build 3. Single file, no server. Saves to localStorage. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+:root{
+  --c64-black:#000000; --c64-white:#FFFFFF; --c64-red:#813338;
+  --c64-cyan:#75CEC8; --c64-purple:#8E3C97; --c64-green:#56AC4D;
+  --c64-blue:#2E2C9B; --c64-yellow:#EDF171; --c64-orange:#8E5029;
+  --c64-brown:#553800; --c64-lred:#C46C71; --c64-dgrey:#4A4A4A;
+  --c64-grey:#7B7B7B; --c64-lgreen:#A9FF9F; --c64-lblue:#706DEB;
+  --c64-lgrey:#B2B2B2;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{background:var(--c64-black);}
+body{
+  font-family:'Press Start 2P', monospace;
+  color:var(--c64-lblue);
+  text-transform:uppercase;
+  display:flex;justify-content:center;align-items:flex-start;
+  min-height:100vh;padding:10px;
+}
+#monitor{
+  background:var(--c64-lblue);
+  padding:24px;
+  width:100%;max-width:860px;
+  box-shadow:0 0 0 4px var(--c64-black);
+}
+#screen{
+  background:var(--c64-blue);
+  min-height:520px;
+  padding:14px;
+  position:relative;
+}
+#screen, #screen *{font-size:10px;line-height:1.7;}
+h1{font-size:14px;color:var(--c64-white);letter-spacing:1px;}
+.sub{color:var(--c64-cyan);}
+.hdr{
+  display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;
+  border-bottom:2px solid var(--c64-lblue);padding-bottom:8px;margin-bottom:8px;
+}
+.hdr .stat{color:var(--c64-yellow);}
+nav{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px;}
+button{
+  font-family:inherit;font-size:10px;text-transform:uppercase;
+  background:var(--c64-blue);color:var(--c64-lblue);
+  border:2px solid var(--c64-lblue);
+  padding:5px 8px;cursor:pointer;line-height:1.2;
+}
+button:hover{background:var(--c64-lblue);color:var(--c64-blue);}
+button:focus-visible{outline:2px solid var(--c64-white);}
+button.on{background:var(--c64-lblue);color:var(--c64-blue);}
+button.act{border-color:var(--c64-yellow);color:var(--c64-yellow);}
+button.act:hover{background:var(--c64-yellow);color:var(--c64-blue);}
+button:disabled{border-color:var(--c64-dgrey);color:var(--c64-dgrey);background:var(--c64-blue);cursor:default;}
+.screenpane{display:none;}
+.screenpane.show{display:block;}
+table{border-collapse:collapse;width:100%;}
+th{color:var(--c64-cyan);text-align:left;padding:2px 6px 2px 0;border-bottom:1px solid var(--c64-dgrey);}
+td{padding:2px 6px 2px 0;color:var(--c64-lgrey);}
+tr.rowbtn{cursor:pointer;}
+tr.rowbtn:hover td{color:var(--c64-white);}
+tr.sel td{color:var(--c64-yellow);}
+.tablewrap{overflow-x:auto;}
+.good{color:var(--c64-lgreen);} .bad{color:var(--c64-lred);}
+.gold{color:var(--c64-yellow);} .white{color:var(--c64-white);}
+.dim{color:var(--c64-grey);}
+.panel{border:2px solid var(--c64-lblue);padding:8px;margin-top:10px;}
+.speech{border:2px solid var(--c64-cyan);padding:8px;margin-top:10px;color:var(--c64-cyan);background:var(--c64-black);}
+.speech .who{color:var(--c64-yellow);}
+.attrgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:2px 14px;}
+.attr{display:flex;justify-content:space-between;gap:6px;}
+.attr .v{color:var(--c64-white);}
+.bar{color:var(--c64-green);}
+.bar.hi{color:var(--c64-lgreen);} .bar.lo{color:var(--c64-orange);}
+.cond{color:var(--c64-lgreen);} .cond.mid{color:var(--c64-yellow);} .cond.low{color:var(--c64-lred);}
+#battlecanvas{
+  width:100%;image-rendering:pixelated;background:var(--c64-black);
+  border:2px solid var(--c64-lblue);display:block;
+}
+#legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px;}
+#legend span{color:var(--c64-lgrey);}
+.sw{display:inline-block;width:8px;height:8px;vertical-align:middle;margin-right:4px;}
+#commentary{
+  height:150px;overflow-y:auto;border:2px solid var(--c64-lblue);
+  padding:6px;margin-top:8px;background:var(--c64-black);
+}
+#commentary p{margin:0 0 4px 0;color:var(--c64-lgrey);}
+#commentary p.sysline{color:var(--c64-cyan);}
+#commentary p.hitA{color:var(--c64-lgreen);}
+#commentary p.hitB{color:var(--c64-lred);}
+#commentary p.big{color:var(--c64-yellow);}
+#footerline{
+  margin-top:12px;border-top:2px solid var(--c64-lblue);padding-top:6px;
+  color:var(--c64-lblue);
+}
+.cursor{display:inline-block;width:8px;height:12px;background:var(--c64-lblue);
+  animation:blink 1s steps(1) infinite;vertical-align:middle;}
+@keyframes blink{50%{opacity:0;}}
+@media (prefers-reduced-motion: reduce){.cursor{animation:none;}}
+.flexrow{display:flex;flex-wrap:wrap;gap:10px;}
+.flexrow > div{flex:1 1 240px;}
+.note{color:var(--c64-grey);margin-top:8px;}
+@media(max-width:520px){
+  #monitor{padding:10px;}
+  #screen, #screen *{font-size:8px;}
+  h1{font-size:11px;}
+}
+</style>
+</head>
+<body>
+<div id="monitor"><div id="screen">
+
+<div class="hdr">
+  <div>
+    <h1>HORDES OF UN</h1>
+    <div class="sub" id="hdrCompany">FREE COMPANY</div>
+  </div>
+  <div style="text-align:right">
+    <div class="stat" id="hdrWeek">WEEK 1</div>
+    <div class="stat" id="hdrCoin">COIN 0</div>
+    <div class="stat" id="hdrRenown">RENOWN 0</div>
+  </div>
+</div>
+
+<nav id="mainnav">
+  <button data-scr="squad">SQUAD</button>
+  <button data-scr="muster">MUSTER</button>
+  <button data-scr="tactics">TACTICS</button>
+  <button data-scr="staff">CAMP</button>
+  <button data-scr="market">MARKET</button>
+  <button data-scr="campaign">CAMPAIGN</button>
+  <button data-scr="battle" class="act">BATTLE</button>
+  <button data-scr="system">SYSTEM</button>
+</nav>
+
+<div id="tourbox" style="display:none"></div>
+
+<div id="scr-squad" class="screenpane">
+  <div class="tablewrap"><table id="squadTable"></table></div>
+  <div class="panel" id="fighterDetail"><span class="dim">SELECT A FIGHTER FOR THE FULL LEDGER.</span></div>
+</div>
+
+<div id="scr-muster" class="screenpane">
+  <div class="sub">THE MUSTER. CHOOSE WHO MARCHES, UP TO 14. THE REST KEEP CAMP AND REST.</div>
+  <div style="margin-top:6px">
+    <button id="btnAutoMuster">LET THE SECOND CHOOSE</button>
+    <span class="note" id="musterCount"></span>
+  </div>
+  <div class="tablewrap"><table id="musterTable"></table></div>
+  <p class="note">A FIGHTER'S CONDITION SCALES EVERYTHING HE DOES. MARCH A MAN AT HALF STRENGTH AND HE FIGHTS AT HALF STRENGTH. CAMP REST HEALS FASTER THAN THE ROAD.</p>
+</div>
+
+<div id="scr-tactics" class="screenpane">
+  <div class="flexrow">
+    <div class="panel">
+      <div class="sub">FORMATION</div>
+      <div id="optFormation"></div>
+      <p class="note" id="formationNote"></p>
+    </div>
+    <div class="panel">
+      <div class="sub">TEMPER</div>
+      <div id="optAggression"></div>
+      <p class="note" id="aggressionNote"></p>
+    </div>
+    <div class="panel">
+      <div class="sub">RIDERS</div>
+      <div id="optCavalry"></div>
+      <p class="note" id="cavalryNote"></p>
+    </div>
+  </div>
+  <p class="note">CAPTAIN: THE MUSTERED FIGHTER WITH THE HIGHEST COMMAND CARRIES THE BANNER. COMMAND STEADIES THE COMPANY WHEN BLOOD IS SPILT.</p>
+</div>
+
+<div id="scr-staff" class="screenpane">
+  <div class="panel" id="staffCurrent"></div>
+  <div class="panel" id="infirmaryPanel"></div>
+  <div class="panel" id="storesPanel"></div>
+  <div class="panel">
+    <div class="sub">SEEKING A PLACE</div>
+    <div class="tablewrap"><table id="staffMarketTable"></table></div>
+    <p class="note">A HEALER TENDS THE WOUNDED EVERY WEEK. A SECOND READS THE GROUND AND THE FOE, AND CAN CHOOSE YOUR MUSTER. YOU MAY KEEP ONE OF EACH. HIRING REPLACES.</p>
+  </div>
+</div>
+
+<div id="scr-market" class="screenpane">
+  <div class="sub">FREE BLADES SEEKING A COMPANY</div>
+  <p class="note">A SCOUT CAN COUNT A FIGHTER'S HOLY LINES. NO SCOUT ALIVE CAN TELL A TRUE LINE FROM A PLACEBO. THE UN CARRY NO LINES AT ALL. SOME SAY THEY NEED NONE.</p>
+  <div class="tablewrap"><table id="marketTable"></table></div>
+  <div class="panel">
+    <div class="sub">THE UNSIGNABLES</div>
+    <p class="note">EVERY COMPANY MASTER DREAMS. NONE OF THESE WILL EVER TAKE YOUR COIN.</p>
+    <div class="tablewrap"><table id="starsTable"></table></div>
+  </div>
+</div>
+
+<div id="scr-campaign" class="screenpane">
+  <div class="sub">THE SEASON'S ENGAGEMENTS</div>
+  <div class="tablewrap"><table id="fixtureTable"></table></div>
+  <div class="panel">
+    <div class="sub">RENOWN AMONG COMPANIES</div>
+    <div class="tablewrap"><table id="leagueTable"></table></div>
+    <p class="note">WIN 3 PTS. BLOODIED DRAW 1 PT. THE SEASON RUNS 14 WEEKS.</p>
+  </div>
+</div>
+
+<div id="scr-battle" class="screenpane">
+  <div id="battlePrematch"></div>
+  <div id="battleLive" style="display:none">
+    <canvas id="battlecanvas" width="320" height="180"></canvas>
+    <div id="legend">
+      <span><i class="sw" style="background:#B2B2B2"></i>SHIELD</span>
+      <span><i class="sw" style="background:#75CEC8"></i>HALBERD</span>
+      <span><i class="sw" style="background:#A9FF9F"></i>ARCHER</span>
+      <span><i class="sw" style="background:#EDF171"></i>OUTRIDER</span>
+      <span><i class="sw" style="background:#FFFFFF"></i>CATAPHRACT</span>
+      <span><i class="sw" style="background:#8E5029"></i>SKIRMISHER</span>
+      <span class="dim">/ YOURS UNDERLINED BLUE, THEIRS RED</span>
+    </div>
+    <div style="display:flex;gap:6px;margin-top:6px;align-items:center;flex-wrap:wrap">
+      <span class="sub" id="battleScore"></span>
+      <span style="flex:1"></span>
+      <button id="spd1">SLOW</button>
+      <button id="spd2" class="on">QUICK</button>
+      <button id="spd3">SWIFT</button>
+    </div>
+    <div id="commentary"></div>
+    <div id="battlePost" style="margin-top:8px"></div>
+  </div>
+</div>
+
+<div id="scr-system" class="screenpane">
+  <div class="panel">
+    <button id="btnSave">SAVE CAMPAIGN</button>
+    <button id="btnLoad">LOAD CAMPAIGN</button>
+    <button id="btnNew">NEW CAMPAIGN</button>
+    <button id="btnTour">HEAR THE SECOND'S WALKTHROUGH AGAIN</button>
+    <p class="note" id="sysMsg"></p>
+  </div>
+  <div class="panel">
+    <div class="sub">HOW TO PLAY</div>
+    <p class="note">MUSTER YOUR BLADES. HEAR YOUR SECOND'S COUNSEL. SET TACTICS AGAINST THE GROUND AND THE FOE. RAISE BANNERS, THEN MARCH ON TO PASS THE WEEK. THE CAMP SCREEN SHOWS THE INFIRMARY AND THE STORES. HERBS MEND THE WOUNDED. IRON RE-FITS THE WEARY. WIN A FIELD TO STRIP IT. THE DEAD STAY DEAD.</p>
+  </div>
+</div>
+
+<div id="footerline">READY.<span class="cursor"></span></div>
+
+</div></div>
+
+<script>
+"use strict";
+/* HORDES OF UN. Build 3: muster, condition, healers, the Second, expanded tactics. */
+
+/* ---------- RNG ---------- */
+function ri(a,b){return a+Math.floor(Math.random()*(b-a+1));}
+function pick(arr){return arr[ri(0,arr.length-1)];}
+function chance(p){return Math.random()<p;}
+function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+function dist2(a,b){var dx=a.x-b.x,dy=a.y-b.y;return Math.sqrt(dx*dx+dy*dy);}
+
+/* ---------- NAME POOLS ---------- */
+var SEED_FIRST=["DOSS","KELLAN","MAREK","ORRIN","TAVE","BREN","HALLOW","CUDD","VESPER","RONE","SELLA","MIRETH","JORAL","PADRIG","OSK","FENWICK","DARRA","LUNE","CASPAR","IVETH","TOMMEN","GRISELL","MORCAN","ELDA","RUFT","SABLE","QUINNETH","HARROW","BEDE","NISSA","CORBEL","THANE","MERROW","ULLE","PRIMM","GARRICK","WYNNE","DOVEY","STANNOCK","REVA"];
+var SEED_EPITHET=["OF THE BOWL","GRANITEBORN","THREEGATE","OF RAYSE","LATE OF THE ROAD","THE PATIENT","HALFLINE","OF THE DELTA","STONEHAND","THE LISTENER","OF THE AVENUE","PILGRIMSON","THE UNPAID","OF GILDED BAY","SQUARE-BORN","THE QUIET","TWO-DEBTS","OF THE CUT","LOWCITY","THE WIDOWED","MASONSGET","OF THE TERRACES","THE EARNEST","COLDMORNING","OF THE WAYHOUSE"];
+var UN_FIRST=["QORAN","TEMYL","ASHQA","BUYAN","SORQAT","YESUI","KHALUN","NAIMA","TUGHR","OYUN","CHENGEL","BATU","SARNAI","QULAN","ERDEN","TAIVAN"];
+var UN_EPITHET=["OF THE FAR GRASS","WINTERBORN","OF THE DZUD YEARS","THREE-HERDS","OF THE LONG WIND","MASKCARVER","OF THE EMPTY POST","GRASSPRAYER","OF THE SOUTH CAMPS","UNBOWED"];
+
+/* ---------- CLASSES ---------- */
+var CLASSES={
+  SHIELDLINE:{label:"SHIELDLINE", mounted:false,
+    base:{BLD:11,POL:6,BOW:3,SHD:13,ARM:12,MGT:10,SPD:7,STM:11,GRT:10,DSC:12,FER:8,CMD:7}},
+  HALBERDIER:{label:"HALBERDIER", mounted:false,
+    base:{BLD:7,POL:13,BOW:3,SHD:8,ARM:11,MGT:12,SPD:7,STM:10,GRT:10,DSC:11,FER:9,CMD:6}},
+  ARCHER:{label:"ARCHER", mounted:false,
+    base:{BLD:6,POL:4,BOW:13,SHD:5,ARM:6,MGT:8,SPD:10,STM:10,GRT:8,DSC:10,FER:7,CMD:5}},
+  OUTRIDER:{label:"OUTRIDER", mounted:true,
+    base:{BLD:11,POL:6,BOW:6,SHD:8,ARM:8,MGT:9,SPD:14,STM:10,GRT:9,DSC:8,FER:12,CMD:6}},
+  CATAPHRACT:{label:"CATAPHRACT", mounted:true,
+    base:{BLD:12,POL:9,BOW:2,SHD:10,ARM:15,MGT:13,SPD:11,STM:9,GRT:11,DSC:10,FER:11,CMD:8}},
+  SKIRMISHER:{label:"STEPPE SKIRMISHER", mounted:true, un:true,
+    base:{BLD:8,POL:5,BOW:12,SHD:6,ARM:6,MGT:8,SPD:14,STM:12,GRT:10,DSC:7,FER:12,CMD:5}}
+};
+var CLASS_KEYS=Object.keys(CLASSES);
+var ATTR_KEYS=["BLD","POL","BOW","SHD","ARM","MGT","SPD","STM","GRT","DSC","FER","CMD"];
+var ATTR_LABELS={BLD:"BLADE",POL:"POLEARM",BOW:"BOW",SHD:"SHIELDWORK",ARM:"ARMOUR",MGT:"MIGHT",SPD:"SPEED",STM:"STAMINA",GRT:"GRIT",DSC:"DISCIPLINE",FER:"FEROCITY",CMD:"COMMAND"};
+
+/* ---------- FIGHTER GENERATION ---------- */
+var nextId=1;
+function makeFighter(clsKey, quality){
+  var cls=CLASSES[clsKey];
+  var isUn=!!cls.un;
+  var f={
+    id:nextId++,
+    name:(isUn?pick(UN_FIRST):pick(SEED_FIRST))+" "+(isUn?pick(UN_EPITHET):pick(SEED_EPITHET)),
+    cls:clsKey,
+    age:ri(17,34),
+    faith:isUn?"UN":(chance(0.7)?"TEMPLE":"NONE"),
+    lines:0, realLines:0, communion:false,
+    condition:100, wounded:false, morale:60, dead:false,
+    a:{}
+  };
+  ATTR_KEYS.forEach(function(k){
+    var v=Math.round(cls.base[k]*quality + ri(-2,2));
+    f.a[k]=clamp(v,1,20);
+  });
+  if(isUn){
+    f.communion=chance(0.12);
+  } else if(f.faith==="TEMPLE"){
+    f.lines=ri(0,5);
+    for(var i=0;i<f.lines;i++){ if(chance(0.25)) f.realLines++; }
+  }
+  var pow=power(f);
+  f.wage=Math.max(4, Math.round(pow/3) + f.lines);
+  return f;
+}
+function condMult(f){return 0.55+0.45*(f.condition/100);}
+function power(f){
+  var s=0; ATTR_KEYS.forEach(function(k){s+=f.a[k];});
+  return Math.round(s/ATTR_KEYS.length*condMult(f));
+}
+function lineBonus(f){
+  return f.realLines*1.5 + (f.communion?5:0);
+}
+
+/* ---------- STAFF ---------- */
+var HEALER_TIERS=[
+  {rank:"HERB-HAND",bonus:5,wage:5},
+  {rank:"BONESETTER",bonus:9,wage:11},
+  {rank:"TEMPLE PHYSIC",bonus:14,wage:19}
+];
+function makeHealer(tier){
+  var t=HEALER_TIERS[tier];
+  return {kind:"HEALER",name:pick(SEED_FIRST)+" "+pick(SEED_EPITHET),
+    rank:t.rank,bonus:t.bonus,wage:t.wage};
+}
+function makeSecond(warcraft){
+  return {kind:"SECOND",name:pick(SEED_FIRST)+" "+pick(SEED_EPITHET),
+    rank:warcraft>=15?"OLD CAMPAIGNER":warcraft>=11?"PROVEN HAND":"CAMP SOLDIER",
+    warcraft:warcraft,wage:Math.max(3,Math.round(warcraft*1.1))};
+}
+
+/* ---------- COMPANIES ---------- */
+function makeCompanies(){
+  return [
+    {id:0,name:"YOUR COMPANY",strength:1.0,player:true,pts:0,w:0,d:0,l:0},
+    {id:1,name:"THE NIGHTCUTTERS",strength:1.26,star:"BRIA",pts:0,w:0,d:0,l:0},
+    {id:2,name:"OARS OF RIN",strength:1.18,star:"IRLA",pts:0,w:0,d:0,l:0},
+    {id:3,name:"THE SWAN COMPANY",strength:1.1,star:"BAIDEN",bowheavy:true,pts:0,w:0,d:0,l:0},
+    {id:4,name:"THE BOWL WARDENS",strength:1.0,pts:0,w:0,d:0,l:0},
+    {id:5,name:"RAYSE FREE BLADES",strength:0.95,pts:0,w:0,d:0,l:0},
+    {id:6,name:"PILGRIM ROAD COMPANY",strength:0.85,pts:0,w:0,d:0,l:0},
+    {id:7,name:"SONS OF THE DZUD",strength:1.1,unband:true,pts:0,w:0,d:0,l:0}
+  ];
+}
+var STARS=[
+  {name:"BRIA",cls:"CATAPHRACT",note:"NIGHTCUTTER. SWORN. WILL NOT HEAR TERMS.",pow:19},
+  {name:"IRLA",cls:"OUTRIDER",note:"SEA-BORN OF RIN. HATES GRANITE CITIES. HERE FOR HER OWN REASONS.",pow:19},
+  {name:"BAIDEN",cls:"ARCHER",note:"KEEPS THE SWAN BOW. THE BOW IS NOT FOR SALE EITHER.",pow:18}
+];
+
+/* ---------- GAME STATE ---------- */
+var S=null;
+var SAVE_KEY="hordesOfUn_v1";
+
+function newCampaign(){
+  nextId=1;
+  var nm=prompt("NAME YOUR FREE COMPANY","THE GRANITE OATH");
+  if(!nm) nm="THE GRANITE OATH";
+  S={
+    companyName:nm.toUpperCase().slice(0,26),
+    week:1, coin:120, renown:0,
+    tactics:{formation:"LINE",aggression:"FIRM",cavalry:"HELD"},
+    squad:[], market:[], muster:[],
+    staff:{second:makeSecond(9), healer:null},
+    staffMarket:[],
+    stores:{herbs:4,iron:1},
+    companies:makeCompanies(),
+    fixtures:[],
+    seasonOver:false,
+    tourDone:false
+  };
+  S.companies[0].name=S.companyName;
+  var startPlan=["SHIELDLINE","SHIELDLINE","SHIELDLINE","SHIELDLINE","HALBERDIER","HALBERDIER","ARCHER","ARCHER","ARCHER","OUTRIDER","OUTRIDER","CATAPHRACT","SKIRMISHER","SHIELDLINE","SHIELDLINE","ARCHER"];
+  startPlan.forEach(function(c){S.squad.push(makeFighter(c, 0.95+Math.random()*0.2));});
+  autoMuster();
+  refillMarket();
+  refillStaffMarket();
+  buildFixtures();
+  renderAll();
+  startTour();
+}
+
+function refillMarket(){
+  while(S.market.length<12){
+    var c=pick(CLASS_KEYS);
+    var q=0.6+Math.random()*0.8;
+    S.market.push(makeFighter(c,q));
+  }
+}
+function refillStaffMarket(){
+  S.staffMarket=S.staffMarket.filter(function(){return chance(0.6);});
+  while(S.staffMarket.filter(function(x){return x.kind==="HEALER";}).length<2){
+    S.staffMarket.push(makeHealer(ri(0,2)));
+  }
+  while(S.staffMarket.filter(function(x){return x.kind==="SECOND";}).length<2){
+    S.staffMarket.push(makeSecond(ri(7,17)));
+  }
+}
+
+function buildFixtures(){
+  var opps=[1,2,3,4,5,6,7];
+  var order=opps.slice();
+  for(var i=order.length-1;i>0;i--){var j=ri(0,i);var t=order[i];order[i]=order[j];order[j]=t;}
+  var second=order.slice();
+  for(var k=second.length-1;k>0;k--){var m=ri(0,k);var t2=second[k];second[k]=second[m];second[m]=t2;}
+  var all=order.concat(second);
+  S.fixtures=all.map(function(oppId,idx){
+    return {week:idx+1,oppId:oppId,played:false,result:null};
+  });
+}
+
+/* ---------- MUSTER ---------- */
+var MUSTER_MAX=14;
+function autoMuster(){
+  /* the Second picks: fit first, sensible mix, best power */
+  var byPow=S.squad.slice().sort(function(a,b){return power(b)-power(a);});
+  var picked=[];
+  function grab(pred,n){
+    byPow.forEach(function(f){
+      if(picked.length>=MUSTER_MAX)return;
+      if(picked.indexOf(f.id)>=0)return;
+      if(f.condition<45)return;
+      if(pred(f)&&n>0){picked.push(f.id);n--;}
+    });
+  }
+  grab(function(f){return f.cls==="SHIELDLINE"||f.cls==="HALBERDIER";},5);
+  grab(function(f){return f.cls==="ARCHER"||f.cls==="SKIRMISHER";},4);
+  grab(function(f){return CLASSES[f.cls].mounted;},3);
+  byPow.forEach(function(f){
+    if(picked.length>=MUSTER_MAX)return;
+    if(picked.indexOf(f.id)>=0)return;
+    if(f.condition>=45)picked.push(f.id);
+  });
+  /* desperate times: fill with whoever can stand */
+  byPow.forEach(function(f){
+    if(picked.length>=MUSTER_MAX)return;
+    if(picked.indexOf(f.id)>=0)return;
+    if(f.condition>=15)picked.push(f.id);
+  });
+  S.muster=picked;
+}
+function musteredFighters(){
+  return S.muster.map(function(id){return S.squad.find(function(f){return f.id===id;});})
+    .filter(function(f){return f&&!f.dead;});
+}
+
+/* ---------- SAVE / LOAD ---------- */
+function saveGame(){
+  try{
+    localStorage.setItem(SAVE_KEY,JSON.stringify({S:S,nextId:nextId}));
+    sysMsg("CAMPAIGN SAVED.");
+  }catch(e){ sysMsg("SAVE FAILED. STORAGE UNAVAILABLE."); }
+}
+function migrate(st){
+  if(!st.staff){ st.staff={second:makeSecond(9),healer:null}; }
+  if(!st.staffMarket){ st.staffMarket=[]; }
+  if(!st.stores){ st.stores={herbs:2,iron:0}; }
+  if(!st.muster){ st.muster=[]; }
+  if(st.tourDone===undefined){ st.tourDone=true; }
+  st.squad.concat(st.market).forEach(function(f){
+    if(f.condition===undefined){
+      if(f.injury>0){ f.condition=clamp(30-f.injury*2,10,40); f.wounded=true; }
+      else { f.condition=(f.fitness!==undefined?f.fitness:100); f.wounded=false; }
+      delete f.injury; delete f.fitness;
+    }
+  });
+  return st;
+}
+function loadGame(){
+  try{
+    var raw=localStorage.getItem(SAVE_KEY);
+    if(!raw){sysMsg("NO SAVED CAMPAIGN FOUND.");return false;}
+    var data=JSON.parse(raw);
+    S=migrate(data.S); nextId=data.nextId||1000;
+    if(S.muster.length===0)autoMuster();
+    refillStaffMarket();
+    renderAll(); show("squad");
+    sysMsg("CAMPAIGN LOADED.");
+    return true;
+  }catch(e){ sysMsg("LOAD FAILED."); return false; }
+}
+function sysMsg(t){ document.getElementById("sysMsg").textContent=t; setFooter(t); }
+function setFooter(t){ document.getElementById("footerline").innerHTML=(t||"READY.")+'<span class="cursor"></span>'; }
+
+/* ---------- UI PLUMBING ---------- */
+var selFighterId=null;
+function show(name){
+  document.querySelectorAll(".screenpane").forEach(function(p){p.classList.remove("show");});
+  document.getElementById("scr-"+name).classList.add("show");
+  document.querySelectorAll("#mainnav button").forEach(function(b){
+    b.classList.toggle("on",b.dataset.scr===name);
+  });
+  if(name==="battle") renderBattleScreen();
+  if(name==="muster") renderMuster();
+  if(name==="staff") renderStaff();
+}
+document.getElementById("mainnav").addEventListener("click",function(e){
+  var b=e.target.closest("button"); if(!b)return;
+  show(b.dataset.scr);
+});
+
+function renderAll(){
+  renderHeader(); renderSquad(); renderMuster(); renderTactics();
+  renderStaff(); renderMarket(); renderFixtures(); renderLeague();
+}
+function renderHeader(){
+  document.getElementById("hdrCompany").textContent=S.companyName;
+  document.getElementById("hdrWeek").textContent="WEEK "+S.week+(S.seasonOver?" (SEASON OVER)":"");
+  document.getElementById("hdrCoin").textContent="COIN "+S.coin;
+  document.getElementById("hdrRenown").textContent="RENOWN "+S.renown;
+}
+
+/* ---------- THE SECOND'S TOUR ---------- */
+var TOUR=[
+  {scr:"squad",txt:"MASTER. THE COMPANY IS YOURS NOW, AND I AM YOUR SECOND. THESE ARE YOUR BLADES. TAP A NAME AND I WILL SHOW YOU WHAT EACH ONE IS WORTH."},
+  {scr:"muster",txt:"WE MARCH FOURTEEN AT MOST. CHOOSE WHO GOES AND WHO KEEPS CAMP. A RESTED BLADE MENDS. A MARCHED ONE WEARS. IF YOU WOULD RATHER NOT CHOOSE, I WILL."},
+  {scr:"tactics",txt:"GROUND DECIDES BATTLES BEFORE STEEL DOES. FORMATION, TEMPER, AND WHEN THE RIDERS GO IN. SET THEM HERE, OR HEAR MY COUNSEL BEFORE EACH FIELD AND FOLLOW IT."},
+  {scr:"staff",txt:"HIRE A HEALER, MASTER, AND DO IT EARLY. WOUNDS UNTENDED ARE GRAVES DUG SLOW. AND IF YOU FIND A BETTER SECOND THAN ME, WELL. I WILL TRY NOT TO TAKE IT HARD."},
+  {scr:"market",txt:"COIN BUYS BLADES. COUNT THEIR LINES IF YOU LIKE, BUT NO SCOUT CAN TELL A TRUE LINE FROM A PAINTED ONE. THE UN CARRY NONE AT ALL. MAKE OF THAT WHAT YOU WILL."},
+  {scr:"battle",txt:"WHEN YOU ARE READY, RAISE BANNERS. I WILL READ THE GROUND AND THE FOE AND SPEAK MY COUNSEL BEFORE EVERY FIELD. THE REST IS YOURS. FORTUNE, MASTER."}
+];
+var tourStep=-1;
+function startTour(){
+  if(S.tourDone){show("squad");return;}
+  tourStep=0; showTourStep();
+}
+function showTourStep(){
+  var box=document.getElementById("tourbox");
+  if(tourStep<0||tourStep>=TOUR.length){
+    box.style.display="none"; S.tourDone=true; show("battle"); return;
+  }
+  var st=TOUR[tourStep];
+  show(st.scr);
+  box.style.display="block";
+  box.innerHTML='<div class="speech"><span class="who">'+S.staff.second.name+', YOUR SECOND:</span> '+st.txt+
+    '<div style="margin-top:6px"><button id="btnTourNext" class="act">'+(tourStep<TOUR.length-1?"GO ON":"TO WORK")+'</button> '+
+    '<button id="btnTourSkip">ENOUGH TALK</button></div></div>';
+  document.getElementById("btnTourNext").addEventListener("click",function(){tourStep++;showTourStep();});
+  document.getElementById("btnTourSkip").addEventListener("click",function(){tourStep=-1;showTourStep();});
+}
+document.getElementById("btnTour").addEventListener("click",function(){S.tourDone=false;startTour();});
+
+/* ---------- SQUAD SCREEN ---------- */
+function condTag(f){
+  var c=f.condition;
+  var cls=c>=75?"cond":c>=45?"cond mid":"cond low";
+  return '<span class="'+cls+'">'+c+'%'+(f.wounded?' W':'')+'</span>';
+}
+function renderSquad(){
+  var t=document.getElementById("squadTable");
+  var rows='<tr><th>NAME</th><th>CLASS</th><th>AGE</th><th>POW</th><th>LNS</th><th>WAGE</th><th>COND</th></tr>';
+  var wageTotal=0;
+  S.squad.forEach(function(f){
+    wageTotal+=f.wage;
+    rows+='<tr class="rowbtn'+(f.id===selFighterId?' sel':'')+'" data-id="'+f.id+'">'+
+      '<td>'+f.name+'</td><td>'+CLASSES[f.cls].label+'</td><td>'+f.age+'</td>'+
+      '<td class="white">'+power(f)+'</td><td>'+(f.faith==="UN"?'<span class="dim">NONE</span>':f.lines)+'</td>'+
+      '<td>'+f.wage+'</td><td>'+condTag(f)+'</td></tr>';
+  });
+  var staffWage=(S.staff.second?S.staff.second.wage:0)+(S.staff.healer?S.staff.healer.wage:0);
+  rows+='<tr><td colspan="5" class="dim">'+S.squad.length+' BLADES / STAFF WAGE '+staffWage+'</td><td class="gold">'+(wageTotal+staffWage)+'/WK</td><td></td></tr>';
+  t.innerHTML=rows;
+  t.querySelectorAll("tr.rowbtn").forEach(function(r){
+    r.addEventListener("click",function(){ selFighterId=parseInt(r.dataset.id,10); renderSquad(); renderFighterDetail(); });
+  });
+}
+function bars(v){
+  var full=Math.round(v/2);
+  var s='';
+  for(var i=0;i<10;i++){ s+= i<full ? "\u2588" : "\u2591"; }
+  var cls=v>=14?"bar hi":(v<=7?"bar lo":"bar");
+  return '<span class="'+cls+'">'+s+'</span>';
+}
+function renderFighterDetail(){
+  var box=document.getElementById("fighterDetail");
+  var f=S.squad.find(function(x){return x.id===selFighterId;});
+  if(!f){box.innerHTML='<span class="dim">SELECT A FIGHTER FOR THE FULL LEDGER.</span>';return;}
+  var linesTxt = f.faith==="UN"
+    ? 'CARRIES NO LINES. UN FAITH.'
+    : (f.lines+' HOLY LINES. VERACITY UNKNOWN.');
+  var html='<div class="white">'+f.name+'</div>'+
+    '<div class="sub">'+CLASSES[f.cls].label+' / AGE '+f.age+' / FAITH '+f.faith+' / '+linesTxt+'</div>'+
+    '<div class="attrgrid" style="margin-top:6px">';
+  ATTR_KEYS.forEach(function(k){
+    html+='<div class="attr"><span>'+ATTR_LABELS[k]+'</span>'+bars(f.a[k])+'<span class="v">'+f.a[k]+'</span></div>';
+  });
+  html+='</div>';
+  html+='<div class="note">CONDITION '+condTag(f)+(f.wounded?' / <span class="bad">CARRYING A WOUND</span>':'')+' / MORALE '+f.morale+'</div>';
+  html+='<div style="margin-top:6px"><button id="btnRelease">RELEASE FROM SERVICE</button></div>';
+  box.innerHTML=html;
+  document.getElementById("btnRelease").addEventListener("click",function(){
+    if(S.squad.length<=8){setFooter("YOU CANNOT KEEP FEWER THAN 8 BLADES.");return;}
+    S.squad=S.squad.filter(function(x){return x.id!==f.id;});
+    S.muster=S.muster.filter(function(id){return id!==f.id;});
+    selFighterId=null; renderSquad(); renderFighterDetail(); renderHeader();
+    setFooter(f.name+" WALKS THE ROAD ALONE.");
+  });
+}
+
+/* ---------- MUSTER SCREEN ---------- */
+function renderMuster(){
+  var t=document.getElementById("musterTable");
+  var rows='<tr><th></th><th>NAME</th><th>CLASS</th><th>POW</th><th>COND</th></tr>';
+  var sorted=S.squad.slice().sort(function(a,b){
+    var am=S.muster.indexOf(a.id)>=0?0:1, bm=S.muster.indexOf(b.id)>=0?0:1;
+    return am-bm || power(b)-power(a);
+  });
+  sorted.forEach(function(f){
+    var inM=S.muster.indexOf(f.id)>=0;
+    rows+='<tr class="rowbtn" data-mid="'+f.id+'">'+
+      '<td>'+(inM?'<span class="gold">[X]</span>':'<span class="dim">[ ]</span>')+'</td>'+
+      '<td'+(inM?' class="white"':'')+'>'+f.name+'</td><td>'+CLASSES[f.cls].label+'</td>'+
+      '<td>'+power(f)+'</td><td>'+condTag(f)+'</td></tr>';
+  });
+  t.innerHTML=rows;
+  document.getElementById("musterCount").textContent=S.muster.length+" OF "+MUSTER_MAX+" MARCH.";
+  t.querySelectorAll("tr.rowbtn").forEach(function(r){
+    r.addEventListener("click",function(){
+      var id=parseInt(r.dataset.mid,10);
+      var idx=S.muster.indexOf(id);
+      if(idx>=0){S.muster.splice(idx,1);}
+      else{
+        if(S.muster.length>=MUSTER_MAX){setFooter("FOURTEEN MARCH AT MOST.");return;}
+        S.muster.push(id);
+      }
+      renderMuster();
+    });
+  });
+}
+document.getElementById("btnAutoMuster").addEventListener("click",function(){
+  autoMuster(); renderMuster();
+  setFooter(S.staff.second.name+" NAMES THE MUSTER.");
+});
+
+/* ---------- TACTICS ---------- */
+var FORMATIONS={
+  SHIELDWALL:{def:3,att:-2,note:"HOLD GROUND BEHIND LOCKED SHIELDS. LET THEM COME TO YOU."},
+  "DOUBLE LINE":{def:1,att:0,reserve:true,note:"HALF THE FOOT HELD BACK AS A FRESH SECOND RANK. THEY STEP IN WHEN THE FRONT BLEEDS."},
+  LINE:{def:0,att:0,note:"AN HONEST LINE. NO TRICKS, NO EXCUSES."},
+  "REFUSED FLANK":{def:1,att:1,refuse:true,note:"THE FOOT WEIGHTED TO ONE SIDE, THE RIDERS MASSED ON THE OTHER. AN ANVIL AND A HAMMER."},
+  WEDGE:{def:-2,att:3,note:"DRIVE AT THEIR CENTRE. GLORY OR THE DIRT."}
+};
+var AGGRESSIONS={
+  WARY:{att:-1,routGuard:10,note:"KEEP THE COMPANY WHOLE. BREAK OFF BEFORE THE BREAKING."},
+  STEADY:{att:0,routGuard:5,note:"GIVE GROUND DEAR, BUT GIVE IT BEFORE THE GRAVE."},
+  FIRM:{att:0,routGuard:0,note:"STAND AS LONG AS STANDING SERVES."},
+  FIERCE:{att:1,routGuard:-4,note:"PRESS THEM. MAKE THEIR WAVER COME FIRST."},
+  FURIOUS:{att:2,routGuard:-8,note:"NO BACKWARD STEP. THE LAST PURSE IS PAID IN FULL."}
+};
+var CAVALRY={
+  SCREEN:{note:"RIDERS STAY BY THE BOWMEN AND MEET WHATEVER COMES FOR THEM. A SHIELD OF HOOVES."},
+  EARLY:{note:"RIDERS GO IN AT FIRST SIGHT. SHOCK BEFORE THE LINES MEET."},
+  HELD:{note:"RIDERS COMMIT AS THE LINES CLOSE. THE BALANCED HAND."},
+  LATE:{note:"RIDERS WAIT FOR THE WAVER, THEN FALL ON IT. PATIENCE OR WASTE."},
+  REFUSE:{note:"RIDERS KEPT OUT OF IT ENTIRELY. THEY RIDE ONLY TO HUNT THE BROKEN."}
+};
+function renderTactics(){
+  buildOpt("optFormation",Object.keys(FORMATIONS),S.tactics.formation,function(v){
+    S.tactics.formation=v;renderTactics();});
+  buildOpt("optAggression",Object.keys(AGGRESSIONS),S.tactics.aggression,function(v){
+    S.tactics.aggression=v;renderTactics();});
+  buildOpt("optCavalry",Object.keys(CAVALRY),S.tactics.cavalry,function(v){
+    S.tactics.cavalry=v;renderTactics();});
+  document.getElementById("formationNote").textContent=FORMATIONS[S.tactics.formation].note;
+  document.getElementById("aggressionNote").textContent=AGGRESSIONS[S.tactics.aggression].note;
+  document.getElementById("cavalryNote").textContent=CAVALRY[S.tactics.cavalry].note;
+}
+function buildOpt(elId,keys,current,onPick){
+  var el=document.getElementById(elId); el.innerHTML='';
+  keys.forEach(function(k){
+    var b=document.createElement("button");
+    b.textContent=k; if(k===current)b.classList.add("on");
+    b.addEventListener("click",function(){onPick(k);});
+    el.appendChild(b);
+  });
+}
+
+/* ---------- STAFF SCREEN ---------- */
+function renderStaff(){
+  renderInfirmary(); renderStores();
+  var cur=document.getElementById("staffCurrent");
+  var sec=S.staff.second, hea=S.staff.healer;
+  var html='<div class="sub">IN YOUR SERVICE</div>';
+  html+='<p>SECOND: <span class="white">'+sec.name+'</span> <span class="dim">('+sec.rank+', WARCRAFT '+sec.warcraft+', WAGE '+sec.wage+')</span></p>';
+  html+= hea
+    ? '<p>HEALER: <span class="white">'+hea.name+'</span> <span class="dim">('+hea.rank+', MENDING +'+hea.bonus+', WAGE '+hea.wage+')</span></p>'
+    : '<p>HEALER: <span class="bad">NONE. THE WOUNDED MEND ALONE, AND SLOWLY.</span></p>';
+  cur.innerHTML=html;
+  var t=document.getElementById("staffMarketTable");
+  var rows='<tr><th>NAME</th><th>PLACE</th><th>RANK</th><th>SKILL</th><th>WAGE</th><th>FEE</th><th></th></tr>';
+  S.staffMarket.forEach(function(s,i){
+    var fee=s.wage*3;
+    var skill=s.kind==="HEALER"?("MENDING +"+s.bonus):("WARCRAFT "+s.warcraft);
+    rows+='<tr><td>'+s.name+'</td><td>'+s.kind+'</td><td>'+s.rank+'</td><td class="white">'+skill+'</td>'+
+      '<td>'+s.wage+'</td><td class="gold">'+fee+'</td>'+
+      '<td><button data-hire="'+i+'"'+(S.coin<fee?' disabled':'')+'>HIRE</button></td></tr>';
+  });
+  t.innerHTML=rows;
+  t.querySelectorAll("button[data-hire]").forEach(function(b){
+    b.addEventListener("click",function(){
+      var s=S.staffMarket[parseInt(b.dataset.hire,10)];
+      var fee=s.wage*3;
+      if(!s||S.coin<fee)return;
+      S.coin-=fee;
+      S.staffMarket=S.staffMarket.filter(function(x){return x!==s;});
+      if(s.kind==="HEALER")S.staff.healer=s; else S.staff.second=s;
+      refillStaffMarket(); renderStaff(); renderHeader(); renderSquad();
+      setFooter(s.name+" ENTERS YOUR SERVICE.");
+    });
+  });
+}
+
+function renderInfirmary(){
+  var box=document.getElementById("infirmaryPanel");
+  var wounded=S.squad.filter(function(f){return f.wounded;})
+    .sort(function(a,b){return a.condition-b.condition;});
+  var weary=S.squad.filter(function(f){return !f.wounded&&f.condition<75;}).length;
+  var html='<div class="sub">THE INFIRMARY</div>';
+  if(wounded.length===0){
+    html+='<p class="note">NO WOUNDED. '+(weary>0?weary+' WEARY BLADES MEND IN CAMP.':'THE COMPANY IS WHOLE.')+'</p>';
+  } else {
+    var rec=woundedRec();
+    html+='<table><tr><th>NAME</th><th>COND</th><th>FIT IN</th></tr>';
+    wounded.forEach(function(f){
+      var weeks=Math.max(1,Math.ceil((60-f.condition)/rec));
+      html+='<tr><td>'+f.name+'</td><td>'+condTag(f)+'</td><td>'+weeks+'W</td></tr>';
+    });
+    html+='</table>';
+    if(!S.staff.healer){
+      html+='<p class="bad">NO HEALER. THEY MEND ALONE, AND SLOWLY. HIRE ONE BELOW.</p>';
+    } else if(S.stores.herbs<wounded.length){
+      html+='<p class="bad">'+S.staff.healer.name+': I NEED ONE HERB PER WOUNDED MAN PER WEEK. STORES ARE SHORT. FIND ME HERBS OR FIND A GRAVEDIGGER.</p>';
+    } else {
+      html+='<p class="good">'+S.staff.healer.name+': THE STORES HOLD. THEY WILL ALL STAND AGAIN.</p>';
+    }
+  }
+  box.innerHTML=html;
+}
+function renderStores(){
+  var box=document.getElementById("storesPanel");
+  box.innerHTML='<div class="sub">THE STORES</div>'+
+    '<p>HERBS <span class="white">'+S.stores.herbs+'</span>'+
+    ' / IRON <span class="white">'+S.stores.iron+'</span>'+
+    ' / COIN <span class="white">'+S.coin+'</span></p>'+
+    '<p class="note">HERBS FEED THE HEALER. ONE PER WOUNDED MAN PER WEEK. IRON IS SPENT BY THE ARMOURER AT WEEK END, RE-FITTING ONE WEARY FIGHTER PER PIECE. WIN A FIELD TO STRIP ITS FINDS.</p>';
+}
+
+/* ---------- MARKET ---------- */
+function renderMarket(){
+  var t=document.getElementById("marketTable");
+  var rows='<tr><th>NAME</th><th>CLASS</th><th>AGE</th><th>POW</th><th>LNS</th><th>WAGE</th><th>FEE</th><th></th></tr>';
+  S.market.forEach(function(f){
+    var fee=f.wage*4;
+    rows+='<tr><td>'+f.name+'</td><td>'+CLASSES[f.cls].label+'</td><td>'+f.age+'</td>'+
+      '<td class="white">'+power(f)+'</td><td>'+(f.faith==="UN"?'<span class="dim">NONE</span>':f.lines)+'</td>'+
+      '<td>'+f.wage+'</td><td class="gold">'+fee+'</td>'+
+      '<td><button data-sign="'+f.id+'"'+(S.coin<fee||S.squad.length>=20?' disabled':'')+'>SIGN</button></td></tr>';
+  });
+  t.innerHTML=rows;
+  t.querySelectorAll("button[data-sign]").forEach(function(b){
+    b.addEventListener("click",function(){
+      var id=parseInt(b.dataset.sign,10);
+      var f=S.market.find(function(x){return x.id===id;});
+      if(!f)return;
+      var fee=f.wage*4;
+      if(S.coin<fee)return;
+      S.coin-=fee;
+      S.market=S.market.filter(function(x){return x.id!==id;});
+      S.squad.push(f);
+      refillMarket(); renderAll();
+      setFooter(f.name+" TAKES YOUR COIN AND YOUR BANNER.");
+    });
+  });
+  var st=document.getElementById("starsTable");
+  var srows='<tr><th>NAME</th><th>CLASS</th><th>POW</th><th>WORD ON THE ROAD</th></tr>';
+  STARS.forEach(function(s){
+    srows+='<tr><td class="gold">'+s.name+'</td><td>'+CLASSES[s.cls].label+'</td><td class="white">'+s.pow+'</td><td class="dim">'+s.note+'</td></tr>';
+  });
+  st.innerHTML=srows;
+}
+
+/* ---------- CAMPAIGN SCREEN ---------- */
+function renderFixtures(){
+  var t=document.getElementById("fixtureTable");
+  var rows='<tr><th>WK</th><th>OPPONENT</th><th>RESULT</th></tr>';
+  S.fixtures.forEach(function(fx){
+    var opp=S.companies[fx.oppId];
+    var res=fx.played
+      ? (fx.result==="W"?'<span class="good">VICTORY '+fx.score+'</span>'
+        :fx.result==="L"?'<span class="bad">DEFEAT '+fx.score+'</span>'
+        :'<span class="dim">BLOODIED DRAW '+fx.score+'</span>')
+      : (fx.week===S.week?'<span class="gold">NEXT</span>':'<span class="dim">-</span>');
+    rows+='<tr><td>'+fx.week+'</td><td>'+opp.name+'</td><td>'+res+'</td></tr>';
+  });
+  t.innerHTML=rows;
+}
+function renderLeague(){
+  var t=document.getElementById("leagueTable");
+  var sorted=S.companies.slice().sort(function(a,b){return b.pts-a.pts || b.w-a.w;});
+  var rows='<tr><th>#</th><th>COMPANY</th><th>W</th><th>D</th><th>L</th><th>PTS</th></tr>';
+  sorted.forEach(function(c,i){
+    var cls=c.player?' class="gold"':'';
+    rows+='<tr><td>'+(i+1)+'</td><td'+cls+'>'+c.name+(c.star?' <span class="dim">('+c.star+')</span>':'')+'</td>'+
+      '<td>'+c.w+'</td><td>'+c.d+'</td><td>'+c.l+'</td><td class="white">'+c.pts+'</td></tr>';
+  });
+  t.innerHTML=rows;
+}
+
+/* ---------- OPPONENT ARMY ---------- */
+function makeOpponentArmy(comp){
+  var plan;
+  if(comp.unband){
+    plan=["SKIRMISHER","SKIRMISHER","SKIRMISHER","SKIRMISHER","SKIRMISHER","OUTRIDER","OUTRIDER","OUTRIDER","SHIELDLINE","SHIELDLINE","HALBERDIER","ARCHER","SKIRMISHER","OUTRIDER"];
+  } else if(comp.bowheavy){
+    plan=["SHIELDLINE","SHIELDLINE","SHIELDLINE","HALBERDIER","ARCHER","ARCHER","ARCHER","ARCHER","ARCHER","ARCHER","OUTRIDER","OUTRIDER","CATAPHRACT","SHIELDLINE"];
+  } else {
+    plan=["SHIELDLINE","SHIELDLINE","SHIELDLINE","SHIELDLINE","HALBERDIER","HALBERDIER","ARCHER","ARCHER","ARCHER","OUTRIDER","OUTRIDER","CATAPHRACT","CATAPHRACT","SHIELDLINE"];
+  }
+  var army=plan.map(function(c){
+    return makeFighter(c, comp.strength*(0.85+Math.random()*0.25));
+  });
+  if(comp.star){
+    var st=STARS.find(function(s){return s.name===comp.star;});
+    if(st && chance(0.6)){
+      var hero=makeFighter(st.cls,1.4);
+      hero.name=st.name;
+      ATTR_KEYS.forEach(function(k){hero.a[k]=clamp(hero.a[k]+4,1,20);});
+      hero.realLines=hero.lines;
+      army.push(hero);
+    }
+  }
+  return army;
+}
+
+/* ---------- TERRAIN ---------- */
+var TERRAINS={
+  "OPEN GROUND":{note:"FLAT AND HONEST. NUMBERS AND NERVE DECIDE IT."},
+  "THE FORD":{note:"A RIVER CUTS THE FIELD. CROSSING BLADES ARE SLOW AND EXPOSED. CHARGES DIE IN THE WATER."},
+  "THE DEFILE":{note:"HIGH ROCK NARROWS THE FIELD. NO ROOM TO FLANK. SHIELDS LOVE A DEFILE."},
+  "HIGH GROUND":{note:"ONE COMPANY HOLDS THE SLOPE. UPHILL BLOWS FALL LIGHT. DOWNHILL CHARGES FALL HARD."},
+  "THE SOFT PLACE":{note:"THE GROUND HUMS. ROCKS DO NOT STAY WHERE THE EYE LEAVES THEM. NOTHING HERE IS PROMISED."}
+};
+function genTerrain(){
+  var type=chance(0.12)?"THE SOFT PLACE":pick(["OPEN GROUND","THE FORD","THE DEFILE","HIGH GROUND"]);
+  var weather=chance(0.3)?"RAIN":"CLEAR";
+  var holder=chance(0.5)?"A":"B";
+  var res={herbs:0,iron:0,coin:0};
+  if(type==="OPEN GROUND"){res.coin=ri(0,20);res.herbs=ri(0,1);}
+  else if(type==="THE FORD"){res.herbs=ri(1,3);res.coin=ri(0,10);}
+  else if(type==="THE DEFILE"){res.iron=ri(1,2);res.coin=ri(0,15);}
+  else if(type==="HIGH GROUND"){res.coin=ri(10,40);res.herbs=ri(0,1);res.iron=ri(0,1);}
+  else {res.herbs=ri(0,3);res.iron=ri(0,3);res.coin=ri(0,30);}
+  return {type:type,weather:weather,holder:holder,res:res};
+}
+function terrainReport(ter){
+  var s=ter.type+". "+TERRAINS[ter.type].note;
+  if(ter.type==="HIGH GROUND"){
+    s+=" "+(ter.holder==="A"?"YOUR COMPANY HOLDS THE SLOPE.":"THE FOE HOLDS THE SLOPE.");
+  }
+  if(ter.type==="THE FORD"){
+    s+=" "+(ter.holder==="A"?"YOU HOLD THE NEAR BANK.":"THE FOE HOLDS THE FAR BANK AND WAITS.");
+  }
+  if(ter.weather==="RAIN") s+=" RAIN FALLS. BOWSTRINGS SLACKEN, GROUND SOFTENS.";
+  var finds=[];
+  if(ter.res.herbs>0)finds.push("HERB MEADOWS");
+  if(ter.res.iron>0)finds.push("IRON WORKINGS");
+  if(ter.res.coin>=15)finds.push("STASHES, IT IS KNOWN");
+  if(finds.length)s+=" THE SCOUT MARKS: "+finds.join(", ")+". HOLD THE FIELD AND STRIP IT.";
+  if(ter.type==="THE SOFT PLACE")s+=" THE SCOUT'S HAND SHAKES AS HE WRITES.";
+  return s;
+}
+
+/* ---------- THE SECOND'S COUNSEL ---------- */
+function armyRead(army){
+  var bows=0,horse=0;
+  army.forEach(function(f){
+    if(f.cls==="ARCHER"||f.cls==="SKIRMISHER")bows++;
+    if(CLASSES[f.cls].mounted)horse++;
+  });
+  return {bows:bows,horse:horse,n:army.length};
+}
+function counsel(ter,oppArmy,oppComp){
+  var sec=S.staff.second;
+  var rec={formation:"LINE",aggression:"FIRM",cavalry:"HELD"};
+  var read=armyRead(oppArmy);
+  var lines=[];
+  /* a poor second sometimes has nothing useful */
+  if(sec.warcraft<10&&chance(0.45)){
+    return {text:"MASTER, I KNOW LITTLE OF THIS GROUND OR THIS FOE. TRUST THE LINE AND STAND FIRM. IT HAS SERVED BEFORE.",rec:rec};
+  }
+  /* ground */
+  if(ter.type==="THE SOFT PLACE"){
+    lines.push("MASTER, I WILL NOT DRESS IT UP. THE GROUND HUMS AND THE ROCKS MOVE WHEN NO ONE WATCHES. I HAVE NO COUNSEL FOR A FIELD THAT WILL NOT HOLD STILL. FIGHT QUICKLY, KEEP THE LINE TIGHT, AND DO NOT COUNT THE MOONS.");
+  } else if(ter.type==="THE DEFILE"){
+    lines.push("THE ROCK NARROWS THE FIELD TO A THROAT. NO ONE FLANKS ANYONE TODAY.");
+    rec.formation="SHIELDWALL"; rec.cavalry="HELD";
+  } else if(ter.type==="THE FORD"&&ter.holder==="A"){
+    lines.push("A RIVER CUTS THE FIELD AND WE HOLD THE NEAR BANK. LET THEM DIE IN THE WATER.");
+    rec.formation="SHIELDWALL"; rec.aggression="STEADY"; rec.cavalry="SCREEN";
+  } else if(ter.type==="THE FORD"){
+    lines.push("A RIVER CUTS THE FIELD AND THEY HOLD THE FAR BANK. THE CROSSING WILL COST US. KEEP A FRESH RANK BEHIND THE FIRST.");
+    rec.formation="DOUBLE LINE"; rec.aggression="FIRM"; rec.cavalry="HELD";
+  } else if(ter.type==="HIGH GROUND"&&ter.holder==="A"){
+    lines.push("WE HOLD THE SLOPE. MAKE THEM CLIMB INTO OUR SHIELDS, AND LOOSE THE RIDERS DOWNHILL WHEN THEY WAVER.");
+    rec.formation="SHIELDWALL"; rec.aggression="STEADY"; rec.cavalry="LATE";
+  } else if(ter.type==="HIGH GROUND"){
+    lines.push("THEY HOLD THE SLOPE. A STRAIGHT CLIMB IS A BUTCHER'S BILL. WEIGHT ONE FLANK AND TURN THEM OFF THEIR HILL.");
+    rec.formation="REFUSED FLANK"; rec.aggression="FIERCE"; rec.cavalry="EARLY";
+  } else {
+    lines.push("OPEN GROUND. AN HONEST FIELD, WHICH MEANS THE SHARPER PLAN WINS IT.");
+  }
+  /* the foe */
+  if(oppComp.unband){
+    lines.push("I KNOW THIS BAND. THEY COME HORSED AND HOWLING, LOOSE AND WHEEL AND LOOSE AGAIN. THEY WANT US STRUNG OUT AND CHASING. RIDE THEM DOWN EARLY OR ENDURE THE STING.");
+    if(ter.type!=="THE FORD")rec.cavalry="EARLY";
+    if(rec.aggression==="FIRM")rec.aggression="FIERCE";
+  } else if(read.bows>=6){
+    lines.push("THEY RELY HEAVILY ON THE ARROW. EVERY MOMENT WE STAND OFF IS BLOOD FOR NOTHING. GET RIDERS AMONG THEIR BOWMEN QUICKLY.");
+    if(rec.cavalry==="HELD")rec.cavalry="EARLY";
+  } else if(read.horse>=6){
+    lines.push("THEY COME HEAVY WITH HORSE. KEEP THE RIDERS AS A SCREEN FOR OUR BOWMEN AND LET THE HALBERDS DO THE UNSEATING.");
+    rec.cavalry="SCREEN";
+    if(rec.formation==="LINE")rec.formation="SHIELDWALL";
+  }
+  if(ter.weather==="RAIN"){
+    lines.push("AND THE RAIN. BOWSTRINGS SLACKEN, CHARGES BOG. THIS WILL BE SETTLED HAND TO HAND.");
+  }
+  if(S.coin<50&&ter.res&&ter.res.coin>=15){
+    lines.push("AND MASTER, THE PURSE IS THIN. THERE ARE STASHES ON THIS GROUND. WIN, AND WE STRIP IT.");
+  }
+  var recTxt="MY COUNSEL: "+rec.formation+". "+rec.aggression+". RIDERS "+rec.cavalry+".";
+  return {text:lines.join(" ")+" "+recTxt,rec:rec};
+}
+
+/* ---------- BATTLE SIMULATION ---------- */
+var GLITCH_LINES=[
+  "THE ROCK FORGETS TO RESIST.",
+  "AN ARROW LANDS. NO ONE HAS LOOSED IT YET.",
+  "THE RIVER IS BRIEFLY ELSEWHERE.",
+  "SOMEONE COUNTS FOUR MOONS. THERE ARE THREE. THERE HAVE ALWAYS BEEN THREE.",
+  "THE GR0UND HUMS 1N A K3Y N0 0NE KN0WS.",
+  "GO BACK. START AGAIN. DO NOT REMAIN IN THE LOOP."
+];
+var FIELD_W=320, FIELD_H=180;
+function simBattle(playerArmy, oppArmy, oppComp, terrain){
+  var T=S.tactics;
+  var oppT={formation:pick(Object.keys(FORMATIONS)),aggression:pick(Object.keys(AGGRESSIONS)),cavalry:pick(["EARLY","HELD","LATE"])};
+  if(oppComp.unband){oppT.formation="WEDGE";oppT.aggression="FURIOUS";oppT.cavalry="EARLY";}
+  if(oppComp.bowheavy){oppT.formation="SHIELDWALL";oppT.cavalry="SCREEN";}
+
+  var soft=terrain.type==="THE SOFT PLACE";
+  var truth=0, glitchNow=0;
+  function lb(f){
+    if(truth>0) return f.lines*1.5+(f.communion?5:0);
+    return lineBonus(f);
+  }
+  var yMin = terrain.type==="THE DEFILE"?62:40;
+  var yMax = terrain.type==="THE DEFILE"?118:140;
+  var RIVER_X1=148, RIVER_X2=172;
+
+  function inWater(u){return terrain.type==="THE FORD" && u.x>RIVER_X1 && u.x<RIVER_X2;}
+  function uphillSide(){return terrain.type==="HIGH GROUND"?terrain.holder:null;}
+
+  function mkSide(army,tac,label,sideKey,isPlayer){
+    var cap=null;
+    army.forEach(function(f){if(!cap||f.a.CMD>cap.a.CMD)cap=f;});
+    var units=[];
+    var baseX = sideKey==="A"?46:FIELD_W-46;
+    var dir = sideKey==="A"?1:-1;
+    var refuse=FORMATIONS[tac.formation].refuse;
+    var reserve=FORMATIONS[tac.formation].reserve;
+    var gy0=yMin, gy1=yMax;
+    if(refuse){ gy1=yMin+(yMax-yMin)*0.55; }
+    var groups={inf:[],arc:[],cav:[],skm:[]};
+    army.forEach(function(f){
+      if(f.cls==="ARCHER")groups.arc.push(f);
+      else if(f.cls==="OUTRIDER"||f.cls==="CATAPHRACT")groups.cav.push(f);
+      else if(f.cls==="SKIRMISHER")groups.skm.push(f);
+      else groups.inf.push(f);
+    });
+    function eff(f){
+      var m=condMult(f), e={};
+      ATTR_KEYS.forEach(function(k){e[k]=f.a[k]*m;});
+      return e;
+    }
+    function place(list,xoff,y0,y1,markReserve){
+      var n=list.length;
+      list.forEach(function(f,i){
+        var y = n===1 ? (y0+y1)/2 : y0+(y1-y0)*(i+0.5)/n;
+        units.push({f:f, e:eff(f), side:sideKey,
+          hp:26+f.a.MGT+Math.round(f.a.STM/2)+Math.round(f.a.ARM/2), maxhp:0,
+          x:baseX+dir*xoff, y:y, homeY:y,
+          down:false, fleeing:false, escaped:false,
+          state:"HOLD", charging:false, chargeSpent:false, isReserve:!!markReserve,
+          atkCd:ri(0,2), shootCd:ri(0,2), kills:0,
+          flank:refuse?"BOT":((i%2===0)?"TOP":"BOT")
+        });
+      });
+    }
+    if(reserve){
+      var front=groups.inf.slice(0,Math.ceil(groups.inf.length/2));
+      var rear=groups.inf.slice(front.length);
+      place(front,10,gy0,gy1,false);
+      place(rear,-14,gy0,gy1,true);
+    } else {
+      place(groups.inf,10,gy0,gy1,false);
+    }
+    place(groups.arc,-22,gy0,gy1,false);
+    if(refuse){ place(groups.cav,-6,yMin+(yMax-yMin)*0.6,yMax,false); }
+    else { place(groups.cav,-6,gy0,gy1,false); }
+    place(groups.skm,16,yMin,yMax,false);
+    return {label:label,key:sideKey,isPlayer:isPlayer,tac:tac,units:units,
+      captain:cap,startCount:army.length,routed:false,waver:false};
+  }
+
+  var A=mkSide(playerArmy,T,S.companyName,"A",true);
+  var B=mkSide(oppArmy,oppT,oppComp.name,"B",false);
+  A.units.concat(B.units).forEach(function(u){u.maxhp=u.hp;});
+
+  var ticks=[], events=[], bodies=[];
+  function ev(tick,txt,cls){events.push({t:tick,txt:txt,cls:cls||""});}
+  function alive(side){return side.units.filter(function(u){return !u.down&&!u.escaped;});}
+  function fighters(side){return alive(side).filter(function(u){return !u.fleeing;});}
+
+  ev(0,"THE COMPANIES TAKE THE FIELD AT "+terrain.type+". "+A.label+" AGAINST "+B.label+".","sysline");
+  ev(0,A.label+": "+T.formation+", "+T.aggression+", RIDERS "+T.cavalry+".","sysline");
+  if(terrain.weather==="RAIN") ev(0,"RAIN FALLS ACROSS THE FIELD.","sysline");
+  if(soft){
+    var comm=null;
+    playerArmy.forEach(function(f){if(f.communion&&!comm)comm=f;});
+    if(comm)ev(0,comm.name+" LOOKS AT THE GROUND AND NODS, UNTROUBLED. AS IF THEY HAVE SEEN THIS BEFORE.","sysline");
+  }
+
+  var linesMet=false, routTick=null;
+  var tick=0, maxTicks=460;
+
+  function nearestFoe(u,foeSide){
+    var best=null,bd=1e9;
+    fighters(foeSide).forEach(function(e){
+      var d=dist2(u,e); if(d<bd){bd=d;best=e;}
+    });
+    if(!best){ alive(foeSide).forEach(function(e){var d=dist2(u,e);if(d<bd){bd=d;best=e;}}); }
+    return best;
+  }
+  function moveToward(u,tx,ty,spd){
+    if(terrain.weather==="RAIN")spd*=0.85;
+    if(inWater(u))spd*=0.5;
+    var dx=tx-u.x, dy=ty-u.y, d=Math.sqrt(dx*dx+dy*dy);
+    if(d<0.5)return;
+    u.x+=dx/d*Math.min(spd,d);
+    u.y+=dy/d*Math.min(spd,d);
+    u.y=clamp(u.y,yMin,yMax);
+    u.x=clamp(u.x,4,FIELD_W-4);
+  }
+  function infCentroid(side){
+    var xs=0,ys=0,n=0;
+    fighters(side).forEach(function(u){
+      if(!CLASSES[u.f.cls].mounted&&u.f.cls!=="ARCHER"){xs+=u.x;ys+=u.y;n++;}
+    });
+    if(n===0){fighters(side).forEach(function(u){xs+=u.x;ys+=u.y;n++;});}
+    return n?{x:xs/n,y:ys/n}:{x:FIELD_W/2,y:FIELD_H/2};
+  }
+  function frontLosses(side){
+    var tot=0,down=0;
+    side.units.forEach(function(u){
+      if(u.isReserve)return;
+      if(u.f.cls==="SHIELDLINE"||u.f.cls==="HALBERDIER"){tot++;if(u.down)down++;}
+    });
+    return tot>0?down/tot:1;
+  }
+  function meleeAttack(u,tgt,side,foeSide,tk){
+    var f=u.f;
+    var fmA=FORMATIONS[side.tac.formation], agA=AGGRESSIONS[side.tac.aggression];
+    var skill=Math.max(u.e.BLD,u.e.POL);
+    var atk=skill + u.e.MGT/2 + u.e.FER/2 + lb(f) + fmA.att + agA.att + ri(0,10);
+    var up=uphillSide();
+    if(up){ atk += (side.key===up? 2 : -2); }
+    if(u.charging&&!u.chargeSpent){
+      var cb=terrain.weather==="RAIN"?3:6;
+      if(up&&side.key===up)cb+=3;
+      if(inWater(u))cb=0;
+      atk+=cb; u.chargeSpent=true; u.charging=false;
+    }
+    if(u.e.POL>=11 && CLASSES[tgt.f.cls].mounted) atk+=5;
+    if(tgt.fleeing) atk+=6;
+    var fmD=FORMATIONS[foeSide.tac.formation];
+    var dfn=tgt.e.SHD + tgt.e.ARM/2 + tgt.e.SPD/4 + fmD.def + ri(0,10);
+    if(inWater(tgt))dfn-=3;
+    if(atk>dfn){
+      var dmg=ri(2,7)+Math.round((atk-dfn)/5);
+      tgt.hp-=dmg;
+      if(tgt.hp<=0&&!tgt.down){
+        tgt.down=true; u.kills++;
+        bodies.push({x:Math.round(tgt.x),y:Math.round(tgt.y)});
+        var verbs=["CUTS DOWN","FELLS","BREAKS","PUTS DOWN","OVERTHROWS"];
+        ev(tk,f.name+" "+pick(verbs)+" "+tgt.f.name+".",side.isPlayer?"hitA":"hitB");
+      }
+    }
+  }
+  var projs=[];
+  function shoot(u,side,foeSide,tk){
+    var f=u.f;
+    var tgt=nearestFoe(u,foeSide); if(!tgt)return;
+    var d=dist2(u,tgt);
+    if(d<20||d>120)return;
+    projs.push({x1:u.x,y1:u.y,x2:tgt.x,y2:tgt.y});
+    var atk=u.e.BOW*2 + lb(f) + ri(0,10) - (terrain.weather==="RAIN"?4:0);
+    var dfn=tgt.e.SHD + tgt.e.ARM + ri(0,12) + (foeSide.tac.formation==="SHIELDWALL"?6:0) + d/12;
+    if(inWater(tgt))dfn-=4;
+    if(atk>dfn){
+      tgt.hp-=ri(4,9);
+      if(tgt.hp<=0&&!tgt.down){
+        tgt.down=true; u.kills++;
+        bodies.push({x:Math.round(tgt.x),y:Math.round(tgt.y)});
+        ev(tk,f.name+" FEATHERS "+tgt.f.name+" AT RANGE.",side.isPlayer?"hitA":"hitB");
+      }
+    }
+  }
+  function cavalryGo(side,foe,tk,why){
+    var went=false;
+    fighters(side).forEach(function(u){
+      if(!CLASSES[u.f.cls].mounted||u.f.cls==="SKIRMISHER")return;
+      if(u.state==="CHARGE")return;
+      u.state="CHARGE"; u.charging=true; went=true;
+    });
+    if(went)ev(tk,side.label+" RIDERS GO IN"+why+".","sysline");
+  }
+  function stepUnit(u,side,foe,tk){
+    if(u.down||u.escaped)return;
+    var f=u.f, cls=f.cls;
+    if(u.fleeing){
+      var exitX=side.key==="A"?0:FIELD_W;
+      moveToward(u,exitX,u.y,3+u.e.SPD/6);
+      if(u.x<=4||u.x>=FIELD_W-4)u.escaped=true;
+      return;
+    }
+    var tgt=nearestFoe(u,foe);
+    if(!tgt)return;
+    var d=dist2(u,tgt);
+    if(d<7){
+      if(u.atkCd<=0){meleeAttack(u,tgt,side,foe,tk);u.atkCd=4;}else u.atkCd--;
+      return;
+    }
+    var dir=side.key==="A"?1:-1;
+    var holdWall = side.tac.formation==="SHIELDWALL" && !linesMet &&
+      (terrain.type!=="THE FORD" || (terrain.holder===side.key));
+    if(cls==="SHIELDLINE"||cls==="HALBERDIER"){
+      if(u.isReserve){
+        var fl=frontLosses(side);
+        if(fl<0.3){
+          var c0=infCentroid(side);
+          moveToward(u,c0.x-dir*16,u.homeY,1.4);
+          if(u.atkCd>0)u.atkCd--;
+          return;
+        }
+        if(fl>=0.3&&!side.reserveIn){side.reserveIn=true;ev(tk,side.label+" SECOND RANK STEPS IN.","sysline");}
+      }
+      if(holdWall){ if(u.atkCd>0)u.atkCd--; return; }
+      var c=infCentroid(foe);
+      var wy = side.tac.formation==="WEDGE" ? (yMin+yMax)/2 : u.homeY;
+      moveToward(u,c.x,(c.y+wy)/2,1.4);
+    } else if(cls==="ARCHER"){
+      if(d<48){ moveToward(u,u.x-dir*30,u.homeY,2.4); }
+      else if(d>115){ moveToward(u,u.x+dir*20,u.homeY,1.4); }
+      if(u.shootCd<=0){shoot(u,side,foe,tk);u.shootCd=3;}else u.shootCd--;
+    } else if(cls==="SKIRMISHER"){
+      if(foe.routed){ moveToward(u,tgt.x,tgt.y,4.5); if(d<7&&u.atkCd<=0){meleeAttack(u,tgt,side,foe,tk);u.atkCd=3;}else if(u.atkCd>0)u.atkCd--; return; }
+      if(u.state==="OUT"){
+        moveToward(u,u.x-dir*40,u.homeY,3.6);
+        if(d>105)u.state="IN";
+      } else {
+        if(d>68){ moveToward(u,tgt.x,tgt.y,3.6); }
+        else { if(u.shootCd<=0){shoot(u,side,foe,tk);u.shootCd=2;u.state="OUT";}else u.shootCd--; }
+      }
+    } else { /* OUTRIDER, CATAPHRACT */
+      var cwait=side.tac.cavalry;
+      if(cwait==="SCREEN"&&u.state!=="CHARGE"){
+        /* stay near own bowmen, meet enemy riders that come close */
+        var arcs=fighters(side).filter(function(x){return x.f.cls==="ARCHER";});
+        var anchor = arcs.length? arcs[Math.floor(arcs.length/2)] : {x:u.x-dir*10,y:u.homeY};
+        var threat=null,td=1e9;
+        fighters(foe).forEach(function(e2){
+          if(!CLASSES[e2.f.cls].mounted)return;
+          var dd=Math.sqrt((e2.x-anchor.x)*(e2.x-anchor.x)+(e2.y-anchor.y)*(e2.y-anchor.y));
+          if(dd<td){td=dd;threat=e2;}
+        });
+        if(threat&&td<60){ u.charging=true; moveToward(u,threat.x,threat.y,4.5); }
+        else moveToward(u,anchor.x-dir*6,anchor.y,3);
+        return;
+      }
+      if(cwait==="REFUSE"&&u.state!=="CHARGE"){
+        if(foe.routed){u.state="CHARGE";u.charging=true;}
+        else { var cR=infCentroid(side); moveToward(u,cR.x-dir*22,u.y,1.2); return; }
+      }
+      if(u.state==="CHARGE"){
+        var prey=tgt;
+        if(cls==="OUTRIDER"){
+          var soft=fighters(foe).filter(function(e){return e.f.cls==="ARCHER"||e.f.cls==="SKIRMISHER";});
+          if(soft.length){var bp=null,bd=1e9;soft.forEach(function(e){var dd=dist2(u,e);if(dd<bd){bd=dd;bp=e;}});prey=bp;}
+        } else {
+          var c2=infCentroid(foe); prey={x:c2.x,y:c2.y};
+        }
+        var spd=terrain.weather==="RAIN"?3.6:4.5;
+        if(cls==="OUTRIDER" && terrain.type!=="THE DEFILE" && Math.abs(u.x-prey.x)>55){
+          var fy=u.flank==="TOP"?yMin+4:yMax-4;
+          moveToward(u,u.x+dir*10,fy,spd);
+        } else {
+          moveToward(u,prey.x,prey.y,spd);
+        }
+      } else {
+        if(cwait==="EARLY")cavalryGo(side,foe,tk,"");
+        else if(cwait==="HELD"&&(linesMet||tk>55))cavalryGo(side,foe,tk," AS THE LINES CLOSE");
+        else if(cwait==="LATE"&&foe.waver)cavalryGo(side,foe,tk,", FALLING ON THE WAVER");
+        else { var c3=infCentroid(side); moveToward(u,c3.x-dir*14,u.y,1.2); }
+      }
+    }
+  }
+  function moraleCheck(side,foe,tk){
+    if(side.routed)return;
+    var downCount=side.units.filter(function(u){return u.down;}).length;
+    var lossFrac=downCount/side.startCount;
+    var guard=AGGRESSIONS[side.tac.aggression].routGuard;
+    var threshold=0.35+guard/100 + (side.captain?side.captain.a.CMD:0)/200;
+    if(!side.waver && lossFrac>threshold*0.6){
+      side.waver=true;
+      ev(tk,side.label+" WAVERS.","sysline");
+    }
+    if(lossFrac>threshold){
+      var f2=fighters(side);
+      var dscAvg=f2.length? f2.reduce(function(s,u){return s+u.e.DSC;},0)/f2.length : 0;
+      if(chance(0.22 - dscAvg/110)){
+        side.routed=true; routTick=tk;
+        ev(tk,side.label+" BREAKS AND RUNS.","big");
+        alive(side).forEach(function(u){u.fleeing=true;});
+      }
+    }
+  }
+
+  while(tick<maxTicks){
+    tick++;
+    var aF=fighters(A), bF=fighters(B);
+    if(alive(A).length===0||alive(B).length===0)break;
+    if(routTick&&tick-routTick>36)break;
+    if(A.routed&&B.routed)break;
+
+    projs=[];
+    if(!linesMet){
+      var met=false;
+      aF.forEach(function(u){
+        if(CLASSES[u.f.cls].mounted)return;
+        bF.forEach(function(e){ if(!CLASSES[e.f.cls].mounted&&dist2(u,e)<10)met=true; });
+      });
+      if(met){linesMet=true;ev(tick,"THE LINES MEET. STEEL ON STEEL.","big");}
+    }
+    A.units.forEach(function(u){stepUnit(u,A,B,tick);});
+    B.units.forEach(function(u){stepUnit(u,B,A,tick);});
+    moraleCheck(A,B,tick); moraleCheck(B,A,tick);
+
+    if(truth>0)truth--;
+    glitchNow=Math.max(0,glitchNow-1);
+    if(soft&&chance(0.045)){
+      glitchNow=2;
+      var roll=Math.random();
+      if(roll<0.4){ ev(tick,pick(GLITCH_LINES),"big"); }
+      else if(roll<0.65){
+        var cand=alive(A).concat(alive(B)).filter(function(u){return !u.f.communion;});
+        if(cand.length>=2){
+          var u1=pick(cand),u2=pick(cand);
+          if(u1!==u2){
+            var tx=u1.x,ty=u1.y;u1.x=u2.x;u1.y=u2.y;u2.x=tx;u2.y=ty;
+            ev(tick,"REALITY RECONSIDERS ITS POSITIONS.","big");
+          }
+        }
+      } else if(roll<0.8){
+        truth=16; ev(tick,"EVERY LINE ON THE FIELD BURNS TRUE.","big");
+      } else {
+        var downs=A.units.concat(B.units).filter(function(u){return u.down&&!u.escaped;});
+        if(downs.length){
+          var ru=pick(downs); ru.down=false; ru.fleeing=false;
+          ru.hp=Math.max(6,Math.round(ru.maxhp*0.3));
+          ev(tick,ru.f.name+" FORGETS TO BE DOWN.","big");
+        } else { ev(tick,pick(GLITCH_LINES),"big"); }
+      }
+    }
+
+    ticks.push({
+      us:A.units.concat(B.units).filter(function(u){return !u.down&&!u.escaped;}).map(function(u){
+        return {x:Math.round(u.x),y:Math.round(u.y),c:u.f.cls,s:u.side,fl:u.fleeing?1:0};
+      }),
+      pj:projs.map(function(p){return {x1:Math.round(p.x1),y1:Math.round(p.y1),x2:Math.round(p.x2),y2:Math.round(p.y2)};}),
+      bl:bodies.length,
+      aN:alive(A).filter(function(u){return !u.fleeing;}).length,
+      bN:alive(B).filter(function(u){return !u.fleeing;}).length,
+      wA:A.waver?1:0, wB:B.waver?1:0, g:glitchNow
+    });
+  }
+
+  var aStand=fighters(A).length+alive(A).filter(function(u){return u.fleeing;}).length;
+  var bStand=fighters(B).length+alive(B).filter(function(u){return u.fleeing;}).length;
+  var aDownN=A.units.filter(function(u){return u.down;}).length;
+  var bDownN=B.units.filter(function(u){return u.down;}).length;
+  var winner;
+  if(B.routed&&!A.routed||bStand===0&&aStand>0){winner="A";}
+  else if(A.routed&&!B.routed||aStand===0&&bStand>0){winner="B";}
+  else {
+    var aLoss=aDownN/A.startCount, bLoss=bDownN/B.startCount;
+    if(bLoss-aLoss>0.15)winner="A"; else if(aLoss-bLoss>0.15)winner="B"; else winner="D";
+  }
+  if(winner==="A") ev(tick,"THE FIELD IS YOURS.","big");
+  else if(winner==="B") ev(tick,A.label+" IS DRIVEN FROM THE FIELD.","big");
+  else ev(tick,"BOTH COMPANIES DRAW OFF, BLOODIED AND UNBOWED.","big");
+
+  var deeds=A.units.filter(function(u){return u.kills>=2;})
+    .sort(function(a,b){return b.kills-a.kills;}).slice(0,3)
+    .map(function(u){return u.f.name+" ("+u.kills+")";});
+  if(deeds.length)ev(tick,"DEEDS: "+deeds.join(", ")+".","sysline");
+
+  return {ticks:ticks,events:events,winner:winner,terrain:terrain,bodies:bodies,
+    aDown:A.units.filter(function(u){return u.down;}),
+    bDown:B.units.filter(function(u){return u.down;}),
+    oppComp:oppComp,oppArmy:oppArmy};
+}
+
+/* ---------- BATTLE SCREEN / PLAYBACK ---------- */
+var playback=null;
+var pendingWeek=null;
+function currentFixture(){
+  return S.fixtures.find(function(fx){return fx.week===S.week && !fx.played;});
+}
+function prepWeek(){
+  if(pendingWeek&&pendingWeek.week===S.week)return pendingWeek;
+  var fx=currentFixture();
+  if(!fx)return null;
+  var opp=S.companies[fx.oppId];
+  pendingWeek={week:S.week,ter:genTerrain(),oppArmy:makeOpponentArmy(opp),opp:opp};
+  pendingWeek.counsel=counsel(pendingWeek.ter,pendingWeek.oppArmy,opp);
+  return pendingWeek;
+}
+function renderBattleScreen(){
+  var pre=document.getElementById("battlePrematch");
+  var live=document.getElementById("battleLive");
+  if(S.seasonOver){
+    pre.innerHTML='<div class="panel"><div class="gold">THE SEASON IS OVER.</div><p class="note">CHECK THE CAMPAIGN SCREEN. START A NEW CAMPAIGN FROM SYSTEM WHEN READY.</p></div>';
+    live.style.display="none"; return;
+  }
+  var pw=prepWeek();
+  if(!pw){
+    pre.innerHTML='<div class="panel"><p class="note">NO ENGAGEMENT THIS WEEK.</p></div>';
+    live.style.display="none"; return;
+  }
+  var mus=musteredFighters();
+  var weakCount=mus.filter(function(f){return f.condition<60;}).length;
+  var html='<div class="panel">'+
+    '<div class="white">WEEK '+S.week+': '+S.companyName+' VS '+pw.opp.name+'</div>'+
+    '<p class="note gold">SCOUT\'S REPORT: '+terrainReport(pw.ter)+'</p></div>';
+  html+='<div class="speech"><span class="who">'+S.staff.second.name+', YOUR SECOND:</span> '+pw.counsel.text+'</div>';
+  var woundedNow=S.squad.filter(function(f){return f.wounded;}).length;
+  if(S.staff.healer&&woundedNow>0&&S.stores.herbs<woundedNow){
+    html+='<div class="speech"><span class="who">'+S.staff.healer.name+', YOUR HEALER:</span> I CANNOT MEND '+woundedNow+' WOUNDED ON '+S.stores.herbs+' HERBS. I NEED ONE A WEEK FOR EACH. THE RIVER MEADOWS CARRY THEM, IF YOU CAN HOLD A FIELD.</div>';
+  }
+  html+='<div class="panel">'+
+    '<p class="note">'+mus.length+' MARCH.'+(weakCount>0?' <span class="bad">'+weakCount+' BELOW 60% CONDITION.</span>':'')+
+    ' WAGES FALL DUE AFTER THE FIELD.</p>'+
+    '<button id="btnFollow">FOLLOW HIS COUNSEL</button> '+
+    '<button id="btnTac">SET TACTICS MYSELF</button> '+
+    '<button id="btnMus">CHANGE THE MUSTER</button> '+
+    '<button id="btnFight" class="act">RAISE BANNERS</button></div>';
+  pre.innerHTML=html;
+  live.style.display="none";
+  document.getElementById("btnFight").addEventListener("click",startBattle);
+  document.getElementById("btnTac").addEventListener("click",function(){show("tactics");});
+  document.getElementById("btnMus").addEventListener("click",function(){show("muster");});
+  document.getElementById("btnFollow").addEventListener("click",function(){
+    S.tactics={formation:pw.counsel.rec.formation,aggression:pw.counsel.rec.aggression,cavalry:pw.counsel.rec.cavalry};
+    renderTactics();
+    setFooter("SO BE IT. "+pw.counsel.rec.formation+", "+pw.counsel.rec.aggression+", RIDERS "+pw.counsel.rec.cavalry+".");
+  });
+}
+var PLAY_SPEEDS={spd1:240,spd2:140,spd3:50};
+var playSpeed=140;
+["spd1","spd2","spd3"].forEach(function(id){
+  document.getElementById(id).addEventListener("click",function(){
+    playSpeed=PLAY_SPEEDS[id];
+    ["spd1","spd2","spd3"].forEach(function(x){document.getElementById(x).classList.toggle("on",x===id);});
+    if(playback){clearInterval(playback.timer);runPlayback(playback.sim,playback.idx);}
+  });
+});
+function startBattle(){
+  var fx=currentFixture(); if(!fx)return;
+  var pw=prepWeek();
+  var army=musteredFighters().filter(function(f){return f.condition>=10;});
+  if(army.length<6){setFooter("TOO FEW MARCH. FIX THE MUSTER FIRST.");show("muster");return;}
+  var sim=simBattle(army,pw.oppArmy,pw.opp,pw.ter);
+  sim.fx=fx; sim.playerArmy=army;
+  document.getElementById("battlePrematch").innerHTML="";
+  document.getElementById("battleLive").style.display="block";
+  document.getElementById("commentary").innerHTML="";
+  document.getElementById("battlePost").innerHTML="";
+  runPlayback(sim,0);
+}
+function runPlayback(sim,startIdx){
+  if(playback&&playback.timer)clearInterval(playback.timer);
+  playback={sim:sim,idx:startIdx,timer:null};
+  var cv=document.getElementById("battlecanvas");
+  var ctx=cv.getContext("2d");
+  playback.timer=setInterval(function(){
+    var i=playback.idx;
+    if(i>=sim.ticks.length){
+      clearInterval(playback.timer);
+      sim.events.filter(function(e){return e.t>sim.ticks.length;}).forEach(pushLine);
+      finishBattle(sim);
+      playback=null;
+      return;
+    }
+    drawTick(ctx,sim,i);
+    if(i===0) sim.events.filter(function(e){return e.t===0;}).forEach(pushLine);
+    sim.events.filter(function(e){return e.t===i+1;}).forEach(pushLine);
+    document.getElementById("battleScore").textContent=
+      sim.terrain.type+" / STANDING "+sim.ticks[i].aN+" VS "+sim.ticks[i].bN;
+    playback.idx++;
+  },playSpeed);
+}
+function pushLine(e){
+  var c=document.getElementById("commentary");
+  var p=document.createElement("p");
+  p.className=e.cls; p.textContent=e.txt;
+  c.appendChild(p); c.scrollTop=c.scrollHeight;
+}
+var CLASS_DRAW={
+  SHIELDLINE:"#B2B2B2",HALBERDIER:"#75CEC8",ARCHER:"#A9FF9F",
+  OUTRIDER:"#EDF171",CATAPHRACT:"#FFFFFF",SKIRMISHER:"#8E5029"
+};
+function drawTick(ctx,sim,frame){
+  var tk=sim.ticks[frame];
+  var ter=sim.terrain;
+  var g=tk.g||0;
+  ctx.fillStyle=ter.weather==="RAIN"?"#3A3320":"#553800";
+  ctx.fillRect(0,0,320,180);
+  ctx.fillStyle=ter.weather==="RAIN"?"#41603A":"#56AC4D";
+  for(var gy=0;gy<180;gy+=6){
+    for(var gx=(gy%12===0?0:3);gx<320;gx+=9){
+      ctx.fillRect(gx,gy,1,1);
+    }
+  }
+  if(ter.type==="THE FORD"){
+    ctx.fillStyle="#2E2C9B";ctx.fillRect(148,0,24,180);
+    ctx.fillStyle="#75CEC8";
+    for(var wy=frame%6;wy<180;wy+=12){ctx.fillRect(152,wy,3,1);ctx.fillRect(162,wy+5,3,1);}
+  }
+  if(ter.type==="THE DEFILE"){
+    ctx.fillStyle="#4A4A4A";ctx.fillRect(0,0,320,56);ctx.fillRect(0,124,320,56);
+    ctx.fillStyle="#7B7B7B";
+    for(var rx=0;rx<320;rx+=8){ctx.fillRect(rx,50+(rx%16===0?2:0),4,3);ctx.fillRect(rx+3,126,4,3);}
+  }
+  if(ter.type==="HIGH GROUND"){
+    var upA=ter.holder==="A";
+    ctx.fillStyle="#7d5a1a";
+    if(upA){ctx.fillRect(0,0,60,180);}else{ctx.fillRect(260,0,60,180);}
+    ctx.fillStyle="#8E5029";
+    if(upA){for(var e1=0;e1<180;e1+=4)ctx.fillRect(60+((e1%8)?2:0),e1,2,2);}
+    else{for(var e2=0;e2<180;e2+=4)ctx.fillRect(258-((e2%8)?2:0),e2,2,2);}
+  }
+  if(ter.type==="THE SOFT PLACE"){
+    var wrong=["#8E3C97","#75CEC8","#EDF171","#2E2C9B"];
+    for(var sp=0;sp<40;sp++){
+      var sx=(sp*53+frame*2)%320, sy=(sp*31+((frame/3)|0)*5)%180;
+      ctx.fillStyle=wrong[(sp+((frame/8)|0))%4];
+      ctx.fillRect(sx,sy,2,2);
+    }
+  }
+  ctx.fillStyle="#813338";
+  for(var bi=0;bi<tk.bl;bi++){
+    var bd=sim.bodies[bi];
+    ctx.fillRect(bd.x-1,bd.y,3,1);
+  }
+  ctx.fillStyle="#EDF171";
+  tk.pj.forEach(function(p){
+    for(var s=1;s<4;s++){
+      var px=p.x1+(p.x2-p.x1)*s/4, py=p.y1+(p.y2-p.y1)*s/4;
+      ctx.fillRect(Math.round(px),Math.round(py),1,1);
+    }
+  });
+  tk.us.forEach(function(u,ui){
+    var waverBlink=(u.s==="A"&&tk.wA)||(u.s==="B"&&tk.wB);
+    if(waverBlink&&!u.fl&&(frame+ui)%4===0)return;
+    if(g){
+      u={x:u.x+((frame*7+ui*13)%7)-3, y:u.y+((frame*5+ui*11)%5)-2, c:u.c, s:u.s, fl:u.fl};
+      if(ui%3===0){
+        ctx.fillStyle="#8E3C97";
+        ctx.fillRect(u.x+5,u.y-3,3,5);
+      }
+    }
+    ctx.fillStyle=CLASS_DRAW[u.c];
+    if(CLASSES[u.c].mounted){
+      ctx.fillRect(u.x-3,u.y,7,3);
+      ctx.fillRect(u.x-1,u.y-4,3,4);
+    } else {
+      ctx.fillRect(u.x-1,u.y-3,3,5);
+      ctx.fillRect(u.x-1,u.y-5,2,2);
+    }
+    ctx.fillStyle=u.s==="A"?"#706DEB":"#C46C71";
+    ctx.fillRect(u.x-2,u.y+4,5,1);
+  });
+  if(ter.weather==="RAIN"){
+    ctx.fillStyle="#75CEC8";
+    for(var r=0;r<26;r++){
+      var rrx=(r*37+frame*11)%320, rry=(r*53+frame*17)%180;
+      ctx.fillRect(rrx,rry,1,3);
+    }
+  }
+  if(g){
+    ctx.fillStyle="#FFFFFF";
+    for(var nz=0;nz<60;nz++){
+      ctx.fillRect((nz*71+frame*29)%320,(nz*37+frame*13)%180,1,1);
+    }
+    ctx.fillStyle="#000000";
+    var band=(frame*23)%180;
+    ctx.fillRect(0,band,320,2);
+  }
+  ctx.fillStyle="#B2B2B2";ctx.fillRect(250,8,6,6);
+  ctx.fillStyle="#7B7B7B";ctx.fillRect(270,18,4,4);
+  ctx.fillStyle="#4A4A4A";ctx.fillRect(262,4,3,3);
+  if(g){ctx.fillStyle="#EDF171";ctx.fillRect(283,12,4,4);}
+}
+
+/* ---------- RESULT / WEEK ADVANCE ---------- */
+function finishBattle(sim){
+  var fx=sim.fx, opp=sim.oppComp;
+  var score=(sim.playerArmy.length-sim.aDown.length)+" STANDING VS "+(sim.oppArmy.length-sim.bDown.length);
+  fx.played=true; fx.score=score;
+  var me=S.companies[0];
+  var purse=0, renownGain=0, deadNames=[], hurtNames=[];
+
+  if(sim.winner==="A"){fx.result="W";me.pts+=3;me.w++;opp.l++;purse=60+ri(0,30);renownGain=ri(6,10);}
+  else if(sim.winner==="B"){fx.result="L";me.l++;opp.pts+=3;opp.w++;purse=15;renownGain=ri(0,2);}
+  else {fx.result="D";me.pts+=1;me.d++;opp.pts+=1;opp.d++;purse=30;renownGain=ri(2,4);}
+
+  sim.aDown.forEach(function(u){
+    var f=u.f;
+    if(chance(0.08)){
+      f.dead=true; deadNames.push(f.name);
+    } else {
+      f.condition=ri(5,25); f.wounded=true; hurtNames.push(f.name);
+    }
+  });
+  S.squad=S.squad.filter(function(f){return !f.dead;});
+  S.muster=S.muster.filter(function(id){return S.squad.some(function(f){return f.id===id;});});
+
+  var drain=S.tactics.aggression==="FURIOUS"?20:S.tactics.aggression==="FIERCE"?17:14;
+  sim.playerArmy.forEach(function(f){
+    if(f.dead||f.wounded&&f.condition<=25)return;
+    f.condition=clamp(f.condition-drain,10,100);
+    if(f.age<30&&chance(f.a.DSC/60)){
+      var k=pick(ATTR_KEYS);
+      if(f.a[k]<20){f.a[k]++;}
+    }
+  });
+
+  var res=sim.terrain.res||{herbs:0,iron:0,coin:0};
+  var forage={herbs:0,iron:0,coin:0};
+  if(sim.winner==="A"){forage=res;}
+  else if(sim.winner==="D"){forage={herbs:Math.floor(res.herbs/2),iron:Math.floor(res.iron/2),coin:Math.floor(res.coin/2)};}
+  S.stores.herbs+=forage.herbs; S.stores.iron+=forage.iron;
+
+  var wages=S.squad.reduce(function(s,f){return s+f.wage;},0)
+    +(S.staff.second?S.staff.second.wage:0)+(S.staff.healer?S.staff.healer.wage:0);
+  S.coin=S.coin+purse+forage.coin-wages;
+  S.renown+=renownGain;
+
+  var post='<div class="panel">';
+  post+='<div class="'+(sim.winner==="A"?"good":sim.winner==="B"?"bad":"dim")+'">'+
+    (sim.winner==="A"?"VICTORY.":sim.winner==="B"?"DEFEAT.":"BLOODIED DRAW.")+'</div>';
+  post+='<p class="note">PURSE +'+purse+'. WAGES -'+wages+'. RENOWN +'+renownGain+'.</p>';
+  var fLines=[];
+  if(forage.herbs)fLines.push(forage.herbs+" HERBS");
+  if(forage.iron)fLines.push(forage.iron+" IRON");
+  if(forage.coin)fLines.push(forage.coin+" COIN FROM STASHES");
+  if(fLines.length)post+='<p class="good">THE FIELD IS STRIPPED: '+fLines.join(", ")+'.</p>';
+  else if((res.herbs||res.iron||res.coin>=15)&&sim.winner==="B")post+='<p class="dim">THE FIELD AND ITS FINDS WERE NOT YOURS TO STRIP.</p>';
+  if(deadNames.length)post+='<p class="bad">FALLEN: '+deadNames.join(", ")+'.</p>';
+  if(hurtNames.length)post+='<p class="note">WOUNDED: '+hurtNames.join(", ")+'.'+(S.staff.healer?'':' NO HEALER TENDS THEM.')+'</p>';
+  if(S.coin<0)post+='<p class="bad">THE COFFER IS EMPTY. UNPAID BLADES FIGHT POORLY. WIN, OR RELEASE MOUTHS.</p>';
+  post+='<button id="btnEndWeek" class="act">MARCH ON. THE WEEK PASSES.</button></div>';
+  document.getElementById("battlePost").innerHTML=post;
+  document.getElementById("btnEndWeek").addEventListener("click",endWeek);
+  renderHeader();
+}
+function woundedRec(){
+  if(!S.staff.healer)return 4;
+  return 4+(S.stores.herbs>0?S.staff.healer.bonus:2);
+}
+function endWeek(){
+  simRivalWeek();
+  var wounded=S.squad.filter(function(f){return f.wounded;})
+    .sort(function(a,b){return a.condition-b.condition;});
+  wounded.forEach(function(f){
+    var rec=4;
+    if(S.staff.healer){
+      if(S.stores.herbs>0){S.stores.herbs--;rec=4+S.staff.healer.bonus;}
+      else rec=6;
+    }
+    f.condition=clamp(f.condition+rec,5,100);
+    if(f.condition>=60)f.wounded=false;
+  });
+  S.squad.forEach(function(f){
+    if(f.wounded)return;
+    var marched=S.muster.indexOf(f.id)>=0;
+    f.condition=clamp(f.condition+8+(marched?0:6),5,100);
+    if(S.coin<0)f.morale=clamp(f.morale-8,10,100);
+    else f.morale=clamp(f.morale+3,10,100);
+  });
+  var weary=S.squad.filter(function(f){return !f.wounded&&f.condition<85;})
+    .sort(function(a,b){return a.condition-b.condition;});
+  var spent=0;
+  while(S.stores.iron>0&&spent<weary.length){
+    weary[spent].condition=clamp(weary[spent].condition+10,5,100);
+    S.stores.iron--; spent++;
+  }
+  if(S.market.length>4){S.market.splice(0,ri(1,3));}
+  refillMarket();
+  refillStaffMarket();
+  pendingWeek=null;
+  S.week++;
+  if(S.week>14){S.seasonOver=true;}
+  renderAll(); show(S.seasonOver?"campaign":"staff");
+  setFooter(S.seasonOver?"THE SEASON ENDS. THE LEDGER REMEMBERS.":"WEEK "+S.week+". THE CAMP REPORT IS IN.");
+}
+function simRivalWeek(){
+  var others=S.companies.filter(function(c){return !c.player;});
+  var pool=others.slice().sort(function(){return Math.random()-0.5;});
+  var myFx=S.fixtures.find(function(fx){return fx.week===S.week;});
+  var busy=myFx?myFx.oppId:-1;
+  var free=pool.filter(function(c){return c.id!==busy;});
+  for(var i=0;i+1<free.length;i+=2){
+    var x=free[i],y=free[i+1];
+    var px=x.strength*(0.8+Math.random()*0.4);
+    var py=y.strength*(0.8+Math.random()*0.4);
+    if(Math.abs(px-py)<0.08){x.pts++;y.pts++;x.d++;y.d++;}
+    else if(px>py){x.pts+=3;x.w++;y.l++;}
+    else {y.pts+=3;y.w++;x.l++;}
+  }
+}
+
+/* ---------- SYSTEM ---------- */
+document.getElementById("btnSave").addEventListener("click",saveGame);
+document.getElementById("btnLoad").addEventListener("click",loadGame);
+document.getElementById("btnNew").addEventListener("click",function(){
+  if(S&&!confirm("ABANDON THE CURRENT CAMPAIGN?"))return;
+  newCampaign();
+});
+
+/* ---------- BOOT ---------- */
+(function boot(){
+  var loaded=false;
+  try{ loaded=!!localStorage.getItem(SAVE_KEY); }catch(e){}
+  if(loaded){ if(!loadGame()){newCampaign();} } else { newCampaign(); }
+})();
+</script>
+</body>
+</html>
