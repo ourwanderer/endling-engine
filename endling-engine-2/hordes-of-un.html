@@ -1671,11 +1671,16 @@ document.getElementById("btnNew").addEventListener("click",function(){
   if(loaded){ if(!loadGame()){newCampaign();} } else { newCampaign(); }
 })();
 </script>
+<style>
+/* Engine nav — scoped, minimal, doesn't touch game styles */
+.node-nav{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:center;gap:2rem;padding:1.2rem 0 1.4rem;z-index:500;pointer-events:none;background:linear-gradient(180deg,transparent,rgba(0,0,0,0.75));}
+.node-nav .nav-btn{pointer-events:all;font-family:'Space Mono',monospace;font-size:0.8rem;letter-spacing:0.15em;background:transparent;border:1px solid rgba(178,178,178,0.4);color:#b2b2b2;padding:0.6rem 1.4rem;cursor:pointer;text-transform:lowercase;}
+.node-nav .nav-btn:hover{border-color:#fff;color:#fff;background:transparent;}
+</style>
 <nav class="node-nav">
   <button id="btn-back" class="nav-btn">← go back</button>
   <button id="btn-deeper" class="nav-btn deeper">go deeper →</button>
 </nav>
-<link rel="stylesheet" href="css/engine.css">
 <script src="js/engine.js"></script>
 <script>
 initDeeperButton([
