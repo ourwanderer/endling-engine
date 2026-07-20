@@ -1671,5 +1671,21 @@ document.getElementById("btnNew").addEventListener("click",function(){
   if(loaded){ if(!loadGame()){newCampaign();} } else { newCampaign(); }
 })();
 </script>
+<nav class="node-nav">
+  <button id="btn-back" class="nav-btn">← go back</button>
+  <button id="btn-deeper" class="nav-btn deeper">go deeper →</button>
+</nav>
+<link rel="stylesheet" href="css/engine.css">
+<script src="js/engine.js"></script>
+<script>
+initDeeperButton([
+  { url: 'nodes/gloss-hordes-of-un.html', weight: 2 },
+  { url: 'nodes/irla.html', weight: 2 },
+  { url: 'nodes/bria.html', weight: 2 },
+  { url: 'nodes/gloss-war-of-un.html', weight: 2 },
+  { url: 'nodes/kelak.html', weight: 1 },
+  { url: 'nodes/map.html', weight: 1 }
+]);
+</script>
 </body>
 </html>
