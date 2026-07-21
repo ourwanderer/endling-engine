@@ -87,29 +87,20 @@ tr.sel td{color:var(--c64-yellow);}
 #legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px;}
 #legend span{color:var(--c64-lgrey);}
 .sw{display:inline-block;width:8px;height:8px;vertical-align:middle;margin-right:4px;}
+#battleCols{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap;}
+#battleLeft{flex:1 1 340px;min-width:0;}
+#battleRight{flex:1 1 300px;min-width:0;display:flex;flex-direction:column;}
+#battleControls{display:flex;gap:6px;margin-top:6px;align-items:center;flex-wrap:wrap;}
 #commentary{
-  height:150px;overflow-y:auto;border:2px solid var(--c64-lblue);
+  flex:1 1 auto;height:auto;min-height:170px;
+  overflow-y:auto;border:2px solid var(--c64-lblue);
   padding:6px;margin-top:8px;background:var(--c64-black);
 }
-/* When a battle is live, fit the whole view to the window with no page scroll.
-   Scoped to #scr-battle so the rest of the site layout is untouched. */
-#scr-battle.show.live-fit{
-  display:flex;flex-direction:column;
-  height:calc(100vh - 6rem - 28px);
-  min-height:320px;
+/* On a single (narrow/stacked) column, the log no longer needs to stretch;
+   give it a fixed, scrollable height so the page stays short. */
+@media(max-width:659px){
+  #commentary{flex:0 0 auto;height:180px;min-height:0;}
 }
-#scr-battle.live-fit #battleLive{
-  display:flex;flex-direction:column;flex:1 1 auto;min-height:0;
-}
-#scr-battle.live-fit #battlecanvas{
-  flex:0 1 auto;min-height:0;width:auto;max-width:100%;
-  max-height:46vh;margin:0 auto;
-}
-#scr-battle.live-fit #commentary{
-  flex:1 1 auto;height:auto;min-height:48px;
-}
-#scr-battle.live-fit #legend{flex:0 0 auto;}
-#scr-battle.live-fit #battlePost{flex:0 0 auto;overflow-y:auto;max-height:34vh;}
 #commentary p{margin:0 0 4px 0;color:var(--c64-lgrey);}
 #commentary p.sysline{color:var(--c64-cyan);}
 #commentary p.hitA{color:var(--c64-lgreen);}
@@ -250,25 +241,31 @@ tr.sel td{color:var(--c64-yellow);}
 <div id="scr-battle" class="screenpane">
   <div id="battlePrematch"></div>
   <div id="battleLive" style="display:none">
-    <canvas id="battlecanvas" width="320" height="180"></canvas>
-    <div id="legend">
-      <span><i class="sw" style="background:#B2B2B2"></i>SHIELD</span>
-      <span><i class="sw" style="background:#75CEC8"></i>HALBERD</span>
-      <span><i class="sw" style="background:#A9FF9F"></i>ARCHER</span>
-      <span><i class="sw" style="background:#EDF171"></i>OUTRIDER</span>
-      <span><i class="sw" style="background:#FFFFFF"></i>CATAPHRACT</span>
-      <span><i class="sw" style="background:#8E5029"></i>SKIRMISHER</span>
-      <span class="dim">/ YOURS UNDERLINED BLUE, THEIRS RED</span>
+    <div id="battleCols">
+      <div id="battleLeft">
+        <canvas id="battlecanvas" width="320" height="180"></canvas>
+        <div id="legend">
+          <span><i class="sw" style="background:#B2B2B2"></i>SHIELD</span>
+          <span><i class="sw" style="background:#75CEC8"></i>HALBERD</span>
+          <span><i class="sw" style="background:#A9FF9F"></i>ARCHER</span>
+          <span><i class="sw" style="background:#EDF171"></i>OUTRIDER</span>
+          <span><i class="sw" style="background:#FFFFFF"></i>CATAPHRACT</span>
+          <span><i class="sw" style="background:#8E5029"></i>SKIRMISHER</span>
+          <span class="dim">/ YOURS UNDERLINED BLUE, THEIRS RED</span>
+        </div>
+        <div id="battleControls">
+          <span class="sub" id="battleScore"></span>
+          <span style="flex:1"></span>
+          <button id="spd1">SLOW</button>
+          <button id="spd2" class="on">QUICK</button>
+          <button id="spd3">SWIFT</button>
+          <button id="btnSnd">SND ON</button>
+        </div>
+      </div>
+      <div id="battleRight">
+        <div id="commentary"></div>
+      </div>
     </div>
-    <div style="display:flex;gap:6px;margin-top:6px;align-items:center;flex-wrap:wrap">
-      <span class="sub" id="battleScore"></span>
-      <span style="flex:1"></span>
-      <button id="spd1">SLOW</button>
-      <button id="spd2" class="on">QUICK</button>
-      <button id="spd3">SWIFT</button>
-      <button id="btnSnd">SND ON</button>
-    </div>
-    <div id="commentary"></div>
     <div id="battlePost" style="margin-top:8px"></div>
   </div>
 </div>
@@ -709,7 +706,6 @@ function setFooter(t){ document.getElementById("footerline").innerHTML=(t||"READ
 var selFighterId=null;
 function show(name){
   if(!S&&name!=="naming")return;
-  if(name!=="battle")document.getElementById("scr-battle").classList.remove("live-fit");
   document.querySelectorAll(".screenpane").forEach(function(p){p.classList.remove("show");});
   document.getElementById("scr-"+name).classList.add("show");
   document.querySelectorAll("#mainnav button").forEach(function(b){
@@ -1780,7 +1776,6 @@ function prepWeek(){
 function renderBattleScreen(){
   var pre=document.getElementById("battlePrematch");
   var live=document.getElementById("battleLive");
-  if(live.style.display!=="block")document.getElementById("scr-battle").classList.remove("live-fit");
   if(S.seasonOver){
     pre.innerHTML='<div class="panel"><div class="gold">THE SEASON IS OVER.</div><p class="note">CHECK THE CAMPAIGN SCREEN. START A NEW CAMPAIGN FROM SYSTEM WHEN READY.</p></div>';
     live.style.display="none"; return;
@@ -1853,7 +1848,6 @@ var playSpeed=140;
 });
 function startBattle(){
   var fx=currentFixture(); if(!fx)return;
-  document.getElementById("scr-battle").classList.add("live-fit");
   var pw=prepWeek();
   var army=musteredFighters().filter(function(f){return f.condition>=10;});
   if(army.length<6){setFooter("TOO FEW MARCH. FIX THE MUSTER FIRST.");show("muster");return;}
@@ -2502,8 +2496,9 @@ function splashDraw(){
   x.font='8px "Press Start 2P"';
   if(SPL.stage==="ready"){
     if(SPL.hasSave){
-      x.fillStyle="#75CEC8";x.fillText("CONTINUE CAMPAIGN",70,176);
-      x.fillStyle="#EDF171";x.fillText("NEW CAMPAIGN",90,190);
+      x.fillStyle="#000000";x.fillRect(60,164,200,30);
+      x.fillStyle="#75CEC8";x.fillText("CONTINUE CAMPAIGN",92,167);
+      x.fillStyle="#EDF171";x.fillText("NEW CAMPAIGN",112,180);
     } else {
       if(fr%40<26){x.fillStyle="#75CEC8";x.fillText("BEGIN CAMPAIGN",104,182);}
     }
@@ -2551,7 +2546,7 @@ function splashDraw(){
       /* two options: pick by where they clicked */
       var y=SPL._clickY;
       if(y==null){ begin("continue"); return; }   /* keyboard: default to continue */
-      begin(y<184?"continue":"new");
+      begin(y<178?"continue":"new");
     }
   }
   function onKey(){ SPL._clickY=null; advance(); }
