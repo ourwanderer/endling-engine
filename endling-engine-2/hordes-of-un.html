@@ -91,6 +91,25 @@ tr.sel td{color:var(--c64-yellow);}
   height:150px;overflow-y:auto;border:2px solid var(--c64-lblue);
   padding:6px;margin-top:8px;background:var(--c64-black);
 }
+/* When a battle is live, fit the whole view to the window with no page scroll.
+   Scoped to #scr-battle so the rest of the site layout is untouched. */
+#scr-battle.show.live-fit{
+  display:flex;flex-direction:column;
+  height:calc(100vh - 6rem - 28px);
+  min-height:320px;
+}
+#scr-battle.live-fit #battleLive{
+  display:flex;flex-direction:column;flex:1 1 auto;min-height:0;
+}
+#scr-battle.live-fit #battlecanvas{
+  flex:0 1 auto;min-height:0;width:auto;max-width:100%;
+  max-height:46vh;margin:0 auto;
+}
+#scr-battle.live-fit #commentary{
+  flex:1 1 auto;height:auto;min-height:48px;
+}
+#scr-battle.live-fit #legend{flex:0 0 auto;}
+#scr-battle.live-fit #battlePost{flex:0 0 auto;overflow-y:auto;max-height:34vh;}
 #commentary p{margin:0 0 4px 0;color:var(--c64-lgrey);}
 #commentary p.sysline{color:var(--c64-cyan);}
 #commentary p.hitA{color:var(--c64-lgreen);}
@@ -434,10 +453,11 @@ var TRAITS=["CRAVEN","IRON-WILLED","GLORY-HUNGRY","GRUDGE-KEEPER","LUCKY","DRINK
 function hasTrait(f,t){return !!(f.traits&&f.traits.indexOf(t)>=0);}
 
 var STARS=[
-  {name:"BRIA",cls:"CATAPHRACT",note:"NIGHTCUTTER. SWORN. WILL NOT HEAR TERMS.",pow:19},
-  {name:"IRLA",cls:"OUTRIDER",note:"SEA-BORN OF RIN. HATES GRANITE CITIES. HERE FOR HER OWN REASONS.",pow:19},
-  {name:"BAIDEN",cls:"ARCHER",note:"KEEPS THE SWAN BOW. THE BOW IS NOT FOR SALE EITHER.",pow:18}
+  {name:"BRIA",epithet:"BRIA OF KREYTE",cls:"CATAPHRACT",note:"NIGHTCUTTER. SWORN. WILL NOT HEAR TERMS.",pow:19},
+  {name:"IRLA",epithet:"IRLA, THE CLEAVE OF RIN",cls:"OUTRIDER",note:"SEA-BORN OF RIN. HATES GRANITE CITIES. HERE FOR HER OWN REASONS.",pow:19},
+  {name:"BAIDEN",epithet:"BAIDEN THE ARCHER",cls:"ARCHER",note:"KEEPS THE SWAN BOW. AND THE BOW DOES NOT MISS.",pow:18}
 ];
+function starEpithet(nm){var st=STARS.find(function(s){return s.name===nm;});return st&&st.epithet?st.epithet:nm;}
 
 var LADDER=[
  {name:"FREE COMPANY",priv:"NOTHING IS OWED TO YOU. NOTHING IS PROMISED."},
@@ -462,8 +482,29 @@ function relicVals(){
   return v;
 }
 
+/* famous-warrior dispatches: these fire OFTEN. the superstars of the Continent. */
+var STAR_NEWS=[
+"IRLA OF RIN IS SEEN ON THE AURIC COAST. WHERE IRLA WALKS, PRICES RISE AND MEN STAND STRAIGHTER.",
+"THEY SAY IRLA, THE CLEAVE OF RIN, HAS NOT LOST A FIELD. THEY SAY IT LIKE A PRAYER AND LIKE A CURSE.",
+"ELAYDA OF GREEN TEMPLE WAS GIVEN THE SIGHT OF GODS. SHE HAS NOT RAISED A BLADE SINCE. SOME CALL IT MERCY. SOME CALL IT A WASTE.",
+"KELAK THE SWIFT OUTRAN A COURIER'S HORSE OVER THE DAWN WASTE, FOR A WAGER, AND WON. THE HORSE IS STILL ANNOYED.",
+"BAIDEN THE ARCHER LOOSED AT A COIN FLICKED INTO THE AIR AND SPLIT IT. THE SWAN BOW DOES NOT MISS. THAT IS THE WHOLE TROUBLE WITH IT.",
+"BRIA OF KREYTE DRILLS HER NIGHTCUTTERS ON THE HEAVENSLAIN SLOPES. THEY SAY SHE MEANS TO HOLD THE GRANITE THRONE WHATEVER COMES.",
+"ADIRA OF RAYSE, SECOND ONLY TO ELAYDA, MUSTERS PALADINS AT GREEN TEMPLE. THE TEMPLE DOES NOT MUSTER FOR NOTHING.",
+"A KNIGHT OF 3MOONS PASSED THROUGH, LINES BURNING BRIGHT AT THE THROAT. NO ONE ASKED IF THEY WERE TRUE. NO ONE DARED.",
+"THE OOKAMI ARE A NEW KYUSHU MATTER, FAR FROM HERE. STILL, A DRUNK SWEARS HE SAW YAEKO'S FACE ON A FAR-OFF BANNER. NO ONE BELIEVES HIM. EVERYONE LISTENS.",
+"IRLA AND ELAYDA. THE WARRIOR AND THE SEER. HALF THE CONTINENT SINGS OF THE LOVE. THE OTHER HALF SPITS AT IT. BOTH BUY THE SONGS.",
+"BAIDEN CAME BY THE SWAN BOW FROM ELAYDA HERSELF, THEY SAY. GIFT OR THEFT, NO ONE AGREES, AND IRLA IS SAID TO CARE VERY MUCH WHICH.",
+"KELAK ONCE RAN TO WARN OF AN INVASION AND FOUND HIS OWN CAPTAIN FLEEING INSTEAD. HE HELPED HER GO. A SOUND FELLA, THEY SAY, IF YOU CAN CATCH HIM TO SAY IT."
+];
 var ROAD_NEWS=[
-"WORD FROM KREYTE: THE THREE GATES CLOSE AT DUSK NOW. NO REASON GIVEN.",
+"HIGH WAIL ROOK IN THE WAYHOUSE TONIGHT. A CARTER SWEARS HE HAD THE ROOK HAND AND STILL LOST HIS BOOTS.",
+"TWO SKIRMISHERS SETTLED A GRUDGE OVER A HAND OF HIGH WAIL ROOK. BADLY. THE DECK SURVIVED. ONE OF THEM DID NOT.",
+"EVERYONE PLAYS HIGH WAIL ROOK ON THE ROAD. THE UN PLAY IT TOO, THEY SAY, WITH DIFFERENT RULES AND WORSE TEMPERS.",
+"A NEOKORO OF GREEN TEMPLE PREACHES THAT HIGH WAIL ROOK IS A LADDER OF SMALL SINS. THE WAYHOUSE IS FULLER THAN HIS SERMON.",
+"WORD FROM GREEN TEMPLE: THE EXCUBITORS ON THE WALLS HAVE NOT MOVED IN A WEEK. THEY NEVER DO. THAT IS THE UNSETTLING PART.",
+"THE HALBERDIERS OF GREEN TEMPLE, THE ARMOUR-CRUSHERS, MARCHED A COLUMN SOUTH. TOWARD WHAT, THE SCRIBE GAWYLE WILL NOT SAY.",
+"WORD FROM KREYTE: THE GATES CLOSE AT DUSK NOW. IN THE SHADOW OF GREEN TEMPLE, KREYTE PRAYS AND COUNTS COIN IN EQUAL MEASURE.",
 "GRAIN BARGES OUT OF RIN ARE PAYING DOUBLE FOR SWORN BLADES.",
 "A PILGRIM COLUMN PASSES SOUTH ALONG THE ROAD, SINGING THE COUNTING SONG.",
 "RAYSE RAISES ITS TOLLS AGAIN. CARTERS CURSE THE NAME.",
@@ -668,6 +709,7 @@ function setFooter(t){ document.getElementById("footerline").innerHTML=(t||"READ
 var selFighterId=null;
 function show(name){
   if(!S&&name!=="naming")return;
+  if(name!=="battle")document.getElementById("scr-battle").classList.remove("live-fit");
   document.querySelectorAll(".screenpane").forEach(function(p){p.classList.remove("show");});
   document.getElementById("scr-"+name).classList.add("show");
   document.querySelectorAll("#mainnav button").forEach(function(b){
@@ -1738,6 +1780,7 @@ function prepWeek(){
 function renderBattleScreen(){
   var pre=document.getElementById("battlePrematch");
   var live=document.getElementById("battleLive");
+  if(live.style.display!=="block")document.getElementById("scr-battle").classList.remove("live-fit");
   if(S.seasonOver){
     pre.innerHTML='<div class="panel"><div class="gold">THE SEASON IS OVER.</div><p class="note">CHECK THE CAMPAIGN SCREEN. START A NEW CAMPAIGN FROM SYSTEM WHEN READY.</p></div>';
     live.style.display="none"; return;
@@ -1773,7 +1816,7 @@ function renderBattleScreen(){
     '<div class="white">WEEK '+S.week+': '+S.companyName+' VS '+pw.opp.name+'</div>'+
     '<p class="note gold">SCOUT\'S REPORT: '+terrainReport(pw.ter)+'</p>'+
     '<p class="note dim">SCOUTS COUNT '+oppFit+' OF THEIRS FIT TO MARCH'+(oppHurt?', '+oppHurt+' CARRYING WOUNDS':'')+'.</p>'+
-    (starF?'<p class="note bad">'+starF.name+' MARCHES WITH THEM.</p>':'')+
+    (starF?'<p class="note bad">'+starEpithet(starF.name)+' MARCHES WITH THEM.</p>':'')+
     (lm?'<p class="note dim">LAST MEETING: '+(lm.result==="W"?"YOU BLOODIED THEM":lm.result==="L"?"THEY BLOODIED YOU":"A BLOODY DRAW")+' AT '+lm.ter+'.</p>':'')+
     (gm.length?'<p class="note gold">'+gm.join(". ")+'.</p>':'')+'</div>';
   html+='<div class="speech"><span class="who">'+S.staff.second.name+', YOUR SECOND:</span> '+pw.counsel.text+'</div>';
@@ -1810,6 +1853,7 @@ var playSpeed=140;
 });
 function startBattle(){
   var fx=currentFixture(); if(!fx)return;
+  document.getElementById("scr-battle").classList.add("live-fit");
   var pw=prepWeek();
   var army=musteredFighters().filter(function(f){return f.condition>=10;});
   if(army.length<6){setFooter("TOO FEW MARCH. FIX THE MUSTER FIRST.");show("muster");return;}
@@ -2183,6 +2227,10 @@ function endWeek(){
     }
   });
   news.push({t:"NEW BLADES ON THE ROAD SEEK A COMPANY.",func:false});
+  /* the superstars of the Continent are always in the mouths of the road */
+  var sn=STAR_NEWS.slice();
+  news.push({t:sn.splice(ri(0,sn.length-1),1)[0],func:false});
+  if(chance(0.45))news.push({t:sn.splice(ri(0,sn.length-1),1)[0],func:false});
   var fl=ROAD_NEWS.slice();
   news.push({t:fl.splice(ri(0,fl.length-1),1)[0],func:false});
   news.push({t:fl.splice(ri(0,fl.length-1),1)[0],func:false});
@@ -2195,7 +2243,7 @@ function endWeek(){
     if(nopp.roster){
       var nfit=nopp.roster.filter(function(f){return !f.dead&&f.condition>=40;}).length;
       var nstar=nopp.roster.find(function(f){return f.star&&!f.dead;});
-      news.push({t:"NEXT FIELD: "+nopp.name+". SCOUTS COUNT "+nfit+" BLADES FIT TO MARCH."+(nstar?(nstar.condition>=40?" "+nstar.name+" AMONG THEM.":" "+nstar.name+" STILL MENDS."):""),func:true});
+      news.push({t:"NEXT FIELD: "+nopp.name+". SCOUTS COUNT "+nfit+" BLADES FIT TO MARCH."+(nstar?(nstar.condition>=40?" "+starEpithet(nstar.name)+" AMONG THEM.":" "+starEpithet(nstar.name)+" STILL MENDS."):""),func:true});
     } else news.push({t:"NEXT FIELD: "+nopp.name+". THE SCOUTS RIDE OUT.",func:true});
   }
   var road={day:0,total:6,items:[],today:[]};
