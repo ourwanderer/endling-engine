@@ -87,19 +87,9 @@ tr.sel td{color:var(--c64-yellow);}
 #legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px;}
 #legend span{color:var(--c64-lgrey);}
 .sw{display:inline-block;width:8px;height:8px;vertical-align:middle;margin-right:4px;}
-#battleCols{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap;}
-#battleLeft{flex:1 1 340px;min-width:0;}
-#battleRight{flex:1 1 300px;min-width:0;display:flex;flex-direction:column;}
-#battleControls{display:flex;gap:6px;margin-top:6px;align-items:center;flex-wrap:wrap;}
 #commentary{
-  flex:1 1 auto;height:auto;min-height:170px;
-  overflow-y:auto;border:2px solid var(--c64-lblue);
+  height:150px;overflow-y:auto;border:2px solid var(--c64-lblue);
   padding:6px;margin-top:8px;background:var(--c64-black);
-}
-/* On a single (narrow/stacked) column, the log no longer needs to stretch;
-   give it a fixed, scrollable height so the page stays short. */
-@media(max-width:659px){
-  #commentary{flex:0 0 auto;height:180px;min-height:0;}
 }
 #commentary p{margin:0 0 4px 0;color:var(--c64-lgrey);}
 #commentary p.sysline{color:var(--c64-cyan);}
@@ -241,31 +231,25 @@ tr.sel td{color:var(--c64-yellow);}
 <div id="scr-battle" class="screenpane">
   <div id="battlePrematch"></div>
   <div id="battleLive" style="display:none">
-    <div id="battleCols">
-      <div id="battleLeft">
-        <canvas id="battlecanvas" width="320" height="180"></canvas>
-        <div id="legend">
-          <span><i class="sw" style="background:#B2B2B2"></i>SHIELD</span>
-          <span><i class="sw" style="background:#75CEC8"></i>HALBERD</span>
-          <span><i class="sw" style="background:#A9FF9F"></i>ARCHER</span>
-          <span><i class="sw" style="background:#EDF171"></i>OUTRIDER</span>
-          <span><i class="sw" style="background:#FFFFFF"></i>CATAPHRACT</span>
-          <span><i class="sw" style="background:#8E5029"></i>SKIRMISHER</span>
-          <span class="dim">/ YOURS UNDERLINED BLUE, THEIRS RED</span>
-        </div>
-        <div id="battleControls">
-          <span class="sub" id="battleScore"></span>
-          <span style="flex:1"></span>
-          <button id="spd1">SLOW</button>
-          <button id="spd2" class="on">QUICK</button>
-          <button id="spd3">SWIFT</button>
-          <button id="btnSnd">SND ON</button>
-        </div>
-      </div>
-      <div id="battleRight">
-        <div id="commentary"></div>
-      </div>
+    <canvas id="battlecanvas" width="320" height="180"></canvas>
+    <div id="legend">
+      <span><i class="sw" style="background:#B2B2B2"></i>SHIELD</span>
+      <span><i class="sw" style="background:#75CEC8"></i>HALBERD</span>
+      <span><i class="sw" style="background:#A9FF9F"></i>ARCHER</span>
+      <span><i class="sw" style="background:#EDF171"></i>OUTRIDER</span>
+      <span><i class="sw" style="background:#FFFFFF"></i>CATAPHRACT</span>
+      <span><i class="sw" style="background:#8E5029"></i>SKIRMISHER</span>
+      <span class="dim">/ YOURS UNDERLINED BLUE, THEIRS RED</span>
     </div>
+    <div style="display:flex;gap:6px;margin-top:6px;align-items:center;flex-wrap:wrap">
+      <span class="sub" id="battleScore"></span>
+      <span style="flex:1"></span>
+      <button id="spd1">SLOW</button>
+      <button id="spd2" class="on">QUICK</button>
+      <button id="spd3">SWIFT</button>
+      <button id="btnSnd">SND ON</button>
+    </div>
+    <div id="commentary"></div>
     <div id="battlePost" style="margin-top:8px"></div>
   </div>
 </div>
