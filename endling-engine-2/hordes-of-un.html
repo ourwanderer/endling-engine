@@ -2453,7 +2453,12 @@ function splashDraw(){
   /* prompts */
   x.font='8px "Press Start 2P"';
   if(SPL.stage==="ready"){
-    if(fr%40<26){x.fillStyle="#75CEC8";x.fillText("BEGIN CAMPAIGN",104,182);}
+    if(SPL.hasSave){
+      x.fillStyle="#75CEC8";x.fillText("CONTINUE CAMPAIGN",70,176);
+      x.fillStyle="#EDF171";x.fillText("NEW CAMPAIGN",90,190);
+    } else {
+      if(fr%40<26){x.fillStyle="#75CEC8";x.fillText("BEGIN CAMPAIGN",104,182);}
+    }
   } else {
     if(fr%40<26){x.fillStyle="#EDF171";x.fillText("CLICK TO LOAD",108,182);}
   }
@@ -2471,29 +2476,45 @@ function splashDraw(){
 
 (function boot(){
   var sp=document.getElementById("splash");
-  function begin(){
+  function begin(mode){
     SPL.stage="done";
     if(SPL.raf){cancelAnimationFrame(SPL.raf);SPL.raf=null;}
     musicStop();
     document.removeEventListener("keydown",onKey);
     sp.style.display="none";
     sfx("stab");
-    var loaded=false;
-    try{ loaded=!!localStorage.getItem(SAVE_KEY); }catch(e){}
-    if(loaded){ if(!loadGame()){newCampaign();} } else { newCampaign(); }
+    if(mode==="continue"){ if(!loadGame()){newCampaign();} }
+    else { newCampaign(); }
   }
   function advance(){
     if(SPL.stage==="title"){
       sndInit();
       SPL.stage="loading";
       tone(1400,0.06,"square",0.04,600);
-      setTimeout(function(){ if(SPL.stage==="loading"){SPL.stage="ready"; musicStart();} },1500);
+      setTimeout(function(){
+        if(SPL.stage==="loading"){
+          SPL.stage="ready";
+          try{ SPL.hasSave=!!localStorage.getItem(SAVE_KEY); }catch(e){ SPL.hasSave=false; }
+          musicStart();
+        }
+      },1500);
     } else if(SPL.stage==="ready"){
-      begin();
+      if(!SPL.hasSave){ begin("new"); return; }
+      /* two options: pick by where they clicked */
+      var y=SPL._clickY;
+      if(y==null){ begin("continue"); return; }   /* keyboard: default to continue */
+      begin(y<184?"continue":"new");
     }
   }
-  function onKey(){advance();}
-  sp.addEventListener("click",advance);
+  function onKey(){ SPL._clickY=null; advance(); }
+  sp.addEventListener("click",function(ev){
+    var cv=document.getElementById("splashCv");
+    if(cv&&SPL.stage==="ready"){
+      var rect=cv.getBoundingClientRect();
+      SPL._clickY=(ev.clientY-rect.top)*(200/rect.height);
+    } else { SPL._clickY=null; }
+    advance();
+  });
   document.addEventListener("keydown",onKey);
   var started=false;
   function startLoop(){ if(started)return; started=true; SPL.raf=requestAnimationFrame(splashDraw); }
