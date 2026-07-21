@@ -108,9 +108,7 @@ tr.sel td{color:var(--c64-yellow);}
 .flexrow > div{flex:1 1 240px;}
 .note{color:var(--c64-grey);margin-top:8px;}
 #splash{position:fixed;inset:0;background:var(--c64-black);z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;padding:10px;}
-#splash img{max-width:min(100%,760px);max-height:78vh;image-rendering:pixelated;display:block;}
-#splashPrompt{color:var(--c64-yellow);margin-top:14px;font-size:12px;animation:blink 1s steps(1) infinite;}
-#splashFallback{display:none;color:var(--c64-white);text-align:center;}
+#splash canvas{width:min(94vw,760px);image-rendering:pixelated;background:#000;}
 #commentary p.weird{color:#CC66CC;}
 .roaditem{color:var(--c64-lgrey);margin:0 0 4px 0;}
 .roaditem.func{color:var(--c64-cyan);}
@@ -123,9 +121,7 @@ tr.sel td{color:var(--c64-yellow);}
 </head>
 <body>
 <div id="splash">
-  <img id="splashImg" src="images/endling/hordes-splash.png" alt="HORDES OF UN">
-  <div id="splashFallback"><h1 style="font-size:22px">HORDES OF UN</h1><p class="sub">3MOONS ULTRACORP SOFTWARE DIVISION (C) 1987</p></div>
-  <div id="splashPrompt">CLICK OR PRESS FIRE TO BEGIN</div>
+  <canvas id="splashCv" width="320" height="200"></canvas>
 </div>
 
 <div id="monitor"><div id="screen">
@@ -219,6 +215,8 @@ tr.sel td{color:var(--c64-yellow);}
   <div class="panel">
     <div class="sub">RENOWN AMONG COMPANIES</div>
     <div class="tablewrap"><table id="leagueTable"></table></div>
+    <div class="sub" style="margin-top:8px">THE COMPANY CHRONICLE</div>
+    <div id="chroniclePanel"></div>
     <p class="note">WIN 3 PTS. BLOODIED DRAW 1 PT. THE SEASON RUNS 14 WEEKS.</p>
   </div>
 </div>
@@ -366,6 +364,10 @@ function makeFighter(clsKey, quality){
   }
   var pow=power(f);
   f.wage=Math.max(4, Math.round(pow/3) + f.lines);
+  f.traits=[];
+  if(chance(0.35))f.traits.push(pick(TRAITS));
+  if(chance(0.12)){var t2=pick(TRAITS); if(f.traits.indexOf(t2)<0)f.traits.push(t2);}
+  f.chron={b:0,k:0,w:0,deeds:[]};
   return f;
 }
 function condMult(f){return 0.55+0.45*(f.condition/100);}
@@ -407,6 +409,9 @@ function makeCompanies(){
     {id:7,name:"SONS OF THE DZUD",strength:1.1,unband:true,pts:0,w:0,d:0,l:0}
   ];
 }
+var TRAITS=["CRAVEN","IRON-WILLED","GLORY-HUNGRY","GRUDGE-KEEPER","LUCKY","DRINKS","OMEN-TOUCHED","STEADY HAND"];
+function hasTrait(f,t){return !!(f.traits&&f.traits.indexOf(t)>=0);}
+
 var STARS=[
   {name:"BRIA",cls:"CATAPHRACT",note:"NIGHTCUTTER. SWORN. WILL NOT HEAR TERMS.",pow:19},
   {name:"IRLA",cls:"OUTRIDER",note:"SEA-BORN OF RIN. HATES GRANITE CITIES. HERE FOR HER OWN REASONS.",pow:19},
@@ -448,6 +453,7 @@ function newCampaign(){
     stores:{herbs:4,iron:1},
     companies:makeCompanies(),
     fixtures:[],
+    chronicle:[], rosterNews:[],
     seasonOver:false,
     tourDone:false
   };
@@ -539,6 +545,18 @@ function migrate(st){
   if(!st.stores){ st.stores={herbs:2,iron:0}; }
   if(!st.muster){ st.muster=[]; }
   if(st.tourDone===undefined){ st.tourDone=true; }
+  if(!st.chronicle){ st.chronicle=[]; }
+  if(!st.rosterNews){ st.rosterNews=[]; }
+  st.squad.concat(st.market).forEach(function(f){
+    if(!f.traits)f.traits=[];
+    if(!f.chron)f.chron={b:0,k:0,w:0,deeds:[]};
+  });
+  st.companies.forEach(function(c){
+    if(c.roster)c.roster.forEach(function(f){
+      if(!f.traits)f.traits=[];
+      if(!f.chron)f.chron={b:0,k:0,w:0,deeds:[]};
+    });
+  });
   st.squad.concat(st.market).forEach(function(f){
     if(f.condition===undefined){
       if(f.injury>0){ f.condition=clamp(30-f.injury*2,10,40); f.wounded=true; }
@@ -553,7 +571,8 @@ function loadGame(){
     var raw=localStorage.getItem(SAVE_KEY);
     if(!raw){sysMsg("NO SAVED CAMPAIGN FOUND.");return false;}
     var data=JSON.parse(raw);
-    S=migrate(data.S); nextId=data.nextId||1000;
+    nextId=data.nextId||1000;
+    S=migrate(data.S);
     if(S.muster.length===0)autoMuster();
     refillStaffMarket();
     renderAll(); show("squad");
@@ -583,7 +602,15 @@ document.getElementById("mainnav").addEventListener("click",function(e){
 
 function renderAll(){
   renderHeader(); renderSquad(); renderMuster(); renderTactics();
-  renderStaff(); renderMarket(); renderFixtures(); renderLeague();
+  renderStaff(); renderMarket(); renderFixtures(); renderLeague(); renderChronicle();
+}
+function renderChronicle(){
+  var el=document.getElementById("chroniclePanel");
+  if(!el)return;
+  var list=S.chronicle||[];
+  el.innerHTML=list.length
+    ? list.slice(0,14).map(function(t){return '<p class="roaditem">'+t+'</p>';}).join("")
+    : '<p class="roaditem dim">NOTHING YET. THE LEDGER WAITS FOR BLOOD.</p>';
 }
 function renderHeader(){
   document.getElementById("hdrCompany").textContent=S.companyName;
@@ -668,6 +695,15 @@ function renderFighterDetail(){
   });
   html+='</div>';
   html+='<div class="note">CONDITION '+condTag(f)+(f.wounded?' / <span class="bad">CARRYING A WOUND</span>':'')+' / MORALE '+f.morale+'</div>';
+  var ch=f.chron||{b:0,k:0,w:0,deeds:[]};
+  html+='<div class="note">SERVICE: '+ch.b+' BATTLES / '+ch.k+' KILLS / '+ch.w+' WOUNDS TAKEN</div>';
+  if(ch.b>=3){
+    html+='<div class="note">THE COMPANY KNOWS HIM: '+((f.traits&&f.traits.length)?f.traits.join(", "):"NOTHING REMARKABLE")+'</div>';
+  } else {
+    html+='<div class="note dim">THE COMPANY DOES NOT KNOW HIM WELL YET.</div>';
+  }
+  if(f.grudge)html+='<div class="note bad">BEARS A GRUDGE: '+f.grudge.name+' OF '+f.grudge.comp+'</div>';
+  if(ch.deeds.length)html+='<div class="note gold">DEEDS: '+ch.deeds.join(" ")+'</div>';
   var sellVal=f.wage*3;
   html+='<div style="margin-top:6px"><button id="btnRelease">SELL HIS CONTRACT ('+sellVal+' COIN)</button></div>';
   box.innerHTML=html;
@@ -903,29 +939,41 @@ function renderLeague(){
 }
 
 /* ---------- OPPONENT ARMY ---------- */
-function makeOpponentArmy(comp){
-  var plan;
-  if(comp.unband){
-    plan=["SKIRMISHER","SKIRMISHER","SKIRMISHER","SKIRMISHER","SKIRMISHER","OUTRIDER","OUTRIDER","OUTRIDER","SHIELDLINE","SHIELDLINE","HALBERDIER","ARCHER","SKIRMISHER","OUTRIDER"];
-  } else if(comp.bowheavy){
-    plan=["SHIELDLINE","SHIELDLINE","SHIELDLINE","HALBERDIER","ARCHER","ARCHER","ARCHER","ARCHER","ARCHER","ARCHER","OUTRIDER","OUTRIDER","CATAPHRACT","SHIELDLINE"];
-  } else {
-    plan=["SHIELDLINE","SHIELDLINE","SHIELDLINE","SHIELDLINE","HALBERDIER","HALBERDIER","ARCHER","ARCHER","ARCHER","OUTRIDER","OUTRIDER","CATAPHRACT","CATAPHRACT","SHIELDLINE"];
-  }
-  var army=plan.map(function(c){
+function rosterPlan(comp){
+  if(comp.unband)return ["SKIRMISHER","SKIRMISHER","SKIRMISHER","SKIRMISHER","SKIRMISHER","OUTRIDER","OUTRIDER","OUTRIDER","SHIELDLINE","SHIELDLINE","HALBERDIER","ARCHER","SKIRMISHER","OUTRIDER"];
+  if(comp.bowheavy)return ["SHIELDLINE","SHIELDLINE","SHIELDLINE","HALBERDIER","ARCHER","ARCHER","ARCHER","ARCHER","ARCHER","ARCHER","OUTRIDER","OUTRIDER","CATAPHRACT","SHIELDLINE"];
+  return ["SHIELDLINE","SHIELDLINE","SHIELDLINE","SHIELDLINE","HALBERDIER","HALBERDIER","ARCHER","ARCHER","ARCHER","OUTRIDER","OUTRIDER","CATAPHRACT","CATAPHRACT","SHIELDLINE"];
+}
+function buildRoster(comp){
+  var plan=rosterPlan(comp).concat(["SHIELDLINE","ARCHER","HALBERDIER"]);
+  var roster=plan.map(function(c){
     return makeFighter(c, comp.strength*(0.85+Math.random()*0.25));
   });
   if(comp.star){
     var st=STARS.find(function(s){return s.name===comp.star;});
-    if(st && chance(0.6)){
+    if(st){
       var hero=makeFighter(st.cls,1.4);
       hero.name=st.name;
       ATTR_KEYS.forEach(function(k){hero.a[k]=clamp(hero.a[k]+4,1,20);});
       hero.realLines=hero.lines;
-      army.push(hero);
+      hero.star=true;
+      roster.push(hero);
     }
   }
-  return army;
+  return roster;
+}
+function makeOpponentArmy(comp){
+  if(!comp.roster)comp.roster=buildRoster(comp);
+  if(!S.rosterNews)S.rosterNews=[];
+  var hired=false;
+  while(comp.roster.filter(function(f){return !f.dead&&f.condition>=40;}).length<10){
+    comp.roster.push(makeFighter(pick(rosterPlan(comp)), comp.strength*(0.8+Math.random()*0.2)));
+    hired=true;
+  }
+  if(hired)S.rosterNews.push(comp.name+" TAKE ON NEW BLADES TO FILL THEIR RANKS.");
+  var fit=comp.roster.filter(function(f){return !f.dead&&f.condition>=40;});
+  fit.sort(function(a,b){return power(b)-power(a);});
+  return fit.slice(0,14);
 }
 
 /* ---------- TERRAIN ---------- */
@@ -1035,7 +1083,16 @@ var GLITCH_LINES=[
   "THE RIVER IS BRIEFLY ELSEWHERE.",
   "SOMEONE COUNTS FOUR MOONS. THERE ARE THREE. THERE HAVE ALWAYS BEEN THREE.",
   "THE GR0UND HUMS 1N A K3Y N0 0NE KN0WS.",
-  "GO BACK. START AGAIN. DO NOT REMAIN IN THE LOOP."
+  "GO BACK. START AGAIN. DO NOT REMAIN IN THE LOOP.",
+  "THE ROCKS, WHILE NO ONE LOOKS, AGREE TO BE WATER. SOMEONE LOOKS. THEY STOP.",
+  "ASKED FOR ITS POSITION, THE RIVER DECLINES TO HAVE ONE.",
+  "EVERY POSSIBLE BATTLE IS BEING FOUGHT HERE. THIS IS THE ONE THAT GETS WRITTEN DOWN.",
+  "AN ARROW PASSES THROUGH BOTH GAPS IN THE SHIELDWALL. ASKED WHICH, IT REFUSES.",
+  "TIME PASSES. THEN PASSES AGAIN, SLIGHTLY DIFFERENTLY.",
+  "THE DISTANCE BETWEEN THE ARMIES IS FOUND TO BE A MATTER OF OPINION.",
+  "NOTHING HERE HAS PROPERTIES. ONLY RELATIONSHIPS. MOST OF THEM HOSTILE.",
+  "A FIGHTER'S FATE STAYS UNDECIDED UNTIL HIS MOTHER HEARS OF IT.",
+  "[THE CHRONICLER RECORDS THIS MOMENT BEFORE IT OCCURS]"
 ];
 var FIELD_W=320, FIELD_H=180;
 function simBattle(playerArmy, oppArmy, oppComp, terrain){
@@ -1047,8 +1104,11 @@ function simBattle(playerArmy, oppArmy, oppComp, terrain){
   var soft=terrain.type==="THE SOFT PLACE";
   var truth=0, glitchNow=0;
   function lb(f){
-    if(truth>0) return f.lines*1.5+(f.communion?5:0);
-    return lineBonus(f);
+    var b;
+    if(truth>0) b=f.lines*1.5+(f.communion?5:0);
+    else b=lineBonus(f);
+    if(soft&&hasTrait(f,"OMEN-TOUCHED"))b+=3;
+    return b;
   }
   var yMin = terrain.type==="THE DEFILE"?62:40;
   var yMax = terrain.type==="THE DEFILE"?118:140;
@@ -1126,6 +1186,19 @@ function simBattle(playerArmy, oppArmy, oppComp, terrain){
     playerArmy.forEach(function(f){if(f.communion&&!comm)comm=f;});
     if(comm)ev(0,comm.name+" LOOKS AT THE GROUND AND NODS, UNTROUBLED. AS IF THEY HAVE SEEN THIS BEFORE.","sysline");
   }
+  var grudgesSeen=0;
+  playerArmy.forEach(function(f){
+    if(grudgesSeen>=2||!f.grudge)return;
+    if(oppArmy.some(function(o){return o.name===f.grudge.name;})){
+      ev(0,f.name+" SEES THE ONE WHO PUT THEM IN THE MUD. "+f.grudge.name+" IS ON THIS FIELD.","sysline");grudgesSeen++;
+    }
+  });
+  oppArmy.forEach(function(f){
+    if(grudgesSeen>=3||!f.grudge)return;
+    if(playerArmy.some(function(o){return o.name===f.grudge.name;})){
+      ev(0,f.grudge.name+" IS MARKED. "+f.name+" REMEMBERS THEM.","sysline");grudgesSeen++;
+    }
+  });
 
   var linesMet=false, routTick=null;
   var tick=0, maxTicks=460;
@@ -1169,6 +1242,8 @@ function simBattle(playerArmy, oppArmy, oppComp, terrain){
     var fmA=FORMATIONS[side.tac.formation], agA=AGGRESSIONS[side.tac.aggression];
     var skill=Math.max(u.e.BLD,u.e.POL);
     var atk=skill + u.e.MGT/2 + u.e.FER/2 + lb(f) + fmA.att + agA.att + ri(0,10);
+    if(f.grudge&&f.grudge.name===tgt.f.name)atk+=hasTrait(f,"GRUDGE-KEEPER")?6:3;
+    if(hasTrait(f,"GLORY-HUNGRY")&&fighters(side).length<fighters(foeSide).length)atk+=2;
     var up=uphillSide();
     if(up){ atk += (side.key===up? 2 : -2); }
     if(u.charging&&!u.chargeSpent){
@@ -1186,7 +1261,13 @@ function simBattle(playerArmy, oppArmy, oppComp, terrain){
       var dmg=ri(2,7)+Math.round((atk-dfn)/5);
       tgt.hp-=dmg;
       if(tgt.hp<=0&&!tgt.down){
+        if(!tgt.luckSpent&&hasTrait(tgt.f,"LUCKY")){
+          tgt.hp=2;tgt.luckSpent=true;
+          ev(tk,tgt.f.name+" SHOULD BE DOWN. THE DICE SAY OTHERWISE.","sysline");
+          return;
+        }
         tgt.down=true; u.kills++;
+        downLog.push({by:f,vic:tgt.f,bySide:side.key});
         bodies.push({x:Math.round(tgt.x),y:Math.round(tgt.y)});
         var verbs=["CUTS DOWN","FELLS","BREAKS","PUTS DOWN","OVERTHROWS"];
         ev(tk,f.name+" "+pick(verbs)+" "+tgt.f.name+".",side.isPlayer?"hitA":"hitB");
@@ -1194,19 +1275,26 @@ function simBattle(playerArmy, oppArmy, oppComp, terrain){
     }
   }
   var projs=[];
+  var downLog=[];
   function shoot(u,side,foeSide,tk){
     var f=u.f;
     var tgt=nearestFoe(u,foeSide); if(!tgt)return;
     var d=dist2(u,tgt);
     if(d<20||d>120)return;
     projs.push({x1:u.x,y1:u.y,x2:tgt.x,y2:tgt.y});
-    var atk=u.e.BOW*2 + lb(f) + ri(0,10) - (terrain.weather==="RAIN"?4:0);
+    var atk=u.e.BOW*2 + (hasTrait(f,"STEADY HAND")?2:0) + lb(f) + ri(0,10) - (terrain.weather==="RAIN"?4:0);
     var dfn=tgt.e.SHD + tgt.e.ARM + ri(0,12) + (foeSide.tac.formation==="SHIELDWALL"?6:0) + d/12;
     if(inWater(tgt))dfn-=4;
     if(atk>dfn){
       tgt.hp-=ri(4,9);
       if(tgt.hp<=0&&!tgt.down){
+        if(!tgt.luckSpent&&hasTrait(tgt.f,"LUCKY")){
+          tgt.hp=2;tgt.luckSpent=true;
+          ev(tk,tgt.f.name+" SHOULD BE DOWN. THE DICE SAY OTHERWISE.","sysline");
+          return;
+        }
         tgt.down=true; u.kills++;
+        downLog.push({by:f,vic:tgt.f,bySide:side.key});
         bodies.push({x:Math.round(tgt.x),y:Math.round(tgt.y)});
         ev(tk,f.name+" FEATHERS "+tgt.f.name+" AT RANGE.",side.isPlayer?"hitA":"hitB");
       }
@@ -1320,6 +1408,9 @@ function simBattle(playerArmy, oppArmy, oppComp, terrain){
     if(!side.waver && lossFrac>threshold*0.6){
       side.waver=true;
       ev(tk,side.label+" WAVERS.","sysline");
+      fighters(side).forEach(function(u){
+        if(hasTrait(u.f,"CRAVEN")&&chance(0.5)){u.fleeing=true;ev(tk,u.f.name+" DECIDES THE CAUSE IS LOST.","sysline");}
+      });
     }
     if(lossFrac>threshold){
       var f2=fighters(side);
@@ -1327,7 +1418,10 @@ function simBattle(playerArmy, oppArmy, oppComp, terrain){
       if(chance(0.22 - dscAvg/110)){
         side.routed=true; routTick=tk;
         ev(tk,side.label+" BREAKS AND RUNS.","big");
-        alive(side).forEach(function(u){u.fleeing=true;});
+        alive(side).forEach(function(u){
+          if(hasTrait(u.f,"IRON-WILLED")){ev(tk,u.f.name+" DOES NOT RUN.","sysline");return;}
+          u.fleeing=true;
+        });
       }
     }
   }
@@ -1354,11 +1448,11 @@ function simBattle(playerArmy, oppArmy, oppComp, terrain){
 
     if(truth>0)truth--;
     glitchNow=Math.max(0,glitchNow-1);
-    if(soft&&chance(0.045)){
-      glitchNow=2;
+    if(soft&&chance(0.06)){
+      glitchNow=3;
       var roll=Math.random();
-      if(roll<0.4){ ev(tick,pick(GLITCH_LINES),"big"); }
-      else if(roll<0.65){
+      if(roll<0.28){ ev(tick,pick(GLITCH_LINES),"big"); }
+      else if(roll<0.46){
         var cand=alive(A).concat(alive(B)).filter(function(u){return !u.f.communion;});
         if(cand.length>=2){
           var u1=pick(cand),u2=pick(cand);
@@ -1367,15 +1461,37 @@ function simBattle(playerArmy, oppArmy, oppComp, terrain){
             ev(tick,"REALITY RECONSIDERS ITS POSITIONS.","big");
           }
         }
-      } else if(roll<0.8){
-        truth=16; ev(tick,"EVERY LINE ON THE FIELD BURNS TRUE.","big");
-      } else {
+      } else if(roll<0.58){
+        truth=16; ev(tick,"FOR SIXTEEN HEARTBEATS, EVERY LINE ON THE FIELD IS TRUE RELATIVE TO SOMETHING.","big");
+      } else if(roll<0.70){
         var downs=A.units.concat(B.units).filter(function(u){return u.down&&!u.escaped;});
         if(downs.length){
           var ru=pick(downs); ru.down=false; ru.fleeing=false;
           ru.hp=Math.max(6,Math.round(ru.maxhp*0.3));
           ev(tick,ru.f.name+" FORGETS TO BE DOWN.","big");
         } else { ev(tick,pick(GLITCH_LINES),"big"); }
+      } else if(roll<0.80){
+        var hurt=alive(A).concat(alive(B)).filter(function(u){return u.hp<u.maxhp;});
+        if(hurt.length){
+          var hu=pick(hurt); hu.hp=hu.maxhp;
+          ev(tick,"THE ARROW IN "+hu.f.name+" UN-HAPPENS. THE WOUND DECLINES TO HAVE OCCURRED.","big");
+        } else { ev(tick,pick(GLITCH_LINES),"big"); }
+      } else if(roll<0.90){
+        alive(A).concat(alive(B)).forEach(function(u){
+          u.x=clamp(u.x+ri(-8,8),6,FIELD_W-6); u.y=clamp(u.y+ri(-6,6),yMin,yMax);
+        });
+        ev(tick,"OBSERVED CLOSELY, NO ONE IS QUITE WHERE THEY WERE.","big");
+      } else {
+        var fa2=fighters(A), fb2=fighters(B);
+        if(fa2.length&&fb2.length){
+          var su=pick(fa2.concat(fb2));
+          var foes2=(su.side==="A"?fighters(B):fighters(A));
+          foes2.sort(function(p,q){return dist2(su,p)-dist2(su,q);});
+          var struck=foes2.slice(0,2);
+          struck.forEach(function(t3){t3.hp=Math.max(1,t3.hp-ri(7,13));});
+          if(struck.length===2)ev(tick,su.f.name+" IS BRIEFLY IN TWO PLACES. BOTH "+struck[0].f.name+" AND "+struck[1].f.name+" ARE STABBED. NEITHER FALLS. YET.","big");
+          else ev(tick,pick(GLITCH_LINES),"big");
+        }
       }
     }
 
@@ -1414,6 +1530,7 @@ function simBattle(playerArmy, oppArmy, oppComp, terrain){
   return {ticks:ticks,events:events,winner:winner,terrain:terrain,bodies:bodies,
     aDown:A.units.filter(function(u){return u.down;}),
     bDown:B.units.filter(function(u){return u.down;}),
+    aUnits:A.units,bUnits:B.units,downLog:downLog,
     oppComp:oppComp,oppArmy:oppArmy};
 }
 
@@ -1446,9 +1563,11 @@ function renderBattleScreen(){
   }
   var mus=musteredFighters();
   var weakCount=mus.filter(function(f){return f.condition<60;}).length;
+  var starF=pw.oppArmy.find(function(f){return f.star;});
   var html='<div class="panel">'+
     '<div class="white">WEEK '+S.week+': '+S.companyName+' VS '+pw.opp.name+'</div>'+
-    '<p class="note gold">SCOUT\'S REPORT: '+terrainReport(pw.ter)+'</p></div>';
+    '<p class="note gold">SCOUT\'S REPORT: '+terrainReport(pw.ter)+'</p>'+
+    (starF?'<p class="note bad">'+starF.name+' MARCHES WITH THEM.</p>':'')+'</div>';
   html+='<div class="speech"><span class="who">'+S.staff.second.name+', YOUR SECOND:</span> '+pw.counsel.text+'</div>';
   var woundedNow=S.squad.filter(function(f){return f.wounded;}).length;
   if(S.staff.healer&&woundedNow>0&&S.stores.herbs<woundedNow){
@@ -1621,6 +1740,19 @@ function drawTick(ctx,sim,frame){
   ctx.fillStyle="#7B7B7B";ctx.fillRect(270,18,4,4);
   ctx.fillStyle="#4A4A4A";ctx.fillRect(262,4,3,3);
   if(g){ctx.fillStyle="#EDF171";ctx.fillRect(283,12,4,4);}
+  var warp=(ter.type==="THE SOFT PLACE")&&(g>0||((frame%150)<5));
+  if(warp){
+    var wcv=ctx.canvas;
+    if(frame%150===0){ctx.fillStyle="#8E3C97";ctx.fillRect(0,0,320,180);}
+    var nb=3+((frame*7)%4);
+    for(var wb=0;wb<nb;wb++){
+      var wry=(frame*37+wb*61)%168;
+      var wrh=4+((frame+wb*13)%10);
+      var woff=(((frame*13+wb*29)%25)-12);
+      ctx.drawImage(wcv,0,wry,320,wrh, woff,wry,320,wrh);
+    }
+    if(frame%4===0){ctx.drawImage(wcv,0,0,320,90, 1,0,320,90);}
+  }
 }
 
 /* ---------- RESULT / WEEK ADVANCE ---------- */
@@ -1653,6 +1785,38 @@ function finishBattle(sim){
   S.squad=S.squad.filter(function(f){return !f.dead;});
   S.muster=S.muster.filter(function(id){return S.squad.some(function(f){return f.id===id;});});
 
+  /* the foe bleeds too, and remembers */
+  var oppDead=[], starHurt=null;
+  sim.bDown.forEach(function(u){
+    var f=u.f;
+    if(chance(0.08)){ f.dead=true; oppDead.push(f.name); }
+    else { f.condition=ri(5,25); f.wounded=true; if(f.star)starHurt=f.name; }
+  });
+  if(opp.roster)opp.roster=opp.roster.filter(function(f){return !f.dead;});
+  sim.oppArmy.forEach(function(f){
+    if(f.dead||f.wounded)return;
+    f.condition=clamp(f.condition-ri(12,18),10,100);
+  });
+  (sim.aUnits||[]).forEach(function(u){
+    var f=u.f; if(!f.chron)return;
+    f.chron.b++; f.chron.k+=(u.kills||0);
+    if((u.kills||0)>=3&&f.chron.deeds.length<6)
+      f.chron.deeds.push("WEEK "+S.week+": "+u.kills+" FOES AT "+sim.terrain.type+".");
+  });
+  (sim.bUnits||[]).forEach(function(u){ if(u.f.chron)u.f.chron.b++; });
+  sim.aDown.forEach(function(u){ if(u.f.chron&&!u.f.dead)u.f.chron.w++; });
+  (sim.downLog||[]).forEach(function(dl){
+    if(dl.bySide==="A"&&dl.vic.star&&dl.by.chron&&dl.by.chron.deeds.length<6)
+      dl.by.chron.deeds.push("WEEK "+S.week+": FELLED "+dl.vic.name+" OF "+opp.name+".");
+    if(!dl.vic.dead){
+      dl.vic.grudge={name:dl.by.name, comp:(dl.bySide==="A"?S.companyName:opp.name)};
+    }
+  });
+  if(!S.chronicle)S.chronicle=[];
+  S.chronicle.unshift("WEEK "+S.week+": "+(sim.winner==="A"?"VICTORY OVER ":sim.winner==="B"?"BEATEN BY ":"DREW WITH ")+opp.name+" AT "+sim.terrain.type+" ("+score+").");
+  if(oppDead.length)S.chronicle.unshift("WEEK "+S.week+": "+oppDead.join(", ")+" OF "+opp.name+" SLAIN IN THE FIELD.");
+  S.lastOpp={name:opp.name,dead:oppDead,starHurt:starHurt};
+
   var drain=S.tactics.aggression==="FURIOUS"?20:S.tactics.aggression==="FIERCE"?17:14;
   sim.playerArmy.forEach(function(f){
     if(f.dead||f.wounded&&f.condition<=25)return;
@@ -1684,7 +1848,9 @@ function finishBattle(sim){
   if(forage.coin)fLines.push(forage.coin+" COIN FROM STASHES");
   if(fLines.length)post+='<p class="good">THE FIELD IS STRIPPED: '+fLines.join(", ")+'.</p>';
   else if((res.herbs||res.iron||res.coin>=15)&&sim.winner==="B")post+='<p class="dim">THE FIELD AND ITS FINDS WERE NOT YOURS TO STRIP.</p>';
-  if(deadNames.length)post+='<p class="bad">FALLEN: '+deadNames.join(", ")+'.</p>';
+  if(deadNames.length){post+='<p class="bad">FALLEN: '+deadNames.join(", ")+'.</p>';S.chronicle.unshift("WEEK "+S.week+": FALLEN: "+deadNames.join(", ")+".");}
+  S.chronicle=S.chronicle.slice(0,30);
+  if(oppDead.length)post+='<p class="good">THE FOE LEAVES DEAD ON THE FIELD: '+oppDead.join(", ")+'.</p>';
   if(hurtNames.length)post+='<p class="note">WOUNDED: '+hurtNames.join(", ")+'.'+(S.staff.healer?'':' NO HEALER TENDS THEM.')+'</p>';
   if(S.coin<0)post+='<p class="bad">THE COFFER IS EMPTY. UNPAID BLADES FIGHT POORLY. WIN, OR RELEASE MOUTHS.</p>';
   post+='<button id="btnEndWeek" class="act">MARCH ON. THE WEEK PASSES.</button></div>';
@@ -1699,8 +1865,16 @@ function woundedRec(){
 }
 function endWeek(){
   var news=[];
+  if(!S.rosterNews)S.rosterNews=[];
   var head=simRivalWeek();
   if(head)news.push({t:"WORD OF THE WEEK: "+head,func:true});
+  S.companies.forEach(function(c){
+    if(c.player||!c.roster)return;
+    c.roster.forEach(function(f){
+      if(f.wounded){f.condition=clamp(f.condition+16,5,100); if(f.condition>=60)f.wounded=false;}
+      else f.condition=clamp(f.condition+30,5,100);
+    });
+  });
   var wounded=S.squad.filter(function(f){return f.wounded;})
     .sort(function(a,b){return a.condition-b.condition;});
   wounded.forEach(function(f){
@@ -1734,7 +1908,8 @@ function endWeek(){
   if(spent>0)news.push({t:"THE ARMOURER SPENDS "+spent+" IRON RE-FITTING WEARY BLADES.",func:true});
   if(S.coin<0){
     news.push({t:S.staff.second.name+": THE MEN TALK, MASTER. EMPTY PURSES EMPTY CAMPS.",func:true});
-    var byMorale=S.squad.slice().sort(function(a,b){return a.morale-b.morale;});
+    var byMorale=S.squad.slice().filter(function(f){return !hasTrait(f,"IRON-WILLED");})
+      .sort(function(a,b){return (hasTrait(b,"DRINKS")?1:0)-(hasTrait(a,"DRINKS")?1:0) || a.morale-b.morale;});
     var gone=0;
     for(var gi=0;gi<byMorale.length;gi++){
       if(gone>=2||S.squad.length<=8)break;
@@ -1750,6 +1925,20 @@ function endWeek(){
   if(S.market.length>4){S.market.splice(0,ri(1,3));}
   refillMarket();
   refillStaffMarket();
+  if(S.lastOpp){
+    S.lastOpp.dead.slice(0,2).forEach(function(n){news.push({t:"WORD SPREADS: "+n+" OF "+S.lastOpp.name+" WILL NOT FIGHT AGAIN.",func:true});});
+    if(S.lastOpp.starHurt)news.push({t:S.lastOpp.starHurt+" CARRIES A WOUND FROM YOUR STEEL. THERE ARE ALREADY SONGS.",func:true});
+    S.lastOpp=null;
+  }
+  S.rosterNews.slice(0,2).forEach(function(n){news.push({t:n,func:true});});
+  S.rosterNews=[];
+  S.squad.forEach(function(f){
+    if(!f.chron)return;
+    if((f.chron.k===5||f.chron.k===10||f.chron.k===20)&&f.msDone!==f.chron.k){
+      f.msDone=f.chron.k;
+      news.push({t:f.name+" HAS "+f.chron.k+" KILLS TO THEIR NAME. THE ROAD BEGINS TO KNOW IT.",func:true});
+    }
+  });
   news.push({t:"NEW BLADES ON THE ROAD SEEK A COMPANY.",func:false});
   var fl=ROAD_NEWS.slice();
   news.push({t:fl.splice(ri(0,fl.length-1),1)[0],func:false});
@@ -1757,6 +1946,15 @@ function endWeek(){
   pendingWeek=null;
   S.week++;
   if(S.week>14){S.seasonOver=true;}
+  var nfx=S.fixtures.find(function(fx){return fx.week===S.week&&!fx.played;});
+  if(nfx){
+    var nopp=S.companies[nfx.oppId];
+    if(nopp.roster){
+      var nfit=nopp.roster.filter(function(f){return !f.dead&&f.condition>=40;}).length;
+      var nstar=nopp.roster.find(function(f){return f.star&&!f.dead;});
+      news.push({t:"NEXT FIELD: "+nopp.name+". SCOUTS COUNT "+nfit+" BLADES FIT TO MARCH."+(nstar?(nstar.condition>=40?" "+nstar.name+" AMONG THEM.":" "+nstar.name+" STILL MENDS."):""),func:true});
+    } else news.push({t:"NEXT FIELD: "+nopp.name+". THE SCOUTS RIDE OUT.",func:true});
+  }
   renderAll();
   renderRoad(news);
   show("road");
@@ -1784,6 +1982,21 @@ function renderRoad(news){
 }
 function simRivalWeek(){
   var head=null;
+  function maul(c){
+    if(!c.roster)return;
+    var fit=c.roster.filter(function(f){return !f.dead&&!f.wounded;});
+    var n=ri(1,2);
+    for(var m=0;m<n&&fit.length;m++){
+      var vf=fit.splice(ri(0,fit.length-1),1)[0];
+      if(chance(0.05)){
+        vf.dead=true;c.roster=c.roster.filter(function(z){return z!==vf;});
+        if(vf.star)S.rosterNews.push(vf.name+" IS SLAIN ON A FAR FIELD. "+c.name+" MOURN. THE ROAD MOURNS LOUDER.");
+      } else {
+        vf.wounded=true;vf.condition=ri(20,45);
+        if(vf.star)S.rosterNews.push(vf.name+" OF "+c.name+" CARRIES A WOUND FROM ANOTHER FIELD.");
+      }
+    }
+  }
   var others=S.companies.filter(function(c){return !c.player;});
   var pool=others.slice().sort(function(){return Math.random()-0.5;});
   var myFx=S.fixtures.find(function(fx){return fx.week===S.week;});
@@ -1794,8 +2007,8 @@ function simRivalWeek(){
     var px=x.strength*(0.8+Math.random()*0.4);
     var py=y.strength*(0.8+Math.random()*0.4);
     if(Math.abs(px-py)<0.08){x.pts++;y.pts++;x.d++;y.d++;if(!head)head=x.name+" AND "+y.name+" FIGHT TO A BLOODY STAND-OFF.";}
-    else if(px>py){x.pts+=3;x.w++;y.l++;if(!head)head=x.name+" BLOODIES "+y.name+".";}
-    else {y.pts+=3;y.w++;x.l++;if(!head)head=y.name+" BLOODIES "+x.name+".";}
+    else if(px>py){x.pts+=3;x.w++;y.l++;if(!head)head=x.name+" BLOODIES "+y.name+".";maul(y);}
+    else {y.pts+=3;y.w++;x.l++;if(!head)head=y.name+" BLOODIES "+x.name+".";maul(x);}
   }
   return head;
 }
@@ -1814,25 +2027,194 @@ document.getElementById("btnSnd").addEventListener("click",function(){
 document.addEventListener("click",function(e){ if(e.target.closest("button"))sfx("click"); });
 
 /* ---------- BOOT ---------- */
-(function boot(){
-  var img=document.getElementById("splashImg");
-  img.addEventListener("error",function(){
-    img.style.display="none";
-    document.getElementById("splashFallback").style.display="block";
+/* ---------- SPLASH / TITLE SCREEN ---------- */
+var SPL={stage:"title",frame:0,raf:null};
+var MUSIC={t:null,step:0};
+function musicStart(){
+  if(MUSIC.t||!SND.ctx)return;
+  var lead=[440,523,659,523, 392,494,587,494, 349,440,523,440, 330,415,494,415];
+  var bass=[110,98,87,82];
+  MUSIC.t=setInterval(function(){
+    if(!SND.on)return;
+    var i=MUSIC.step%16;
+    tone(lead[i],0.09,"square",0.025);
+    if(i%4===0){var b=bass[((MUSIC.step>>2))%4]; tone(b,0.3,"triangle",0.05);}
+    if(MUSIC.step%64===63)tone(880,0.35,"sine",0.02,220);
+    MUSIC.step++;
+  },125);
+}
+function musicStop(){ if(MUSIC.t){clearInterval(MUSIC.t);MUSIC.t=null;} }
+
+function splashDraw(){
+  var cv=document.getElementById("splashCv");
+  if(!cv||SPL.stage==="done")return;
+  var x=cv.getContext("2d");
+  var fr=SPL.frame++;
+  x.fillStyle="#000000";x.fillRect(0,0,320,200);
+  if(SPL.stage==="loading"){
+    /* calm loader: slow-scrolling dark border bands, no flashing */
+    var lc=["#181048","#2E2C9B","#3A2A6E","#1C1C60"];
+    var off=(fr>>3)%32;
+    for(var ly=0;ly<200;ly+=8){
+      x.fillStyle=lc[(((ly+off*8)>>3))%4];
+      x.fillRect(0,ly,12,8);x.fillRect(308,ly,12,8);
+    }
+    for(var lx2=0;lx2<320;lx2+=8){
+      x.fillStyle=lc[(((lx2+off*8)>>3))%4];
+      x.fillRect(lx2,0,8,12);x.fillRect(lx2,188,8,12);
+    }
+    x.fillStyle="#75CEC8";x.font='8px "Press Start 2P"';x.textBaseline="top";
+    x.fillText("LOADING"+(fr%60<20?"":fr%60<40?".":".."),128,97);
+    SPL.raf=requestAnimationFrame(splashDraw);
+    return;
+  }
+  /* dusk sky bands with dithered boundaries */
+  var bands=[["#181048",84,12],["#2E2C9B",96,12],["#8E3C97",108,12],["#813338",120,10],["#8E5029",130,10],["#DE9B63",140,12]];
+  bands.forEach(function(b){x.fillStyle=b[0];x.fillRect(0,b[1],320,b[2]);});
+  for(var bi2=1;bi2<bands.length;bi2++){
+    x.fillStyle=bands[bi2-1][0];
+    var by=bands[bi2][1];
+    for(var ddx=((bi2%2)?0:2);ddx<320;ddx+=4){x.fillRect(ddx,by,2,1);x.fillRect((ddx+2)%320,by+1,1,1);}
+  }
+  /* stars */
+  x.fillStyle="#FFFFFF";
+  for(var s2=0;s2<16;s2++){
+    if((((fr>>2)+s2)%7)<4){x.fillRect((s2*79+13)%314+3,(s2*37)%76+4,1,1);}
+  }
+  /* three moons, and only three */
+  function moon(mx,my,r){
+    x.save();x.beginPath();x.arc(mx,my,r,0,7);x.clip();
+    x.fillStyle="#7A6ACD";x.fillRect(mx-r,my-r,r*2,r*2);
+    x.fillStyle="#4A3E8E";x.beginPath();x.arc(mx+r*0.3,my+r*0.3,r,0,7);x.fill();
+    x.restore();
+  }
+  moon(46,102,12); moon(150,94,8); moon(208,107,6);
+  /* far city on the horizon */
+  x.fillStyle="#1C120A";
+  [[142,10],[147,16],[153,8],[160,20],[166,12],[173,7],[157,14]].forEach(function(sp2){
+    x.fillRect(sp2[0],152-sp2[1],2,sp2[1]);
+    x.fillRect(sp2[0]-1,152-Math.round(sp2[1]*0.55),4,Math.round(sp2[1]*0.55));
   });
-  var begun=false;
+  /* ruined engine arches, ribbed */
+  function engineArc(cx2,cy2,r2,a0,a1,gaps){
+    for(var t3=a0;t3<=a1;t3+=0.075){
+      var skip=false;
+      gaps.forEach(function(gp){if(t3>gp[0]&&t3<gp[1])skip=true;});
+      if(skip)continue;
+      var ax=cx2+Math.cos(t3)*r2, ay=cy2+Math.sin(t3)*r2;
+      x.fillStyle="#1C120A";x.fillRect(Math.round(ax)-2,Math.round(ay)-3,5,6);
+      x.fillStyle="#2B1D10";x.fillRect(Math.round(ax)-1,Math.round(ay)-2,2,4);
+    }
+  }
+  engineArc(52,156,38,Math.PI,Math.PI*2,[[Math.PI*1.62,Math.PI*1.78]]);
+  engineArc(276,158,30,Math.PI*1.25,Math.PI*2.05,[[Math.PI*1.7,Math.PI*1.82]]);
+  x.fillStyle="#1C120A";
+  x.fillRect(96,148,6,5);x.fillRect(238,150,5,4);x.fillRect(20,150,5,4);
+  /* swaying cables from the broken spans */
+  [[64,119],[40,126],[287,134]].forEach(function(cb,ci){
+    x.fillStyle="#1C120A";
+    for(var seg=0;seg<12;seg++){
+      var t4=seg/12;
+      var sway=Math.sin(fr/46+ci*2.1+t4*2.4)*(1.5+t4*3);
+      x.fillRect(Math.round(cb[0]+sway),Math.round(cb[1]+t4*(154-cb[1])),2,3);
+    }
+  });
+  /* ground and old bones */
+  x.fillStyle="#3A3320";x.fillRect(0,152,320,26);
+  x.fillStyle="#553800";
+  for(var gy2=152;gy2<178;gy2+=3){for(var gx2=(gy2%6?2:0);gx2<320;gx2+=7){x.fillRect(gx2,gy2,2,1);}}
+  [[64,164],[178,168],[288,162],[118,171]].forEach(function(sk){
+    x.fillStyle="#B2B2B2";x.fillRect(sk[0],sk[1],7,5);x.fillRect(sk[0]+2,sk[1]+5,3,2);
+    x.fillStyle="#000000";x.fillRect(sk[0]+1,sk[1]+2,2,2);x.fillRect(sk[0]+4,sk[1]+2,2,2);
+  });
+  /* title logo: drawn once small, pixel-doubled up, outlined and banded */
+  function buildWord(word,dy,w,h){
+    var oc=document.createElement("canvas");oc.width=w;oc.height=h;
+    var o=oc.getContext("2d");
+    o.textBaseline="top";o.font='8px "Press Start 2P"';
+    function dw(col,ox,oy){
+      o.fillStyle=col;
+      for(var i=0;i<word.length;i++){o.fillText(word[i],2+i*9+ox,2+dy[i]+oy);}
+    }
+    [[-1,0],[1,0],[0,-1],[0,1],[-1,-1],[1,-1],[-1,1],[1,1]].forEach(function(off){dw("#000000",off[0],off[1]);});
+    [["#EDF171",0,5],["#DE9B63",5,3],["#CB7E75",8,2],["#8E3C97",10,14]].forEach(function(bt){
+      o.save();o.beginPath();o.rect(0,bt[1],w,bt[2]);o.clip();
+      dw(bt[0],0,0);o.restore();
+    });
+    return oc;
+  }
+  if(!SPL.logo){SPL.logo=buildWord("HORDES",[3,1,0,0,1,3],60,24);}
+  if(!SPL.logoUN){SPL.logoUN=buildWord("UN",[0,0],24,14);}
+  x.imageSmoothingEnabled=false;
+  x.drawImage(SPL.logo,0,0,60,24, 70,8,180,72);
+  /* spiked wheel with OF, and the big UN */
+  var ecx=128,ecy=64;
+  x.strokeStyle="#B2B2B2";x.lineWidth=3;
+  x.beginPath();x.arc(ecx,ecy,11,0,7);x.stroke();
+  x.fillStyle="#B2B2B2";
+  for(var sp3=0;sp3<8;sp3++){
+    var ang=sp3*Math.PI/4;
+    x.fillRect(Math.round(ecx+Math.cos(ang)*14)-1,Math.round(ecy+Math.sin(ang)*14)-1,3,3);
+    x.fillRect(Math.round(ecx+Math.cos(ang)*17)-1,Math.round(ecy+Math.sin(ang)*17)-1,2,2);
+  }
+  x.font='8px "Press Start 2P"';x.textBaseline="top";
+  x.fillStyle="#000000";x.fillText("OF",119,59);x.fillText("OF",121,61);
+  x.fillStyle="#B2B2B2";x.fillText("OF",120,60);
+  x.drawImage(SPL.logoUN,0,0,24,14, 152,48,72,42);
+  /* prompts */
+  x.font='8px "Press Start 2P"';
+  if(SPL.stage==="ready"){
+    if(fr%40<26){x.fillStyle="#75CEC8";x.fillText("BEGIN CAMPAIGN",104,182);}
+  } else {
+    if(fr%40<26){x.fillStyle="#EDF171";x.fillText("CLICK TO LOAD",108,182);}
+  }
+  x.fillStyle="#8E5029";x.font='6px "Press Start 2P"';
+  x.fillText("(C) 3MOONS ULTRACORP SOFTWARE DIVISION",46,193);
+  /* the splash itself is not entirely stable */
+  if(fr%210<4){
+    for(var wb2=0;wb2<3;wb2++){
+      var ry2=(fr*31+wb2*67)%190, rh2=3+((wb2*5)%8), off2=((fr*17+wb2*23)%19)-9;
+      x.drawImage(cv,0,ry2,320,rh2, off2,ry2,320,rh2);
+    }
+  }
+  SPL.raf=requestAnimationFrame(splashDraw);
+}
+
+(function boot(){
+  var sp=document.getElementById("splash");
   function begin(){
-    if(begun)return; begun=true;
-    document.removeEventListener("keydown",begin);
-    sndInit(); sfx("stab");
-    document.getElementById("splash").style.display="none";
+    SPL.stage="done";
+    if(SPL.raf){cancelAnimationFrame(SPL.raf);SPL.raf=null;}
+    musicStop();
+    document.removeEventListener("keydown",onKey);
+    sp.style.display="none";
+    sfx("stab");
     var loaded=false;
     try{ loaded=!!localStorage.getItem(SAVE_KEY); }catch(e){}
     if(loaded){ if(!loadGame()){newCampaign();} } else { newCampaign(); }
   }
-  document.getElementById("splash").addEventListener("click",begin);
-  document.addEventListener("keydown",begin);
+  function advance(){
+    if(SPL.stage==="title"){
+      sndInit();
+      SPL.stage="loading";
+      tone(1400,0.06,"square",0.04,600);
+      setTimeout(function(){ if(SPL.stage==="loading"){SPL.stage="ready"; musicStart();} },1500);
+    } else if(SPL.stage==="ready"){
+      begin();
+    }
+  }
+  function onKey(){advance();}
+  sp.addEventListener("click",advance);
+  document.addEventListener("keydown",onKey);
+  var started=false;
+  function startLoop(){ if(started)return; started=true; SPL.raf=requestAnimationFrame(splashDraw); }
+  if(document.fonts&&document.fonts.ready){ document.fonts.ready.then(startLoop); setTimeout(startLoop,900); }
+  else startLoop();
 })();
+</script>
+<script>
+/* Preview safety net: if js/engine.js is absent (e.g. sandboxed previews), define a no-op so the page does not error. On the live site engine.js loads and overrides this. */
+window.initDeeperButton=window.initDeeperButton||function(){};
 </script>
 <style>
 /* Engine nav — scoped, minimal, doesn't touch game styles */
