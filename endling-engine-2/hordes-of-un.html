@@ -108,6 +108,8 @@ tr.sel td{color:var(--c64-yellow);}
 .flexrow > div{flex:1 1 240px;}
 .note{color:var(--c64-grey);margin-top:8px;}
 #splash{position:fixed;inset:0;background:var(--c64-black);z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;padding:10px;}
+#nameInput{background:#000;border:2px solid var(--c64-lblue,#867ADE);color:#fff;font-family:inherit;font-size:12px;padding:8px;width:90%;max-width:340px;text-transform:uppercase;letter-spacing:1px;}
+#nameInput:focus{outline:none;border-color:var(--c64-yellow,#EDF171);}
 #splash canvas{width:min(94vw,760px);image-rendering:pixelated;background:#000;}
 #commentary p.weird{color:#CC66CC;}
 .roaditem{color:var(--c64-lgrey);margin:0 0 4px 0;}
@@ -215,6 +217,11 @@ tr.sel td{color:var(--c64-yellow);}
   <div class="panel">
     <div class="sub">RENOWN AMONG COMPANIES</div>
     <div class="tablewrap"><table id="leagueTable"></table></div>
+    <div id="seasonPanel"></div>
+    <div class="sub" style="margin-top:8px">THE LADDER</div>
+    <div id="ladderPanel"></div>
+    <div class="sub" style="margin-top:8px">RELICS OF THE COMPANY</div>
+    <div id="relicPanel"></div>
     <div class="sub" style="margin-top:8px">THE COMPANY CHRONICLE</div>
     <div id="chroniclePanel"></div>
     <p class="note">WIN 3 PTS. BLOODIED DRAW 1 PT. THE SEASON RUNS 14 WEEKS.</p>
@@ -244,6 +251,20 @@ tr.sel td{color:var(--c64-yellow);}
     </div>
     <div id="commentary"></div>
     <div id="battlePost" style="margin-top:8px"></div>
+  </div>
+</div>
+
+<div id="scr-naming" class="screenpane">
+  <div class="sub">RAISE A FREE COMPANY</div>
+  <div class="panel">
+    <p class="note">EVERY COMPANY NEEDS A NAME THE ROAD CAN CURSE.</p>
+    <div class="white" id="nameSuggest" style="font-size:13px;margin:10px 0"></div>
+    <input id="nameInput" maxlength="26" autocomplete="off" spellcheck="false">
+    <div style="margin-top:10px">
+      <button id="btnNameRoll">ANOTHER NAME</button>
+      <button id="btnNameGo" class="act">SO BE IT</button>
+    </div>
+    <p class="note dim" style="margin-top:8px">OR WRITE YOUR OWN. THE ROAD WILL CURSE IT EITHER WAY.</p>
   </div>
 </div>
 
@@ -400,13 +421,13 @@ function makeSecond(warcraft){
 function makeCompanies(){
   return [
     {id:0,name:"YOUR COMPANY",strength:1.0,player:true,pts:0,w:0,d:0,l:0},
-    {id:1,name:"THE NIGHTCUTTERS",strength:1.26,star:"BRIA",pts:0,w:0,d:0,l:0},
-    {id:2,name:"OARS OF RIN",strength:1.18,star:"IRLA",pts:0,w:0,d:0,l:0},
-    {id:3,name:"THE SWAN COMPANY",strength:1.1,star:"BAIDEN",bowheavy:true,pts:0,w:0,d:0,l:0},
-    {id:4,name:"THE BOWL WARDENS",strength:1.0,pts:0,w:0,d:0,l:0},
+    {id:1,name:"THE NIGHTCUTTERS",strength:1.26,star:"BRIA",relic:"THE WELL-KEEPER'S SPEAR",pts:0,w:0,d:0,l:0},
+    {id:2,name:"OARS OF RIN",strength:1.18,star:"IRLA",relic:"THE COUNTING BELL",pts:0,w:0,d:0,l:0},
+    {id:3,name:"THE SWAN COMPANY",strength:1.1,star:"BAIDEN",bowheavy:true,relic:"THE SWAN BOW",pts:0,w:0,d:0,l:0},
+    {id:4,name:"THE BOWL WARDENS",strength:1.0,relic:"THE FACTOR'S LEDGER",pts:0,w:0,d:0,l:0},
     {id:5,name:"RAYSE FREE BLADES",strength:0.95,pts:0,w:0,d:0,l:0},
     {id:6,name:"PILGRIM ROAD COMPANY",strength:0.85,pts:0,w:0,d:0,l:0},
-    {id:7,name:"SONS OF THE DZUD",strength:1.1,unband:true,pts:0,w:0,d:0,l:0}
+    {id:7,name:"SONS OF THE DZUD",strength:1.1,unband:true,relic:"A DRAGON EGG, PROBABLY",pts:0,w:0,d:0,l:0}
   ];
 }
 var TRAITS=["CRAVEN","IRON-WILLED","GLORY-HUNGRY","GRUDGE-KEEPER","LUCKY","DRINKS","OMEN-TOUCHED","STEADY HAND"];
@@ -417,6 +438,29 @@ var STARS=[
   {name:"IRLA",cls:"OUTRIDER",note:"SEA-BORN OF RIN. HATES GRANITE CITIES. HERE FOR HER OWN REASONS.",pow:19},
   {name:"BAIDEN",cls:"ARCHER",note:"KEEPS THE SWAN BOW. THE BOW IS NOT FOR SALE EITHER.",pow:18}
 ];
+
+var LADDER=[
+ {name:"FREE COMPANY",priv:"NOTHING IS OWED TO YOU. NOTHING IS PROMISED."},
+ {name:"CHARTERED COMPANY",priv:"A PATRON'S STIPEND: +20 COIN EACH WEEK.",stipend:20},
+ {name:"BANNER-SWORN",priv:"A TITLE. THE ROAD KNOWS YOUR NAME: +2 RENOWN EVERY FIELD.",renown:2},
+ {name:"LANDED COMPANY",priv:"LAND AND PRIVILEGES: +40 COIN EACH WEEK, AND CAMP GROUND THAT MENDS THE WEARY FASTER.",stipend:40,heal:1},
+ {name:"SHAREHOLDERS OF 3MOONS ULTRACORP",priv:"DIVIDENDS: ALL PURSES PAY +15%. YOU DID NOT READ THE SHARE TERMS.",purse:0.15},
+ {name:"GOVERNORS OF THE BOWL",priv:"THE LADDER ENDS HERE. THE ROAD DOES NOT."}
+];
+var RELICS=[
+ {name:"THE SWAN BOW",note:"ARCHERS +3 AT THE LOOSE. BAIDEN WILL WANT IT BACK."},
+ {name:"THE WELL-KEEPER'S SPEAR",note:"ALL BLADES +1. THE WELL WON, REMEMBER."},
+ {name:"THE COUNTING BELL",note:"+5 MORALE EACH WEEK. IT COUNTS THREE. ALWAYS THREE."},
+ {name:"THE FACTOR'S LEDGER",note:"+15 COIN EACH WEEK. DO NOT READ PAGE 40."},
+ {name:"A DRAGON EGG, PROBABLY",note:"IT IS WARM. IT IS ALWAYS WARM."}
+];
+function relicHas(n){return !!(S&&S.relics&&S.relics.indexOf(n)>=0);}
+function relicVals(){
+  var v={melee:0,bow:0};
+  if(relicHas("THE WELL-KEEPER'S SPEAR"))v.melee+=1;
+  if(relicHas("THE SWAN BOW"))v.bow+=3;
+  return v;
+}
 
 var ROAD_NEWS=[
 "WORD FROM KREYTE: THE THREE GATES CLOSE AT DUSK NOW. NO REASON GIVEN.",
@@ -439,18 +483,50 @@ var ROAD_NEWS=[
 var S=null;
 var SAVE_KEY="hordesOfUn_v1";
 
+function nameGen(){
+  var ADJ=["GRANITE","HOLLOW","UNPAID","SODDEN","THRICE-SWORN","MOONLESS","HALF-TRUE","BORROWED","RUSTED","PIOUS","THIRSTY","LIMPING","GILDED","UNCOUNTED","PATIENT","CROOKED","SLEEPLESS","ALMOST HOLY"];
+  var NOUN=["OATH","BANNER","DEBT","WAGER","HOUND","MOON","LINE","PURSE","CROW","SPEAR","DITCH","BELL","MOUTH","GATE","WELL"];
+  var GRP=["COMPANY","BLADES","BANNERS","SWORN","WALKERS","MOUTHS","LOT","FREE BLADES"];
+  var PLACE=["KREYTE","RIN","RAYSE","THE BOWL","THE FAR GRASS","THE ROAD","GILDED BAY","THE THREE GATES","NO PLACE"];
+  var r=Math.random(), nm;
+  if(r<0.2)nm="THE "+pick(ADJ)+" "+pick(NOUN);
+  else if(r<0.4)nm=pick(NOUN)+"S OF "+pick(PLACE);
+  else if(r<0.55)nm="THE "+pick(ADJ)+" "+pick(GRP);
+  else if(r<0.7){var n1=pick(NOUN),n2=pick(NOUN);while(n2===n1)n2=pick(NOUN);nm="THE "+n1+" AND THE "+n2;}
+  else if(r<0.85)nm=pick(PLACE)+" "+pick(GRP);
+  else nm="NOBODY'S "+pick(GRP);
+  return nm.slice(0,26);
+}
 function newCampaign(){
+  var sug=nameGen();
+  document.getElementById("nameSuggest").textContent=sug;
+  document.getElementById("nameInput").value=sug;
+  show("naming");
+  setFooter("NAME THE COMPANY. THE LEDGER OPENS AFTER.");
+}
+document.getElementById("btnNameRoll").addEventListener("click",function(){
+  var sug=nameGen();
+  document.getElementById("nameSuggest").textContent=sug;
+  document.getElementById("nameInput").value=sug;
+});
+document.getElementById("btnNameGo").addEventListener("click",function(){
+  var nm=document.getElementById("nameInput").value.trim();
+  startCampaign(nm||document.getElementById("nameSuggest").textContent);
+});
+document.getElementById("nameInput").addEventListener("keydown",function(e){
+  if(e.key==="Enter")document.getElementById("btnNameGo").click();
+});
+function startCampaign(nm){
   nextId=1;
-  var nm=prompt("NAME YOUR FREE COMPANY","THE GRANITE OATH");
   if(!nm) nm="THE GRANITE OATH";
   S={
     companyName:nm.toUpperCase().slice(0,26),
-    week:1, coin:120, renown:0,
+    week:1, season:1, ladder:0, relics:[], coin:200, renown:0,
     tactics:{formation:"LINE",aggression:"FIRM",cavalry:"HELD"},
     squad:[], market:[], muster:[],
     staff:{second:makeSecond(9), healer:null},
     staffMarket:[],
-    stores:{herbs:4,iron:1},
+    stores:{herbs:8,iron:2},
     companies:makeCompanies(),
     fixtures:[],
     chronicle:[], rosterNews:[],
@@ -547,6 +623,11 @@ function migrate(st){
   if(st.tourDone===undefined){ st.tourDone=true; }
   if(!st.chronicle){ st.chronicle=[]; }
   if(!st.rosterNews){ st.rosterNews=[]; }
+  if(!st.season)st.season=1;
+  if(st.ladder===undefined)st.ladder=0;
+  if(!st.relics)st.relics=[];
+  var relicSeed={1:"THE WELL-KEEPER'S SPEAR",2:"THE COUNTING BELL",3:"THE SWAN BOW",4:"THE FACTOR'S LEDGER",7:"A DRAGON EGG, PROBABLY"};
+  st.companies.forEach(function(c){ if(c.relic===undefined&&relicSeed[c.id])c.relic=relicSeed[c.id]; });
   st.squad.concat(st.market).forEach(function(f){
     if(!f.traits)f.traits=[];
     if(!f.chron)f.chron={b:0,k:0,w:0,deeds:[]};
@@ -586,12 +667,14 @@ function setFooter(t){ document.getElementById("footerline").innerHTML=(t||"READ
 /* ---------- UI PLUMBING ---------- */
 var selFighterId=null;
 function show(name){
+  if(!S&&name!=="naming")return;
   document.querySelectorAll(".screenpane").forEach(function(p){p.classList.remove("show");});
   document.getElementById("scr-"+name).classList.add("show");
   document.querySelectorAll("#mainnav button").forEach(function(b){
     b.classList.toggle("on",b.dataset.scr===name);
   });
   if(name==="battle") renderBattleScreen();
+  if(name==="road"&&S&&S.road) renderRoadDay(S.road.today||[]);
   if(name==="muster") renderMuster();
   if(name==="staff") renderStaff();
 }
@@ -602,7 +685,52 @@ document.getElementById("mainnav").addEventListener("click",function(e){
 
 function renderAll(){
   renderHeader(); renderSquad(); renderMuster(); renderTactics();
-  renderStaff(); renderMarket(); renderFixtures(); renderLeague(); renderChronicle();
+  renderStaff(); renderMarket(); renderFixtures(); renderLeague(); renderChronicle(); renderConquest();
+}
+function renderConquest(){
+  var lp=document.getElementById("ladderPanel");
+  if(!lp)return;
+  lp.innerHTML=LADDER.map(function(t,i){
+    var cur=i===(S.ladder||0);
+    return '<p class="roaditem'+(cur?' func':'')+'">'+(cur?'&gt; ':'&nbsp;&nbsp;')+t.name+(cur?' &mdash; '+t.priv:'')+'</p>';
+  }).join("");
+  var rp=document.getElementById("relicPanel");
+  var rel=S.relics||[];
+  rp.innerHTML=rel.length?rel.map(function(r,i){
+    var def=RELICS.find(function(x){return x.name===r;});
+    return '<p class="roaditem gold">'+r+' <span class="dim">'+(def?def.note:'')+'</span> <button data-relic="'+i+'" class="sellRelic">SELL (180)</button></p>';
+  }).join(""):'<p class="roaditem dim">NO RELICS YET. NAMED COMPANIES CARRY THEM. TAKE THEM.</p>';
+  rp.querySelectorAll(".sellRelic").forEach(function(b){
+    b.addEventListener("click",function(){
+      var i=parseInt(b.dataset.relic,10);
+      var r=S.relics.splice(i,1)[0];
+      S.coin+=180;
+      S.chronicle.unshift("S"+S.season+" W"+S.week+": SOLD "+r+" FOR 180 COIN. THE ROAD JUDGES.");
+      renderHeader();renderConquest();renderChronicle();
+      setFooter(r+" SOLD. SOME SONGS ARE ABOUT REGRET.");
+    });
+  });
+  var sp=document.getElementById("seasonPanel");
+  if(S.seasonOver){
+    var standing=S.companies.slice().sort(function(a,b){return b.pts-a.pts;});
+    var place=standing.findIndex(function(c){return c.player;})+1;
+    var msg, move=0;
+    if(place===1&&(S.ladder||0)<LADDER.length-1){move=1;msg="THE SEASON IS YOURS. THE LADDER RISES: "+LADDER[(S.ladder||0)+1].name+".";}
+    else if(place>=S.companies.length-1&&(S.ladder||0)>0){move=-1;msg="A SEASON TO FORGET. PRIVILEGES REVOKED: "+LADDER[(S.ladder||0)-1].name+".";}
+    else if(place===1){msg="THE SEASON IS YOURS. THE LADDER ENDS HERE. THE ROAD DOES NOT.";}
+    else msg="SEASON DONE. PLACED "+place+" OF "+S.companies.length+". THE LADDER DOES NOT MOVE FOR THAT.";
+    sp.innerHTML='<div class="panel"><p class="'+(place===1?"good":"note")+'">'+msg+'</p><button id="btnNextSeason" class="act">BEGIN SEASON '+(S.season+1)+'</button></div>';
+    document.getElementById("btnNextSeason").addEventListener("click",function(){
+      if(move===1)S.ladder++;
+      if(move===-1)S.ladder--;
+      S.chronicle.unshift("SEASON "+S.season+" ENDS. PLACED "+place+"."+(move===1?" RAISED TO "+LADDER[S.ladder].name+".":move===-1?" REDUCED TO "+LADDER[S.ladder].name+".":""));
+      S.season++;S.week=1;S.seasonOver=false;
+      S.companies.forEach(function(c){c.pts=0;c.w=0;c.d=0;c.l=0;});
+      buildFixtures();pendingWeek=null;
+      renderAll();show("battle");
+      setFooter("SEASON "+S.season+". THE ROAD AGAIN. GOOD.");
+    });
+  } else sp.innerHTML="";
 }
 function renderChronicle(){
   var el=document.getElementById("chroniclePanel");
@@ -614,9 +742,9 @@ function renderChronicle(){
 }
 function renderHeader(){
   document.getElementById("hdrCompany").textContent=S.companyName;
-  document.getElementById("hdrWeek").textContent="WEEK "+S.week+(S.seasonOver?" (SEASON OVER)":"");
+  document.getElementById("hdrWeek").textContent="SEASON "+(S.season||1)+" WEEK "+S.week+(S.seasonOver?" (OVER)":"");
   document.getElementById("hdrCoin").textContent="COIN "+S.coin;
-  document.getElementById("hdrRenown").textContent="RENOWN "+S.renown;
+  document.getElementById("hdrRenown").textContent="RENOWN "+S.renown+" / "+LADDER[S.ladder||0].name;
 }
 
 /* ---------- THE SECOND'S TOUR ---------- */
@@ -662,7 +790,7 @@ function renderSquad(){
   S.squad.forEach(function(f){
     wageTotal+=f.wage;
     rows+='<tr class="rowbtn'+(f.id===selFighterId?' sel':'')+'" data-id="'+f.id+'">'+
-      '<td>'+f.name+'</td><td>'+CLASSES[f.cls].label+'</td><td>'+f.age+'</td>'+
+      '<td>'+f.name+(f.chron&&f.chron.k>=5?' <span class="gold">*</span>':'')+'</td><td>'+CLASSES[f.cls].label+'</td><td>'+f.age+'</td>'+
       '<td class="white">'+power(f)+'</td><td>'+(f.faith==="UN"?'<span class="dim">NONE</span>':f.lines)+'</td>'+
       '<td>'+f.wage+'</td><td>'+condTag(f)+'</td></tr>';
   });
@@ -982,10 +1110,12 @@ var TERRAINS={
   "THE FORD":{note:"A RIVER CUTS THE FIELD. CROSSING BLADES ARE SLOW AND EXPOSED. CHARGES DIE IN THE WATER."},
   "THE DEFILE":{note:"HIGH ROCK NARROWS THE FIELD. NO ROOM TO FLANK. SHIELDS LOVE A DEFILE."},
   "HIGH GROUND":{note:"ONE COMPANY HOLDS THE SLOPE. UPHILL BLOWS FALL LIGHT. DOWNHILL CHARGES FALL HARD."},
+  "STONE FIELD":{note:"BOULDERS EVERYWHERE. HORSES HATE IT. CHARGES BREAK ON STONE."},
+  "LAKE SHORE":{note:"STILL WATER OWNS THE MIDDLE OF THE FIELD. WHOEVER TURNS THE SHORE FIRST TURNS THE BATTLE."},
   "THE SOFT PLACE":{note:"THE GROUND HUMS. ROCKS DO NOT STAY WHERE THE EYE LEAVES THEM. NOTHING HERE IS PROMISED."}
 };
 function genTerrain(){
-  var type=chance(0.12)?"THE SOFT PLACE":pick(["OPEN GROUND","THE FORD","THE DEFILE","HIGH GROUND"]);
+  var type=chance(0.12)?"THE SOFT PLACE":pick(["OPEN GROUND","THE FORD","THE DEFILE","HIGH GROUND","STONE FIELD","LAKE SHORE"]);
   var weather=chance(0.3)?"RAIN":"CLEAR";
   var holder=chance(0.5)?"A":"B";
   var res={herbs:0,iron:0,coin:0};
@@ -993,9 +1123,30 @@ function genTerrain(){
   else if(type==="THE FORD"){res.herbs=ri(1,3);res.coin=ri(0,10);}
   else if(type==="THE DEFILE"){res.iron=ri(1,2);res.coin=ri(0,15);}
   else if(type==="HIGH GROUND"){res.coin=ri(10,40);res.herbs=ri(0,1);res.iron=ri(0,1);}
+  else if(type==="STONE FIELD"){res.iron=ri(1,3);res.coin=ri(0,20);}
+  else if(type==="LAKE SHORE"){res.herbs=ri(1,3);res.coin=ri(0,25);}
   else {res.herbs=ri(0,3);res.iron=ri(0,3);res.coin=ri(0,30);}
-  return {type:type,weather:weather,holder:holder,res:res};
+  var ter={type:type,weather:weather,holder:holder,res:res,rocks:[]};
+  var nrocks= type==="STONE FIELD"?ri(10,14): type==="THE DEFILE"?ri(3,5): type==="THE SOFT PLACE"?ri(4,6): ri(1,3);
+  for(var i=0;i<nrocks;i++){
+    ter.rocks.push({x:ri(60,260),y:ri(46,150),r:ri(5,10)});
+  }
+  if(type==="THE FORD"){
+    ter.river={base:ri(130,190),amp:ri(16,38),per:ri(70,130),phase:ri(0,200),w:16,
+      fords:[ri(50,84),ri(110,150)]};
+  }
+  if(type==="LAKE SHORE"){
+    ter.lake={cx:ri(120,200),cy:chance(0.5)?ri(46,70):ri(120,145),rx:ri(55,80),ry:ri(26,38)};
+    ter.rocks=ter.rocks.filter(function(r){return !inLakeT(ter,r.x,r.y);});
+  }
+  if(ter.river)ter.rocks=ter.rocks.filter(function(r){return Math.abs(r.x-riverXAt(ter,r.y))>18;});
+  return ter;
 }
+function riverXAt(ter,y){var rv=ter.river;return rv?rv.base+rv.amp*Math.sin((y+rv.phase)/rv.per*6.283):-999;}
+function nearFordT(ter,y){var rv=ter.river;if(!rv)return false;return rv.fords.some(function(fy){return Math.abs(y-fy)<9;});}
+function inWaterT(ter,x,y){var rv=ter.river;if(!rv)return false;if(nearFordT(ter,y))return false;return Math.abs(x-riverXAt(ter,y))<rv.w/2;}
+function inLakeT(ter,x,y){var L=ter.lake;if(!L)return false;var dx=(x-L.cx)/L.rx,dy=(y-L.cy)/L.ry;return dx*dx+dy*dy<1;}
+function onHillT(ter,x){if(ter.type!=="HIGH GROUND")return false;return ter.holder==="A"?x<64:x>256;}
 function terrainReport(ter){
   var s=ter.type+". "+TERRAINS[ter.type].note;
   if(ter.type==="HIGH GROUND"){
@@ -1003,6 +1154,7 @@ function terrainReport(ter){
   }
   if(ter.type==="THE FORD"){
     s+=" "+(ter.holder==="A"?"YOU HOLD THE NEAR BANK.":"THE FOE HOLDS THE FAR BANK AND WAITS.");
+    if(ter.river)s+=" THE RIVER SNAKES. THE SCOUT MARKS "+ter.river.fords.length+" DRY CROSSINGS.";
   }
   if(ter.weather==="RAIN") s+=" RAIN FALLS. BOWSTRINGS SLACKEN, GROUND SOFTENS.";
   var finds=[];
@@ -1029,8 +1181,12 @@ function counsel(ter,oppArmy,oppComp){
   var read=armyRead(oppArmy);
   var lines=[];
   /* a poor second sometimes has nothing useful */
-  if(sec.warcraft<10&&chance(0.45)){
-    return {text:"MASTER, I KNOW LITTLE OF THIS GROUND OR THIS FOE. TRUST THE LINE AND STAND FIRM. IT HAS SERVED BEFORE.",rec:rec};
+  if(sec.warcraft<10&&chance(0.22)){
+    return {text:pick([
+      "MASTER, I KNOW LITTLE OF THIS GROUND OR THIS FOE. TRUST THE LINE AND STAND FIRM. IT HAS SERVED BEFORE.",
+      "MY EYES ARE NOT WHAT THEY WERE, MASTER. I SEE BLADES AND GROUND AND LITTLE ELSE. A SHARPER SECOND WOULD SEE MORE.",
+      "ASK ME OF WAGONS AND WAGES, MASTER. THIS FIELD KEEPS ITS SECRETS FROM ME."
+    ]),rec:rec};
   }
   /* ground */
   if(ter.type==="THE SOFT PLACE"){
@@ -1050,6 +1206,12 @@ function counsel(ter,oppArmy,oppComp){
   } else if(ter.type==="HIGH GROUND"){
     lines.push("THEY HOLD THE SLOPE. A STRAIGHT CLIMB IS A BUTCHER'S BILL. WEIGHT ONE FLANK AND TURN THEM OFF THEIR HILL.");
     rec.formation="REFUSED FLANK"; rec.aggression="FIERCE"; rec.cavalry="EARLY";
+  } else if(ter.type==="STONE FIELD"){
+    lines.push("BOULDERS EVERYWHERE, MASTER. KEEP THE RIDERS ON A SHORT REIN. A CHARGE THAT MEETS STONE IS JUST AN EXPENSIVE FALL.");
+    rec.formation="LINE"; rec.cavalry="REFUSE";
+  } else if(ter.type==="LAKE SHORE"){
+    lines.push("STILL WATER HOLDS THE MIDDLE. THE FIGHT WILL BEND AROUND THE SHORE, SO WEIGHT A FLANK AND BEND IT FIRST.");
+    rec.formation="REFUSED FLANK"; rec.cavalry="EARLY";
   } else {
     lines.push("OPEN GROUND. AN HONEST FIELD, WHICH MEANS THE SHARPER PLAN WINS IT.");
   }
@@ -1102,6 +1264,7 @@ function simBattle(playerArmy, oppArmy, oppComp, terrain){
   if(oppComp.bowheavy){oppT.formation="SHIELDWALL";oppT.cavalry="SCREEN";}
 
   var soft=terrain.type==="THE SOFT PLACE";
+  var RFX=relicVals();
   var truth=0, glitchNow=0;
   function lb(f){
     var b;
@@ -1112,10 +1275,14 @@ function simBattle(playerArmy, oppArmy, oppComp, terrain){
   }
   var yMin = terrain.type==="THE DEFILE"?62:40;
   var yMax = terrain.type==="THE DEFILE"?118:140;
-  var RIVER_X1=148, RIVER_X2=172;
 
-  function inWater(u){return terrain.type==="THE FORD" && u.x>RIVER_X1 && u.x<RIVER_X2;}
+
+  function inWater(u){return inWaterT(terrain,u.x,u.y);}
   function uphillSide(){return terrain.type==="HIGH GROUND"?terrain.holder:null;}
+  var rocksNow=(terrain.rocks||[]).map(function(r){return {x:r.x,y:r.y,r:r.r};});
+  function inRocks(x,y){return rocksNow.some(function(r){var dx=x-r.x,dy=y-r.y;return dx*dx+dy*dy<r.r*r.r;});}
+  function nearRock(u){return rocksNow.some(function(r){var dx=u.x-r.x,dy=u.y-r.y;return dx*dx+dy*dy<(r.r+4)*(r.r+4);});}
+  function passable(x,y){return !inLakeT(terrain,x,y)&&!inRocks(x,y);}
 
   function mkSide(army,tac,label,sideKey,isPlayer){
     var cap=null;
@@ -1213,12 +1380,16 @@ function simBattle(playerArmy, oppArmy, oppComp, terrain){
   }
   function moveToward(u,tx,ty,spd){
     if(terrain.weather==="RAIN")spd*=0.85;
-    if(inWater(u))spd*=0.5;
+    if(inWater(u))spd*=0.45;
     var dx=tx-u.x, dy=ty-u.y, d=Math.sqrt(dx*dx+dy*dy);
     if(d<0.5)return;
-    u.x+=dx/d*Math.min(spd,d);
-    u.y+=dy/d*Math.min(spd,d);
-    u.y=clamp(u.y,yMin,yMax);
+    var st=Math.min(spd,d);
+    var nx=u.x+dx/d*st, ny=clamp(u.y+dy/d*st,yMin,yMax);
+    if(passable(nx,ny)){u.x=nx;u.y=ny;return;}
+    if(passable(nx,u.y)){u.x=nx;return;}
+    if(passable(u.x,ny)){u.y=ny;return;}
+    var px=u.x-dy/d*st, py=clamp(u.y+dx/d*st,yMin,yMax);
+    if(passable(px,py)){u.x=px;u.y=py;}
     u.x=clamp(u.x,4,FIELD_W-4);
   }
   function infCentroid(side){
@@ -1241,7 +1412,7 @@ function simBattle(playerArmy, oppArmy, oppComp, terrain){
     var f=u.f;
     var fmA=FORMATIONS[side.tac.formation], agA=AGGRESSIONS[side.tac.aggression];
     var skill=Math.max(u.e.BLD,u.e.POL);
-    var atk=skill + u.e.MGT/2 + u.e.FER/2 + lb(f) + fmA.att + agA.att + ri(0,10);
+    var atk=skill + u.e.MGT/2 + u.e.FER/2 + lb(f) + fmA.att + agA.att + ri(0,10) + (side.isPlayer?RFX.melee:0);
     if(f.grudge&&f.grudge.name===tgt.f.name)atk+=hasTrait(f,"GRUDGE-KEEPER")?6:3;
     if(hasTrait(f,"GLORY-HUNGRY")&&fighters(side).length<fighters(foeSide).length)atk+=2;
     var up=uphillSide();
@@ -1249,7 +1420,7 @@ function simBattle(playerArmy, oppArmy, oppComp, terrain){
     if(u.charging&&!u.chargeSpent){
       var cb=terrain.weather==="RAIN"?3:6;
       if(up&&side.key===up)cb+=3;
-      if(inWater(u))cb=0;
+      if(inWater(u)||nearRock(u))cb=0;
       atk+=cb; u.chargeSpent=true; u.charging=false;
     }
     if(u.e.POL>=11 && CLASSES[tgt.f.cls].mounted) atk+=5;
@@ -1280,9 +1451,10 @@ function simBattle(playerArmy, oppArmy, oppComp, terrain){
     var f=u.f;
     var tgt=nearestFoe(u,foeSide); if(!tgt)return;
     var d=dist2(u,tgt);
-    if(d<20||d>120)return;
+    if(d<20||d>(onHillT(terrain,u.x)?135:120))return;
     projs.push({x1:u.x,y1:u.y,x2:tgt.x,y2:tgt.y});
-    var atk=u.e.BOW*2 + (hasTrait(f,"STEADY HAND")?2:0) + lb(f) + ri(0,10) - (terrain.weather==="RAIN"?4:0);
+    var atk=u.e.BOW*2 + (hasTrait(f,"STEADY HAND")?2:0) + lb(f) + ri(0,10) - (terrain.weather==="RAIN"?4:0)
+      + (onHillT(terrain,u.x)&&!onHillT(terrain,tgt.x)?3:0) + (side.isPlayer?RFX.bow:0);
     var dfn=tgt.e.SHD + tgt.e.ARM + ri(0,12) + (foeSide.tac.formation==="SHIELDWALL"?6:0) + d/12;
     if(inWater(tgt))dfn-=4;
     if(atk>dfn){
@@ -1426,6 +1598,14 @@ function simBattle(playerArmy, oppArmy, oppComp, terrain){
     }
   }
 
+  A.units.concat(B.units).forEach(function(u){
+    var tries=0;
+    while(!passable(u.x,u.y)&&tries++<30){
+      u.x=clamp(u.x+(u.side==="A"?-4:4),4,FIELD_W-4);
+      u.y=clamp(u.y+ri(-4,4),yMin,yMax);
+    }
+  });
+
   while(tick<maxTicks){
     tick++;
     var aF=fighters(A), bF=fighters(B);
@@ -1450,6 +1630,11 @@ function simBattle(playerArmy, oppArmy, oppComp, terrain){
     glitchNow=Math.max(0,glitchNow-1);
     if(soft&&chance(0.06)){
       glitchNow=3;
+      if(rocksNow.length&&chance(0.4)){
+        var mr=pick(rocksNow);
+        mr.x=ri(60,260);mr.y=ri(46,150);
+        ev(tick,"A ROCK IS ELSEWHERE NOW. NO ONE SAW IT MOVE. THAT IS HOW IT MOVES.","weird");
+      }
       var roll=Math.random();
       if(roll<0.28){ ev(tick,pick(GLITCH_LINES),"big"); }
       else if(roll<0.46){
@@ -1503,7 +1688,8 @@ function simBattle(playerArmy, oppArmy, oppComp, terrain){
       bl:bodies.length,
       aN:alive(A).filter(function(u){return !u.fleeing;}).length,
       bN:alive(B).filter(function(u){return !u.fleeing;}).length,
-      wA:A.waver?1:0, wB:B.waver?1:0, g:glitchNow
+      wA:A.waver?1:0, wB:B.waver?1:0, g:glitchNow,
+      rk:(soft?rocksNow.map(function(r){return {x:Math.round(r.x),y:Math.round(r.y),r:r.r};}):null)
     });
   }
 
@@ -1556,6 +1742,12 @@ function renderBattleScreen(){
     pre.innerHTML='<div class="panel"><div class="gold">THE SEASON IS OVER.</div><p class="note">CHECK THE CAMPAIGN SCREEN. START A NEW CAMPAIGN FROM SYSTEM WHEN READY.</p></div>';
     live.style.display="none"; return;
   }
+  if(S.road){
+    pre.innerHTML='<div class="panel"><p class="note">THE COMPANY IS STILL ON THE ROAD. DAY '+S.road.day+' OF '+S.road.total+'.</p><button id="btnToRoad" class="act">BACK TO THE ROAD</button></div>';
+    live.style.display="none";
+    document.getElementById("btnToRoad").addEventListener("click",function(){show("road");});
+    return;
+  }
   var pw=prepWeek();
   if(!pw){
     pre.innerHTML='<div class="panel"><p class="note">NO ENGAGEMENT THIS WEEK.</p></div>';
@@ -1564,10 +1756,26 @@ function renderBattleScreen(){
   var mus=musteredFighters();
   var weakCount=mus.filter(function(f){return f.condition<60;}).length;
   var starF=pw.oppArmy.find(function(f){return f.star;});
+  var oppFit=pw.opp.roster?pw.opp.roster.filter(function(f){return !f.dead&&f.condition>=40;}).length:pw.oppArmy.length;
+  var oppHurt=pw.opp.roster?pw.opp.roster.filter(function(f){return !f.dead&&f.wounded;}).length:0;
+  var lm=pw.opp.lastMeet;
+  var mus0=musteredFighters();
+  var gm=[];
+  mus0.forEach(function(f){
+    if(gm.length>=2||!f.grudge)return;
+    if(pw.oppArmy.some(function(o){return o.name===f.grudge.name;}))gm.push(f.name+" WILL BE LOOKING FOR "+f.grudge.name);
+  });
+  pw.oppArmy.forEach(function(o){
+    if(gm.length>=3||!o.grudge)return;
+    if(mus0.some(function(f){return f.name===o.grudge.name;}))gm.push(o.name+" HAS NOT FORGOTTEN "+o.grudge.name);
+  });
   var html='<div class="panel">'+
     '<div class="white">WEEK '+S.week+': '+S.companyName+' VS '+pw.opp.name+'</div>'+
     '<p class="note gold">SCOUT\'S REPORT: '+terrainReport(pw.ter)+'</p>'+
-    (starF?'<p class="note bad">'+starF.name+' MARCHES WITH THEM.</p>':'')+'</div>';
+    '<p class="note dim">SCOUTS COUNT '+oppFit+' OF THEIRS FIT TO MARCH'+(oppHurt?', '+oppHurt+' CARRYING WOUNDS':'')+'.</p>'+
+    (starF?'<p class="note bad">'+starF.name+' MARCHES WITH THEM.</p>':'')+
+    (lm?'<p class="note dim">LAST MEETING: '+(lm.result==="W"?"YOU BLOODIED THEM":lm.result==="L"?"THEY BLOODIED YOU":"A BLOODY DRAW")+' AT '+lm.ter+'.</p>':'')+
+    (gm.length?'<p class="note gold">'+gm.join(". ")+'.</p>':'')+'</div>';
   html+='<div class="speech"><span class="who">'+S.staff.second.name+', YOUR SECOND:</span> '+pw.counsel.text+'</div>';
   var woundedNow=S.squad.filter(function(f){return f.wounded;}).length;
   if(S.staff.healer&&woundedNow>0&&S.stores.herbs<woundedNow){
@@ -1661,11 +1869,30 @@ function drawTick(ctx,sim,frame){
       ctx.fillRect(gx,gy,1,1);
     }
   }
-  if(ter.type==="THE FORD"){
-    ctx.fillStyle="#2E2C9B";ctx.fillRect(148,0,24,180);
-    ctx.fillStyle="#75CEC8";
-    for(var wy=frame%6;wy<180;wy+=12){ctx.fillRect(152,wy,3,1);ctx.fillRect(162,wy+5,3,1);}
+  if(ter.river){
+    for(var ry3=0;ry3<180;ry3+=2){
+      var rx3=riverXAt(ter,ry3);
+      var isFord=nearFordT(ter,ry3);
+      ctx.fillStyle=isFord?"#8E5029":"#2E2C9B";
+      ctx.fillRect(Math.round(rx3-ter.river.w/2),ry3,ter.river.w,2);
+      if(!isFord&&(ry3+frame)%12<2){ctx.fillStyle="#75CEC8";ctx.fillRect(Math.round(rx3-2),ry3,3,1);}
+    }
   }
+  if(ter.lake){
+    var L=ter.lake;
+    for(var ly3=-L.ry;ly3<=L.ry;ly3+=2){
+      var half=L.rx*Math.sqrt(Math.max(0,1-(ly3*ly3)/(L.ry*L.ry)));
+      ctx.fillStyle="#2E2C9B";
+      ctx.fillRect(Math.round(L.cx-half),Math.round(L.cy+ly3),Math.round(half*2),2);
+    }
+    ctx.fillStyle="#75CEC8";
+    for(var sh2=0;sh2<8;sh2++){ctx.fillRect(L.cx-L.rx+((sh2*37+frame)%(L.rx*2)),L.cy-2+((sh2*13)%5),3,1);}
+  }
+  var rkList=tk.rk||ter.rocks||[];
+  rkList.forEach(function(r){
+    ctx.fillStyle="#4A4A4A";ctx.fillRect(r.x-r.r,r.y-Math.round(r.r*0.7),r.r*2,Math.round(r.r*1.4));
+    ctx.fillStyle="#7B7B7B";ctx.fillRect(r.x-r.r+1,r.y-Math.round(r.r*0.7),r.r,2);
+  });
   if(ter.type==="THE DEFILE"){
     ctx.fillStyle="#4A4A4A";ctx.fillRect(0,0,320,56);ctx.fillRect(0,124,320,56);
     ctx.fillStyle="#7B7B7B";
@@ -1773,6 +2000,11 @@ function finishBattle(sim){
   else if(sim.winner==="B"){fx.result="L";me.l++;opp.pts+=3;opp.w++;purse=25;renownGain=ri(0,2);}
   else {fx.result="D";me.pts+=1;me.d++;opp.pts+=1;opp.d++;purse=45;loot=sim.bDown.length*2;renownGain=ri(2,4);}
   purse+=loot+bounty;
+  purse=Math.round(purse*(1+(LADDER[S.ladder||0].purse||0)));
+  renownGain+=(LADDER[S.ladder||0].renown||0);
+  var relicWon=null, relicLost=null;
+  if(sim.winner==="A"&&opp.relic&&chance(0.3)){relicWon=opp.relic;S.relics.push(opp.relic);opp.relic=null;}
+  if(sim.winner==="B"&&S.relics.length&&chance(0.25)){relicLost=S.relics.pop();if(!opp.relic)opp.relic=relicLost;}
 
   sim.aDown.forEach(function(u){
     var f=u.f;
@@ -1801,7 +2033,7 @@ function finishBattle(sim){
     var f=u.f; if(!f.chron)return;
     f.chron.b++; f.chron.k+=(u.kills||0);
     if((u.kills||0)>=3&&f.chron.deeds.length<6)
-      f.chron.deeds.push("WEEK "+S.week+": "+u.kills+" FOES AT "+sim.terrain.type+".");
+      f.chron.deeds.push("S"+S.season+" W"+S.week+": "+u.kills+" FOES AT "+sim.terrain.type+".");
   });
   (sim.bUnits||[]).forEach(function(u){ if(u.f.chron)u.f.chron.b++; });
   sim.aDown.forEach(function(u){ if(u.f.chron&&!u.f.dead)u.f.chron.w++; });
@@ -1813,9 +2045,10 @@ function finishBattle(sim){
     }
   });
   if(!S.chronicle)S.chronicle=[];
-  S.chronicle.unshift("WEEK "+S.week+": "+(sim.winner==="A"?"VICTORY OVER ":sim.winner==="B"?"BEATEN BY ":"DREW WITH ")+opp.name+" AT "+sim.terrain.type+" ("+score+").");
-  if(oppDead.length)S.chronicle.unshift("WEEK "+S.week+": "+oppDead.join(", ")+" OF "+opp.name+" SLAIN IN THE FIELD.");
+  S.chronicle.unshift("S"+S.season+" W"+S.week+": "+(sim.winner==="A"?"VICTORY OVER ":sim.winner==="B"?"BEATEN BY ":"DREW WITH ")+opp.name+" AT "+sim.terrain.type+" ("+score+").");
+  if(oppDead.length)S.chronicle.unshift("S"+S.season+" W"+S.week+": "+oppDead.join(", ")+" OF "+opp.name+" SLAIN IN THE FIELD.");
   S.lastOpp={name:opp.name,dead:oppDead,starHurt:starHurt};
+  opp.lastMeet={week:S.week,result:fx.result,ter:sim.terrain.type};
 
   var drain=S.tactics.aggression==="FURIOUS"?20:S.tactics.aggression==="FIERCE"?17:14;
   sim.playerArmy.forEach(function(f){
@@ -1851,6 +2084,15 @@ function finishBattle(sim){
   if(deadNames.length){post+='<p class="bad">FALLEN: '+deadNames.join(", ")+'.</p>';S.chronicle.unshift("WEEK "+S.week+": FALLEN: "+deadNames.join(", ")+".");}
   S.chronicle=S.chronicle.slice(0,30);
   if(oppDead.length)post+='<p class="good">THE FOE LEAVES DEAD ON THE FIELD: '+oppDead.join(", ")+'.</p>';
+  if(relicWon){
+    var rdef=RELICS.find(function(x){return x.name===relicWon;});
+    post+='<p class="gold">SPOILS OF WAR: '+relicWon+' IS YOURS. '+(rdef?rdef.note:'')+'</p>';
+    S.chronicle.unshift("S"+S.season+" W"+S.week+": TOOK "+relicWon+" FROM "+opp.name+".");
+  }
+  if(relicLost){
+    post+='<p class="bad">'+opp.name+' TAKE '+relicLost+' AS SPOILS. IT WAS YOURS. IT IS NOT NOW.</p>';
+    S.chronicle.unshift("S"+S.season+" W"+S.week+": LOST "+relicLost+" TO "+opp.name+".");
+  }
   if(hurtNames.length)post+='<p class="note">WOUNDED: '+hurtNames.join(", ")+'.'+(S.staff.healer?'':' NO HEALER TENDS THEM.')+'</p>';
   if(S.coin<0)post+='<p class="bad">THE COFFER IS EMPTY. UNPAID BLADES FIGHT POORLY. WIN, OR RELEASE MOUTHS.</p>';
   post+='<button id="btnEndWeek" class="act">MARCH ON. THE WEEK PASSES.</button></div>';
@@ -1875,26 +2117,27 @@ function endWeek(){
       else f.condition=clamp(f.condition+30,5,100);
     });
   });
+  var tier=LADDER[S.ladder||0];
+  if(tier.stipend){S.coin+=tier.stipend;news.push({t:"THE PATRON'S STIPEND ARRIVES: +"+tier.stipend+" COIN. "+tier.name+" HAS ITS USES.",func:true});}
+  if(relicHas("THE FACTOR'S LEDGER")){S.coin+=15;news.push({t:"THE FACTOR'S LEDGER BALANCES ITSELF: +15 COIN. DO NOT READ PAGE 40.",func:true});}
+  if(relicHas("THE COUNTING BELL")){S.squad.forEach(function(f){f.morale=clamp(f.morale+5,10,100);});news.push({t:"THE COUNTING BELL COUNTS THREE. THE COMPANY SLEEPS EASIER.",func:true});}
   var wounded=S.squad.filter(function(f){return f.wounded;})
     .sort(function(a,b){return a.condition-b.condition;});
+  var herbShort=false;
   wounded.forEach(function(f){
     var rec=4;
     if(S.staff.healer){
       if(S.stores.herbs>0){S.stores.herbs--;rec=4+S.staff.healer.bonus;}
-      else rec=6;
+      else {rec=6;herbShort=true;}
     }
-    f.condition=clamp(f.condition+rec,5,100);
-    if(f.condition>=60){
-      f.wounded=false;
-      news.push({t:(S.staff.healer?S.staff.healer.name+" PRONOUNCES "+f.name+" FIT TO MARCH.":f.name+" IS BACK ON HIS FEET, MORE OR LESS."),func:true});
-    }
+    f._wk=rec;
   });
-  if(wounded.length&&S.staff.healer&&S.stores.herbs===0)
-    news.push({t:S.staff.healer.name+": THE HERB STORES ARE EMPTY, MASTER. MENDING GOES SLOW.",func:true});
+  if(herbShort&&S.staff.healer)
+    news.push({t:S.staff.healer.name+": THE HERB STORES RAN DRY, MASTER. MENDING GOES SLOW.",func:true});
   S.squad.forEach(function(f){
     if(f.wounded)return;
     var marched=S.muster.indexOf(f.id)>=0;
-    f.condition=clamp(f.condition+(marched?22:32),5,100);
+    f._wk=(marched?22:32)+((tier.heal||0)*6);
     if(S.coin<0)f.morale=clamp(f.morale-8,10,100);
     else f.morale=clamp(f.morale+3,10,100);
   });
@@ -1955,30 +2198,76 @@ function endWeek(){
       news.push({t:"NEXT FIELD: "+nopp.name+". SCOUTS COUNT "+nfit+" BLADES FIT TO MARCH."+(nstar?(nstar.condition>=40?" "+nstar.name+" AMONG THEM.":" "+nstar.name+" STILL MENDS."):""),func:true});
     } else news.push({t:"NEXT FIELD: "+nopp.name+". THE SCOUTS RIDE OUT.",func:true});
   }
+  var road={day:0,total:6,items:[],today:[]};
+  news.forEach(function(n,i){
+    n.d = n.t.indexOf("NEXT FIELD")===0 ? 5 : 1+(i%5);
+    road.items.push(n);
+  });
+  S.road=road;
   renderAll();
-  renderRoad(news);
+  renderRoadDay([{t:"THE COMPANY BREAKS CAMP. SIX DAYS OF ROAD TO THE NEXT FIELD.",func:false}]);
   show("road");
 }
-function renderRoad(news){
-  document.getElementById("roadDays").textContent="THE ROAD: SIX DAYS PASS ON THE MARCH TO THE NEXT FIELD.";
-  document.getElementById("roadNews").innerHTML=news.map(function(n){
+function advanceDay(){
+  var rd=S.road; rd.day++;
+  var today=rd.items.filter(function(n){return n.d===rd.day;});
+  S.squad.forEach(function(f){
+    var wk=f._wk||0;
+    var delta=Math.round(wk*rd.day/6)-Math.round(wk*(rd.day-1)/6);
+    if(delta)f.condition=clamp(f.condition+delta,5,100);
+    if(f.wounded&&f.condition>=60){
+      f.wounded=false;
+      today.push({t:(S.staff.healer?S.staff.healer.name+" PRONOUNCES "+f.name+" FIT TO MARCH.":f.name+" IS BACK ON HIS FEET, MORE OR LESS."),func:true});
+    }
+  });
+  rd.today=today;
+  return today;
+}
+function continueRoad(){
+  var rd=S.road; if(!rd)return;
+  var today=[];
+  while(rd.day<rd.total){
+    today=advanceDay();
+    if(today.length)break;
+  }
+  renderHeader(); renderSquad();
+  renderRoadDay(today);
+}
+function renderRoadDay(today){
+  var rd=S.road;
+  document.getElementById("roadDays").textContent=
+    rd?(rd.day===0?"THE ROAD OPENS. SIX DAYS TO THE NEXT FIELD.":"ON THE ROAD: DAY "+rd.day+" OF "+rd.total+".")
+      :"THE ROAD.";
+  var items=(today&&today.length)?today:[{t:"A QUIET DAY. DUST, HOOVES, AND THE COUNTING SONG.",func:false}];
+  document.getElementById("roadNews").innerHTML=items.map(function(n){
     return '<p class="roaditem'+(n.func?' func':'')+'">'+n.t+'</p>';
   }).join("");
   var hEl=document.getElementById("roadHealer");
   var wl=S.squad.filter(function(f){return f.wounded;});
+  var avg=Math.round(S.squad.reduce(function(a,f){return a+f.condition;},0)/Math.max(1,S.squad.length));
+  var summary='<p class="roaditem dim">THE COMPANY: AVG CONDITION '+avg+'%. WOUNDED '+wl.length+'. HERBS '+S.stores.herbs+'.</p>';
   if(!wl.length){
-    hEl.innerHTML='<p class="roaditem">NO ONE UNDER THE KNIFE.'+(S.staff.healer?' THE HEALER SHARPENS IT ANYWAY.':'')+'</p>';
+    hEl.innerHTML=summary+'<p class="roaditem">NO ONE UNDER THE KNIFE.'+(S.staff.healer?' THE HEALER SHARPENS IT ANYWAY.':'')+'</p>';
   } else {
-    var rec=woundedRec();
-    hEl.innerHTML=wl.map(function(f){
-      var wk=Math.max(1,Math.ceil((60-f.condition)/rec));
-      return '<p class="roaditem">'+f.name+': CONDITION '+f.condition+'%. FIT IN ABOUT '+wk+' WEEK'+(wk>1?'S':'')+'.</p>';
-    }).join("")+'<p class="roaditem dim">HERBS IN STORE: '+S.stores.herbs+'</p>';
+    hEl.innerHTML=summary+wl.map(function(f){
+      var perDay=Math.max(1,(f._wk||4)/6);
+      var days=Math.max(1,Math.ceil((60-f.condition)/perDay));
+      return '<p class="roaditem">'+f.name+': CONDITION '+f.condition+'%. FIT IN ABOUT '+days+' DAY'+(days>1?'S':'')+'.</p>';
+    }).join("");
   }
-  document.getElementById("btnRoadOn").onclick=function(){
-    show(S.seasonOver?"campaign":"battle");
-    setFooter(S.seasonOver?"THE SEASON ENDS. THE LEDGER REMEMBERS.":"WEEK "+S.week+". THE NEXT FIELD WAITS.");
-  };
+  var btn=document.getElementById("btnRoadOn");
+  if(rd&&rd.day>=rd.total){
+    btn.textContent=S.seasonOver?"TO THE SEASON'S LEDGER":"PROCEED TO THE FIELD";
+    btn.onclick=function(){
+      S.road=null;
+      S.squad.forEach(function(f){delete f._wk;});
+      show(S.seasonOver?"campaign":"battle");
+      setFooter(S.seasonOver?"THE SEASON ENDS. THE LEDGER REMEMBERS.":"WEEK "+S.week+". THE FIELD WAITS.");
+    };
+  } else {
+    btn.textContent="THE DAYS PASS";
+    btn.onclick=continueRoad;
+  }
 }
 function simRivalWeek(){
   var head=null;
